@@ -50,17 +50,17 @@ AD1CON4bits.ADDMAEN = 0; // DMA is not used
 /************************************************************/
 //Configuration des ports
 /************************************************************/
-//ADC utilisés : 3(B1)(ext gauche) - 16(G9)(gauche) - 11(C11)(centre) - 6(C0)(droite) - 15(E15)(ext droite)
-ANSELEbits.ANSE15 = 1;
+//ADC utilisés : 15(E15)(ext gauche) - 16(G9)(gauche) - 11(C11)(centre) - 6(C0)(droite) - 3(B1)(ext droite)
+ANSELBbits.ANSB1 = 1;
 ANSELCbits.ANSC0 = 1;
 ANSELCbits.ANSC11 = 1;
-ANSELBbits.ANSB1 = 1;
+ANSELEbits.ANSE15 = 1;
 ANSELGbits.ANSG9 = 1;
 
-AD1CSSLbits.CSS15=1;
+AD1CSSLbits.CSS3=1;
 AD1CSSLbits.CSS6=1; // Enable AN6 for scan
 AD1CSSLbits.CSS11=1; // Enable AN11 for scan
-AD1CSSLbits.CSS3=1;
+AD1CSSLbits.CSS15=1;
 AD1CSSHbits.CSS16=1; // Enable AN16 for scan
 
 /* Assign MUXA inputs */

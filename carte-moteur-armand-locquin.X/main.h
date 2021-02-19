@@ -24,10 +24,9 @@
 #define PAS_D_OBSTACLE 0
 #define OBSTACLE_A_GAUCHE 1
 #define OBSTACLE_A_DROITE 2
-#define OBSTACLE_EN_FACE_A_GAUCHE 3
-#define OBSTACLE_EN_FACE_A_DROITE 4
-#define OBSTACLE_EN_FACE_ET_A_GAUCHE 5
-#define OBSTACLE_EN_FACE_ET_A_DROITE 6
+#define OBSTACLE_EN_FACE 3
+#define OBSTACLE_EN_FACE_ET_A_GAUCHE 4
+#define OBSTACLE_EN_FACE_ET_A_DROITE 5
 
 void OperatingSystemLoop(void);
 void SetNextRobotStateInAutomaticMode(void);
