@@ -33,7 +33,7 @@ namespace RobotInterface
         public MainWindow()
         {
             InitializeComponent();
-            serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
+            serialPort1 = new ReliableSerialPort("COM9", 115200, Parity.None, 8, StopBits.One);
             serialPort1.DataReceived += SerialPort1_DataReceived;
             serialPort1.Open();
 
@@ -49,7 +49,7 @@ namespace RobotInterface
         {
             int i;
             robot.receivedText += Encoding.UTF8.GetString(e.Data, 0, e.Data.Length);
-            for (i = 0; i < e.Data.Length ; i++)
+            for (i = 0; i < e.Data.Length; i++)
             {
                 robot.byteListReceived.Enqueue(e.Data[i]);
             }
@@ -74,7 +74,7 @@ namespace RobotInterface
 
         void SendMessage()
         {
-            serialPort1.WriteLine(textBoxEmission.Text) ;
+            serialPort1.WriteLine(textBoxEmission.Text);
             textBoxEmission.Text = "";
         }
 
@@ -84,7 +84,7 @@ namespace RobotInterface
                 buttonEnvoyer.Background = Brushes.Beige;
             else
                 buttonEnvoyer.Background = Brushes.RoyalBlue;*/
-            
+
             SendMessage();
             textBoxReception.Text = textBoxReception.Text + "\n";
         }
@@ -111,8 +111,25 @@ namespace RobotInterface
             //    byteList[i] = (byte)(2 * i);
             //}
             //serialPort1.Write(byteList, 0, byteList.Length);
-            byte[] chaine = Encoding.ASCII.GetBytes("Bonjour");
-            UartEncodeAndSendMessage(0x0080, chaine.Length, chaine);
+
+            //byte[] chaine = Encoding.ASCII.GetBytes("Bonjour");
+            //UartEncodeAndSendMessage(0x0080, chaine.Length, chaine);
+
+            byte[] chaine = new byte[2];
+            chaine[0] = Convert.ToByte(2);
+            chaine[1] = Convert.ToByte(1);
+            UartEncodeAndSendMessage(0x0020, chaine.Length, chaine);
+
+            //byte[] chaine = new byte[3];
+            //chaine[0] = Convert.ToByte(40);
+            //chaine[1] = Convert.ToByte(50);
+            //chaine[2] = Convert.ToByte(65);
+            //UartEncodeAndSendMessage(0x0030, chaine.Length, chaine);
+
+            //byte[] chaine = new byte[2];
+            //chaine[0] = Convert.ToByte(70);
+            //chaine[1] = Convert.ToByte(15);
+            //UartEncodeAndSendMessage(0x0040, chaine.Length, chaine);
         }
 
         byte CalculateChecksum(int msgFunction, int msgPayloadLength, byte[] msgPayload)
@@ -122,14 +139,14 @@ namespace RobotInterface
             checksum ^= (byte)(msgFunction >> 0);
             checksum ^= (byte)(msgPayloadLength >> 8);
             checksum ^= (byte)(msgPayloadLength >> 0);
-            for (int i=0; i < msgPayloadLength; i++)
+            for (int i = 0; i < msgPayloadLength; i++)
             {
                 checksum ^= msgPayload[i];
             }
             return checksum;
         }
 
-        void UartEncodeAndSendMessage(int msgFunction,int msgPayloadLength, byte[ ] msgPayload)
+        void UartEncodeAndSendMessage(int msgFunction, int msgPayloadLength, byte[] msgPayload)
         {
             byte checksum = CalculateChecksum(msgFunction, msgPayloadLength, msgPayload);
             byte[] msg = new byte[6 + msgPayloadLength];
@@ -173,7 +190,7 @@ namespace RobotInterface
                     {
                         rcvState = StateReception.FunctionMSB;
                         msgDecodedFunction = 0;
-                        
+
                     }
                     break;
 
@@ -198,7 +215,8 @@ namespace RobotInterface
                     {
                         rcvState = StateReception.Waiting;
                     }
-                    else {
+                    else
+                    {
                         rcvState = StateReception.Payload;
                         msgDecodedPayload = new byte[msgDecodedPayloadLength];
                         msgDecodedPayloadIndex = 0;
@@ -207,7 +225,8 @@ namespace RobotInterface
 
                 case StateReception.Payload:
                     msgDecodedPayload[msgDecodedPayloadIndex++] = c;
-                    if (msgDecodedPayloadIndex >= msgDecodedPayloadLength) {
+                    if (msgDecodedPayloadIndex >= msgDecodedPayloadLength)
+                    {
                         rcvState = StateReception.CheckSum;
                     }
                     break;
@@ -217,12 +236,12 @@ namespace RobotInterface
                     byte receivedChecksum = c;
                     if (calculatedChecksum == receivedChecksum)
                     {
-                        //Success, on a un message valide
                         textBoxReception.Text += "Message valide" + "\n";
+                        ProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
                     }
                     else
                     {
-                        textBoxReception.Text += " Message invalide" + "\n";
+                        textBoxReception.Text += "Message invalide" + "\n";
                     }
                     rcvState = StateReception.Waiting;
                     break;
@@ -230,6 +249,39 @@ namespace RobotInterface
                 default:
                     rcvState = StateReception.Waiting;
                     break;
+            }
+        }
+
+        void ProcessDecodedMessage(int msgFunction, int msgPayloadLength, byte[] msgPayload)
+        {
+            if (msgFunction == 0x0020)
+            {
+                if (msgPayload[1] == 1)
+                {
+                    if (msgPayload[0] == 1)
+                    {
+                        checkBoxLED1.IsChecked = Convert.ToBoolean(1) ;
+                    }
+                    else if (msgPayload[0] == 2)
+                    {
+                        checkBoxLED2.IsChecked = Convert.ToBoolean(1);
+                    }
+                    else if (msgPayload[0] == 3)
+                    {
+                        checkBoxLED1.IsChecked = Convert.ToBoolean(1);
+                    }
+                }
+            }
+            if (msgFunction == 0x0030)
+            {
+                textBoxIRG.Text += msgPayload[0] + " cm";
+                textBoxIRC.Text += msgPayload[1] + " cm";
+                textBoxIRD.Text += msgPayload[2] + " cm";
+            }
+            if (msgFunction == 0x0040)
+            {
+                textBoxVG.Text += msgPayload[0] + " %";
+                textBoxVD.Text += msgPayload[1] + " %";
             }
         }
     }
