@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/partie2-carte-moteur-armand-locquin.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=partie2-carte-moteur-armand-locquin.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=partie2-carte-moteur-armand-locquin.x/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/RobotEmbedded.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=RobotEmbedded.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=robotembedded/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/partie2-carte-moteur-armand-locquin.x/bin
+makeDirectory ${TMPDIR}/robotembedded/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/partie2-carte-moteur-armand-locquin.x.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/robotembedded.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/partie2-carte-moteur-armand-locquin.x.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/robotembedded.tar *
 checkReturnCode
 
 # Cleanup

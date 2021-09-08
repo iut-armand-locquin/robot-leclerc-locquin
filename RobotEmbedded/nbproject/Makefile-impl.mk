@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=partie2-carte-moteur-armand-locquin.X
+PROJECTNAME=RobotEmbedded
 
 # Active Configuration
 DEFAULTCONF=default
