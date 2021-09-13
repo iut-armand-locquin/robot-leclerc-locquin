@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/production/partie2-carte-moteur-armand-locquin.X.production.elf">
+  <executable name="dist/default/production/RobotEmbedded.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>49152</length>
-      <used>62</used>
-      <free>49090</free>
+      <used>462</used>
+      <free>48690</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>524514</length>
-      <used>7116</used>
-      <free>517398</free>
+      <used>8433</used>
+      <free>516081</free>
     </memory>
   </executable>
 </project>

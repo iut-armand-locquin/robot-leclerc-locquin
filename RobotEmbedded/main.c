@@ -12,6 +12,7 @@
 #include "UART.h"
 #include "CB_TX1.h"
 #include "CB_RX1.h"
+#include "UART_Protocol.h"
 
 int main(void) {
     /***************************************************************************************************/
@@ -73,6 +74,12 @@ int main(void) {
             SendMessage(&c, 1);
         }
         __delay32(10000);
+        
+        //unsigned char fonction = 0x0080;
+        unsigned char payload[] = {'B', 'o', 'n', 'j', 'o', 'u', 'r'} ;
+        int payloadLength = 7;
+        UartEncodeAndSendMessage(0x0080, payloadLength, payload);
+        __delay32(40000000);
     }
 }
 

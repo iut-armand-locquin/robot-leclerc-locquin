@@ -236,7 +236,7 @@ namespace RobotInterface
                     byte receivedChecksum = c;
                     if (calculatedChecksum == receivedChecksum)
                     {
-                        textBoxReception.Text += "Message valide" + "\n";
+                        //textBoxReception.Text += "Message valide" + "\n";
                         ProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
                     }
                     else
@@ -282,6 +282,10 @@ namespace RobotInterface
             {
                 textBoxVG.Text += msgPayload[0] + " %";
                 textBoxVD.Text += msgPayload[1] + " %";
+            }
+            if (msgFunction == 0x0080)
+            {
+                textBoxReception.Text += Encoding.UTF8.GetString(msgPayload, 0, msgPayloadLength) + '\n';
             }
         }
     }
