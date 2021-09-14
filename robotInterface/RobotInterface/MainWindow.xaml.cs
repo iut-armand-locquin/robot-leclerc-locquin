@@ -33,7 +33,7 @@ namespace RobotInterface
         public MainWindow()
         {
             InitializeComponent();
-            serialPort1 = new ReliableSerialPort("COM9", 115200, Parity.None, 8, StopBits.One);
+            serialPort1 = new ReliableSerialPort("COM11", 115200, Parity.None, 8, StopBits.One);
             serialPort1.DataReceived += SerialPort1_DataReceived;
             serialPort1.Open();
 
@@ -57,11 +57,11 @@ namespace RobotInterface
 
         public void TimerAffichage_Tick(object sender, EventArgs e)
         {
-            if (robot.receivedText != "")
-            {
-                textBoxReception.Text = textBoxReception.Text + robot.receivedText;
-                robot.receivedText = "";
-            }
+            //if (robot.receivedText != "")
+            //{
+            //    textBoxReception.Text = textBoxReception.Text + robot.receivedText;
+            //    robot.receivedText = "";
+            //}
             while (robot.byteListReceived.Count != 0)
             {
                 byte byteReceived = robot.byteListReceived.Dequeue();
@@ -252,40 +252,56 @@ namespace RobotInterface
             }
         }
 
+        public enum Function
+        {
+            Texte = 0x0080,
+            LED = 0x0020,
+            IR = 0x0030,
+            Moteurs = 0x0040,
+            Etape = 0x0050
+        }
+
         void ProcessDecodedMessage(int msgFunction, int msgPayloadLength, byte[] msgPayload)
         {
-            if (msgFunction == 0x0020)
+            switch (msgFunction)
             {
-                if (msgPayload[1] == 1)
-                {
-                    if (msgPayload[0] == 1)
+                case (int)Function.Texte:
+                    textBoxReception.Text += Encoding.UTF8.GetString(msgPayload) + '\n';
+                    break;
+
+                case (int)Function.LED:
+                    if (msgPayload[1] == 1)
                     {
-                        checkBoxLED1.IsChecked = Convert.ToBoolean(1) ;
+                        if (msgPayload[0] == 1)
+                        {
+                            checkBoxLED1.IsChecked = Convert.ToBoolean(1);
+                        }
+                        else if (msgPayload[0] == 2)
+                        {
+                            checkBoxLED2.IsChecked = Convert.ToBoolean(1);
+                        }
+                        else if (msgPayload[0] == 3)
+                        {
+                            checkBoxLED1.IsChecked = Convert.ToBoolean(1);
+                        }
                     }
-                    else if (msgPayload[0] == 2)
-                    {
-                        checkBoxLED2.IsChecked = Convert.ToBoolean(1);
-                    }
-                    else if (msgPayload[0] == 3)
-                    {
-                        checkBoxLED1.IsChecked = Convert.ToBoolean(1);
-                    }
-                }
-            }
-            if (msgFunction == 0x0030)
-            {
-                textBoxIRG.Text += msgPayload[0] + " cm";
-                textBoxIRC.Text += msgPayload[1] + " cm";
-                textBoxIRD.Text += msgPayload[2] + " cm";
-            }
-            if (msgFunction == 0x0040)
-            {
-                textBoxVG.Text += msgPayload[0] + " %";
-                textBoxVD.Text += msgPayload[1] + " %";
-            }
-            if (msgFunction == 0x0080)
-            {
-                textBoxReception.Text += Encoding.UTF8.GetString(msgPayload, 0, msgPayloadLength) + '\n';
+                    break;
+
+                case (int)Function.IR:
+                    textBoxIRG.Text = msgPayload[0] + " cm";
+                    textBoxIRC.Text = msgPayload[1] + " cm";
+                    textBoxIRD.Text = msgPayload[2] + " cm";
+                    break;
+
+                case (int)Function.Moteurs:
+                    textBoxVG.Text = msgPayload[0] + " %";
+                    textBoxVD.Text = msgPayload[1] + " %";
+                    break;
+
+                //case (int)Function.Etape:
+                //    textBoxVG.Text = msgPayload[0] + " %";
+                //    textBoxVD.Text = msgPayload[1] + " %";
+                //    break;
             }
         }
     }

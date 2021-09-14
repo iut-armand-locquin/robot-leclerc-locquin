@@ -50,6 +50,18 @@ int main(void) {
             robotState.distanceTelemetreGauche2 = 34 / volts - 5;
         }
 
+        unsigned char fonction = 0x0030;
+        int payloadLength = 3;
+        unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
+        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+        __delay32(40000000);
+        
+//        unsigned char fonction = 0x0020;
+//        int payloadLength = 2;
+//        unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
+//        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+//        __delay32(40000000);
+        
         //      if (robotState.distanceTelemetreDroit > 20) {
         //            LED_ORANGE = 1;
         //        } else {
@@ -66,20 +78,20 @@ int main(void) {
         //            LED_BLANCHE = 0;
         //        }
 
-//        SendMessage((unsigned char*) "Bonjour", 7);
-//        __delay32(4000000);
+        //        SendMessage((unsigned char*) "Bonjour", 7);
+        //        __delay32(4000000);
         int i;
         for (i = 0; i < CB_RX1_GetDataSize(); i++) {
             unsigned char c = CB_RX1_Get();
             SendMessage(&c, 1);
         }
         __delay32(10000);
-        
-        //unsigned char fonction = 0x0080;
-        unsigned char payload[] = {'B', 'o', 'n', 'j', 'o', 'u', 'r'} ;
-        int payloadLength = 7;
-        UartEncodeAndSendMessage(0x0080, payloadLength, payload);
-        __delay32(40000000);
+
+        //        unsigned char fonction = 0x0080;
+        //        int payloadLength = 7;
+        //        unsigned char payload[] = {'B', 'o', 'n', 'j', 'o', 'u', 'r'} ;
+        //        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+        //        __delay32(40000000);
     }
 }
 
@@ -336,5 +348,11 @@ void SetNextRobotStateInAutomaticMode(void) {
         LED_BLANCHE = 1;
     } else {
         LED_BLANCHE = 0;
+    }
+    
+    if (nextStateRobot == STATE_AVANCE_LENT) {
+        LED_ORANGE = 1;
+    } else {
+        LED_ORANGE = 0;
     }
 }
