@@ -229,13 +229,13 @@ void OperatingSystemLoop(void) {
             //            SetNextRobotStateInAutomaticMode();
             //            break;
 
-        case STATE_MBAPPE:
+        case STATE_TURBO:
             alea++;
             PWMSetSpeedConsigne(24, MOTEUR_DROIT);
             PWMSetSpeedConsigne(24, MOTEUR_GAUCHE);
-            stateRobot = STATE_MBAPPE_EN_COURS;
+            stateRobot = STATE_TURBO_EN_COURS;
             break;
-        case STATE_MBAPPE_EN_COURS:
+        case STATE_TURBO_EN_COURS:
             SetNextRobotStateInAutomaticMode();
             break;
 
@@ -307,7 +307,7 @@ void SetNextRobotStateInAutomaticMode(void) {
 
     //Détermination de l'état à venir du robot
     if (positionObstacle == PAS_D_OBSTACLE)
-        nextStateRobot = STATE_MBAPPE;
+        nextStateRobot = STATE_TURBO;
 
     else if (positionObstacle == OBSTACLE_A_DROITE_PROCHE)
         nextStateRobot = STATE_TOURNE_BEAUCOUP_GAUCHE;
@@ -354,36 +354,36 @@ void SetNextRobotStateInAutomaticMode(void) {
         nextStateRobot = STATE_TOURNE_PEU_DROITE;
 
     //Si l'on n'est pas dans la transition de l'étape en cours
-    if (nextStateRobot != stateRobot - 1)
+    if (nextStateRobot != stateRobot - 1) {
         stateRobot = nextStateRobot;
 
-    //    if (nextStateRobot == STATE_MBAPPE) {
-    //        LED_BLEUE = 1;
-    //    } else {
-    //        LED_BLEUE = 0;
-    //    }
-    //    
-    //    if (nextStateRobot == STATE_AVANCE) {
-    //        LED_BLANCHE = 1;
-    //    } else {
-    //        LED_BLANCHE = 0;
-    //    }
-    //    
-    //    if (nextStateRobot == STATE_AVANCE_LENT) {
-    //        LED_ORANGE = 1;
-    //    } else {
-    //        LED_ORANGE = 0;
-    //    }
+        //    if (nextStateRobot == STATE_TURBO) {
+        //        LED_BLEUE = 1;
+        //    } else {
+        //        LED_BLEUE = 0;
+        //    }
+        //    
+        //    if (nextStateRobot == STATE_AVANCE) {
+        //        LED_BLANCHE = 1;
+        //    } else {
+        //        LED_BLANCHE = 0;
+        //    }
+        //    
+        //    if (nextStateRobot == STATE_AVANCE_LENT) {
+        //        LED_ORANGE = 1;
+        //    } else {
+        //        LED_ORANGE = 0;
+        //    }
 
-//    if (nextStateRobot != stateRobot) {
-//        unsigned char fonction = 0x0050;
-//        int payloadLength = 5;
-//        unsigned char payload[5];
-//        payload[0] = nextStateRobot;
-//        payload[1] = timestamp >> 24;
-//        payload[2] = timestamp >> 16;
-//        payload[3] = timestamp >> 8;
-//        payload[4] = timestamp >> 0;
-//        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-//    }
+
+        unsigned char fonction = 0x0050;
+        int payloadLength = 5;
+        unsigned char payload[5];
+        payload[0] = nextStateRobot;
+        payload[1] = timestamp >> 24;
+        payload[2] = timestamp >> 16;
+        payload[3] = timestamp >> 8;
+        payload[4] = timestamp >> 0;
+        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+    }
 }

@@ -52,10 +52,10 @@
                 <TextBox x:Name="textBoxVD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="87,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Étape" HorizontalAlignment="Right" Margin="0,0,-225,70" Grid.Row="2" VerticalAlignment="Center" Height="80" Background="#FFDDDDDD" BorderBrush="Black">
-            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="60" Width="155">
+        <GroupBox Header="Étape" HorizontalAlignment="Right" Margin="0,0,-385,50" Grid.Row="2" VerticalAlignment="Center" Height="100" Background="#FFDDDDDD" BorderBrush="Black" Width="330">
+            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="60" Width="315">
                 <TextBlock TextWrapping="Wrap" Text="Robot State : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxEtape" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="94,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
+                <TextBox x:Name="textBoxEtape" Height="40" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="76,-20,0,0" Width="240" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
         

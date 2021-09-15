@@ -34,7 +34,7 @@ void UartEncodeAndSendMessage(int msgFunction, int msgPayloadLength, unsigned ch
     }
     msg[pos++] = checksum;
     SendMessage(msg, 6 + msgPayloadLength);
-    __delay32(4000000);
+    __delay32(400000);
 }
 
 int msgDecodedFunction = 0;
