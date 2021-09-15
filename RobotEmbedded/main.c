@@ -54,29 +54,52 @@ int main(void) {
         int payloadLength = 3;
         unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
         UartEncodeAndSendMessage(fonction, payloadLength, payload);
-        __delay32(40000000);
-        
-//        unsigned char fonction = 0x0020;
-//        int payloadLength = 2;
-//        unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
-//        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-//        __delay32(40000000);
-        
-        //      if (robotState.distanceTelemetreDroit > 20) {
-        //            LED_ORANGE = 1;
-        //        } else {
-        //            LED_ORANGE = 0;
-        //        }
-        //        if (robotState.distanceTelemetreCentre > 15) {
-        //            LED_BLEUE = 1;
-        //        } else {
-        //            LED_BLEUE = 0;
-        //        }
-        //        if (robotState.distanceTelemetreGauche > 20) {
-        //            LED_BLANCHE = 1;
-        //        } else {
-        //            LED_BLANCHE = 0;
-        //        }
+
+        fonction = 0x0020;
+        payloadLength = 2;
+
+        if (robotState.distanceTelemetreDroit > 20) {
+            LED_ORANGE = 1;
+        } else {
+            LED_ORANGE = 0;
+        }
+
+        payload[0] = 1;
+        payload[1] = LED_ORANGE;
+        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+        if (robotState.distanceTelemetreCentre > 15) {
+            LED_BLEUE = 1;
+        } else {
+            LED_BLEUE = 0;
+        }
+
+        payload[0] = 2;
+        payload[1] = LED_BLEUE;
+        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+        if (robotState.distanceTelemetreGauche > 20) {
+            LED_BLANCHE = 1;
+        } else {
+            LED_BLANCHE = 0;
+        }
+
+        payload[0] = 3;
+        payload[1] = LED_BLANCHE;
+        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+        fonction = 0x0040;
+        payloadLength = 2;
+        payload[0] = abs(robotState.vitesseGaucheConsigne);
+        payload[1] = abs(robotState.vitesseDroiteConsigne);
+        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+        //        unsigned char fonction = 0x0080;
+        //        int payloadLength = 7;
+        //        unsigned char payload[] = {'B', 'o', 'n', 'j', 'o', 'u', 'r'} ;
+        //        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+        //        __delay32(40000000);
+
 
         //        SendMessage((unsigned char*) "Bonjour", 7);
         //        __delay32(4000000);
@@ -87,11 +110,7 @@ int main(void) {
         }
         __delay32(10000);
 
-        //        unsigned char fonction = 0x0080;
-        //        int payloadLength = 7;
-        //        unsigned char payload[] = {'B', 'o', 'n', 'j', 'o', 'u', 'r'} ;
-        //        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-        //        __delay32(40000000);
+
     }
 }
 
@@ -338,21 +357,33 @@ void SetNextRobotStateInAutomaticMode(void) {
     if (nextStateRobot != stateRobot - 1)
         stateRobot = nextStateRobot;
 
-    if (nextStateRobot == STATE_MBAPPE) {
-        LED_BLEUE = 1;
-    } else {
-        LED_BLEUE = 0;
-    }
+    //    if (nextStateRobot == STATE_MBAPPE) {
+    //        LED_BLEUE = 1;
+    //    } else {
+    //        LED_BLEUE = 0;
+    //    }
+    //    
+    //    if (nextStateRobot == STATE_AVANCE) {
+    //        LED_BLANCHE = 1;
+    //    } else {
+    //        LED_BLANCHE = 0;
+    //    }
+    //    
+    //    if (nextStateRobot == STATE_AVANCE_LENT) {
+    //        LED_ORANGE = 1;
+    //    } else {
+    //        LED_ORANGE = 0;
+    //    }
 
-    if (nextStateRobot == STATE_AVANCE) {
-        LED_BLANCHE = 1;
-    } else {
-        LED_BLANCHE = 0;
-    }
-    
-    if (nextStateRobot == STATE_AVANCE_LENT) {
-        LED_ORANGE = 1;
-    } else {
-        LED_ORANGE = 0;
-    }
+//    if (nextStateRobot != stateRobot) {
+//        unsigned char fonction = 0x0050;
+//        int payloadLength = 5;
+//        unsigned char payload[5];
+//        payload[0] = nextStateRobot;
+//        payload[1] = timestamp >> 24;
+//        payload[2] = timestamp >> 16;
+//        payload[3] = timestamp >> 8;
+//        payload[4] = timestamp >> 0;
+//        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+//    }
 }

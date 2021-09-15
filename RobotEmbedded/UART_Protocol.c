@@ -1,4 +1,5 @@
 #include <xc.h>
+#include <libpic30.h>
 #include "UART_Protocol.h"
 #include "CB_TX1.h"
 #include "CB_RX1.h"
@@ -33,6 +34,7 @@ void UartEncodeAndSendMessage(int msgFunction, int msgPayloadLength, unsigned ch
     }
     msg[pos++] = checksum;
     SendMessage(msg, 6 + msgPayloadLength);
+    __delay32(4000000);
 }
 
 int msgDecodedFunction = 0;

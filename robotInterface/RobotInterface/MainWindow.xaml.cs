@@ -258,8 +258,43 @@ namespace RobotInterface
             LED = 0x0020,
             IR = 0x0030,
             Moteurs = 0x0040,
-            Etape = 0x0050
+            Etape = 0x0050,
+            StateRobot
         }
+
+        //public enum StateRobot
+        //{
+        //    STATE_ATTENTE = 0,
+        //    STATE_ATTENTE_EN_COURS = 1,
+        //    STATE_AVANCE = 2,
+        //    STATE_AVANCE_EN_COURS = 3,
+        //    STATE_TOURNE_PEU_GAUCHE = 4,
+        //    STATE_TOURNE_PEU_GAUCHE_EN_COURS = 5,
+        //    STATE_TOURNE_PEU_DROITE = 6,
+        //    STATE_TOURNE_PEU_DROITE_EN_COURS = 7,
+        //    STATE_TOURNE_GAUCHE = 8,
+        //    STATE_TOURNE_GAUCHE_EN_COURS = 9,
+        //    STATE_TOURNE_DROITE = 10,
+        //    STATE_TOURNE_DROITE_EN_COURS = 11,
+        //    STATE_TOURNE_BEAUCOUP_GAUCHE = 12,
+        //    STATE_TOURNE_BEAUCOUP_GAUCHE_EN_COURS = 13,
+        //    STATE_TOURNE_BEAUCOUP_DROITE = 14,
+        //    STATE_TOURNE_BEAUCOUP_DROITE_EN_COURS = 15,
+        //    STATE_TOURNE_SUR_PLACE_GAUCHE = 16,
+        //    STATE_TOURNE_SUR_PLACE_GAUCHE_EN_COURS = 17,
+        //    STATE_TOURNE_SUR_PLACE_DROITE = 18,
+        //    STATE_TOURNE_SUR_PLACE_DROITE_EN_COURS = 19,
+        //    STATE_ARRET = 20,
+        //    STATE_ARRET_EN_COURS = 21,
+        //    STATE_RECULE = 22,
+        //    STATE_RECULE_EN_COURS = 23,
+        //    STATE_AVANCE_LENT = 24,
+        //    STATE_AVANCE_LENT_EN_COURS = 25,
+        //    STATE_AVANCE_RAPIDE = 26,
+        //    STATE_AVANCE_RAPIDE_EN_COURS = 27,
+        //    STATE_MBAPPE = 28,
+        //    STATE_MBAPPE_EN_COURS = 29
+        //}
 
         void ProcessDecodedMessage(int msgFunction, int msgPayloadLength, byte[] msgPayload)
         {
@@ -270,20 +305,42 @@ namespace RobotInterface
                     break;
 
                 case (int)Function.LED:
-                    if (msgPayload[1] == 1)
+                    byte LED = msgPayload[0];
+                    byte etatLED = msgPayload[1];
+                    switch (LED)
                     {
-                        if (msgPayload[0] == 1)
-                        {
-                            checkBoxLED1.IsChecked = Convert.ToBoolean(1);
-                        }
-                        else if (msgPayload[0] == 2)
-                        {
-                            checkBoxLED2.IsChecked = Convert.ToBoolean(1);
-                        }
-                        else if (msgPayload[0] == 3)
-                        {
-                            checkBoxLED1.IsChecked = Convert.ToBoolean(1);
-                        }
+                        case 1:
+                            if (etatLED == 1)
+                            {
+                                checkBoxLEDOrange.IsChecked = Convert.ToBoolean(1);
+                            }
+                            else
+                            {
+                                checkBoxLEDOrange.IsChecked = Convert.ToBoolean(0);
+                            }
+                            break;
+
+                        case 2:
+                            if (etatLED == 1)
+                            {
+                                checkBoxLEDBleue.IsChecked = Convert.ToBoolean(1);
+                            }
+                            else
+                            {
+                                checkBoxLEDBleue.IsChecked = Convert.ToBoolean(0);
+                            }
+                            break;
+
+                        case 3:
+                            if (etatLED == 1)
+                            {
+                                checkBoxLEDBlanche.IsChecked = Convert.ToBoolean(1);
+                            }
+                            else
+                            {
+                                checkBoxLEDBlanche.IsChecked = Convert.ToBoolean(0);
+                            }
+                            break;
                     }
                     break;
 
@@ -299,8 +356,13 @@ namespace RobotInterface
                     break;
 
                 //case (int)Function.Etape:
-                //    textBoxVG.Text = msgPayload[0] + " %";
-                //    textBoxVD.Text = msgPayload[1] + " %";
+                //    textBoxEtape.Text = msgPayload[0] + "";
+
+                //    break;
+
+                //case (int)Function.StateRobot:
+                //    int instant = (((int)msgPayload[1]) << 24) + (((int)msgPayload[2]) << 16)+ (((int)msgPayload[3]) << 8) + ((int)msgPayload[4]);
+                //    textBoxEtape.Text = ((StateRobot)(msgPayload[0])).ToString() + " − " + instant.ToString() + " ms";
                 //    break;
             }
         }

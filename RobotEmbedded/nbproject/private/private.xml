@@ -5,9 +5,10 @@
         <group>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/ADC.h</file>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/main.h</file>
+            <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/timer.c</file>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/main.c</file>
-            <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/UART_Protocol.h</file>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/ADC.c</file>
+            <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/PWM.c</file>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/CB_TX1.c</file>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/UART_Protocol.c</file>
             <file>file:/C:/Github/robot-armand-locquin/RobotEmbedded/timer.h</file>

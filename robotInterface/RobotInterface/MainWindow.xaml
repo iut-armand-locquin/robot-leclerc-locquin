@@ -29,12 +29,12 @@
         <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FFDDDDDD" BorderBrush="Black"/>
         <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="15,0,0,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
             <StackPanel>
-                <CheckBox x:Name="checkBoxLED1" Content="LED1" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
-                <CheckBox x:Name="checkBoxLED2" Content="LED2" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
-                <CheckBox x:Name="checkBoxLED3" Content="LED3" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="checkBoxLEDOrange" Content="LED Orange" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="checkBoxLEDBleue" Content="LED Bleue" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="checkBoxLEDBlanche" Content="LED Blanche" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Télémètres IR" HorizontalAlignment="Center" Margin="0,0,30,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
+        <GroupBox Header="Télémètres IR" HorizontalAlignment="Center" Margin="0,0,-5,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
             <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="130" Width="130">
                 <TextBlock TextWrapping="Wrap" Text="IR Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
                 <TextBox x:Name="textBoxIRG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="68,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
@@ -44,14 +44,21 @@
                 <TextBox x:Name="textBoxIRD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="61,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Moteurs" HorizontalAlignment="Right" Margin="0,0,-50,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
-            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="130" Width="155">
+        <GroupBox Header="Moteurs" HorizontalAlignment="Right" Margin="0,0,-50,30" Grid.Row="2" VerticalAlignment="Center" Height="120" Background="#FFDDDDDD" BorderBrush="Black">
+            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="100" Width="155">
                 <TextBlock TextWrapping="Wrap" Text="Vitesse Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
                 <TextBox x:Name="textBoxVG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="94,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
                 <TextBlock TextWrapping="Wrap" Text="Vitesse Droite : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
                 <TextBox x:Name="textBoxVD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="87,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
+        <GroupBox Header="Étape" HorizontalAlignment="Right" Margin="0,0,-225,70" Grid.Row="2" VerticalAlignment="Center" Height="80" Background="#FFDDDDDD" BorderBrush="Black">
+            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="60" Width="155">
+                <TextBlock TextWrapping="Wrap" Text="Robot State : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
+                <TextBox x:Name="textBoxEtape" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="94,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
+            </StackPanel>
+        </GroupBox>
+        
 
 
     </Grid>
