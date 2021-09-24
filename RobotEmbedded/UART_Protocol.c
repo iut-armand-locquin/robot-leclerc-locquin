@@ -42,15 +42,84 @@ int msgDecodedPayloadLength = 0;
 unsigned char msgDecodedPayload[128];
 int msgDecodedPayloadIndex = 0;
 
+enum rcvState {
+    Waiting,
+    FunctionMSB,
+    FunctionLSB,
+    PayloadLengthMSB,
+    PayloadLengthLSB,
+    Payload,
+    CheckSum
+};
+
+unsigned char rcvState = Waiting;
+unsigned char calculatedChecksum = 0;
+
 void UartDecodeMessage(unsigned char c) {
     //Fonction prenant en entrée un octet et servant à reconstituer les trames
 
+    switch (rcvState) {
+        case Waiting:
+            if (c == 0xFE) {
+                rcvState = FunctionMSB;
+                msgDecodedFunction = 0;
+            }
+            break;
+
+        case FunctionMSB:
+            msgDecodedFunction = c << 8;
+            rcvState = FunctionLSB;
+            break;
+
+        case FunctionLSB:
+            msgDecodedFunction += c << 0;
+            rcvState = PayloadLengthMSB;
+            break;
+
+        case PayloadLengthMSB:
+            msgDecodedPayloadLength = c << 8;
+            rcvState = PayloadLengthLSB;
+            break;
+
+        case PayloadLengthLSB:
+            msgDecodedPayloadLength += c << 0;
+            if (msgDecodedPayloadLength == 0 || msgDecodedPayloadLength > 1024) {
+                rcvState = Waiting;
+            } else {
+                rcvState = Payload;
+                msgDecodedPayload[msgDecodedPayloadLength];
+                msgDecodedPayloadIndex = 0;
+            }
+            break;
+
+        case Payload:
+            msgDecodedPayload[msgDecodedPayloadIndex++] = c;
+            if (msgDecodedPayloadIndex >= msgDecodedPayloadLength) {
+                rcvState = CheckSum;
+            }
+            break;
+
+        case CheckSum:
+            calculatedChecksum = UartCalculateChecksum(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
+            unsigned char receivedChecksum = c;
+            if (calculatedChecksum == receivedChecksum) {
+                //textBoxReception.Text += "Message valide" + "\n";
+                //Dispatcher.Invoke(delegate{ProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);});
+            } else {
+                //Dispatcher.Invoke(delegate{textBoxReception.Text += "Message invalide + \n";});
+            }
+            rcvState = Waiting;
+            break;
+
+        default:
+            rcvState = Waiting;
+            break;
+    }
 }
 
 void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLength, unsigned char* payload) {
     //Fonction appelée après le décodage pour exécuter l?action
     //correspondant au message reçu
-
 }
 
 //*************************************************************************/

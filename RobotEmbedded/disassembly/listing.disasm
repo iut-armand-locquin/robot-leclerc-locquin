@@ -1,0 +1,3635 @@
+Disassembly Listing for carte-moteur-armand-locquin
+Generated From:
+C:/Github/robot-armand-locquin/RobotEmbedded/dist/default/debug/RobotEmbedded.debug.elf
+24 sept. 2021 11:07:03
+
+---  C:/Github/robot-armand-locquin/RobotEmbedded/timer.c  ----------------------------------------------
+1:                 #include <xc.h>
+2:                 #include "timer.h"
+3:                 #include "IO.h"
+4:                 #include "PWM.h"
+5:                 #include "ADC.h"
+6:                 #include "main.h"
+7:                 
+8:                 unsigned char toggle = 0;
+9:                 unsigned long timestamp;
+10:                
+11:                //Initialisation d?un timer 32 bits
+12:                
+13:                void InitTimer23(void) {
+000FA8  FA0000     LNK #0x0
+14:                    T3CONbits.TON = 0; // Stop any 16-bit Timer3 operation
+000FAA  A9E113     BCLR 0x113, #7
+15:                    T2CONbits.TON = 0; // Stop any 16/32-bit Timer3 operation
+000FAC  A9E111     BCLR 0x111, #7
+16:                    T2CONbits.T32 = 1; // Enable 32-bit Timer mode
+000FAE  A86110     BSET T2CON, #3
+17:                    T2CONbits.TCS = 0; // Select internal instruction cycle clock
+000FB0  A92110     BCLR T2CON, #1
+18:                    T2CONbits.TCKPS = 0b00; // Select 1:1 Prescaler
+000FB2  800881     MOV T2CON, W1
+000FB4  2FFCF0     MOV #0xFFCF, W0
+000FB6  608000     AND W1, W0, W0
+000FB8  880880     MOV W0, T2CON
+19:                    TMR3 = 0x00; // Clear 32-bit Timer (msw)
+000FBA  EF210A     CLR TMR3
+20:                    TMR2 = 0x00; // Clear 32-bit Timer (lsw)
+000FBC  EF2106     CLR TMR2
+21:                    PR3 = 0x0262; // Load 32-bit period value (msw)
+000FBE  202620     MOV #0x262, W0
+000FC0  880870     MOV W0, PR3
+22:                    PR2 = 0x5A00; // Load 32-bit period value (lsw)
+000FC2  25A000     MOV #0x5A00, W0
+000FC4  880860     MOV W0, PR2
+23:                    IPC2bits.T3IP = 0x01; // Set Timer3 Interrupt Priority Level
+000FC6  804221     MOV IPC2, W1
+000FC8  2FFF80     MOV #0xFFF8, W0
+000FCA  608000     AND W1, W0, W0
+000FCC  A00000     BSET W0, #0
+000FCE  884220     MOV W0, IPC2
+24:                    IFS0bits.T3IF = 0; // Clear Timer3 Interrupt Flag
+000FD0  A90801     BCLR 0x801, #0
+25:                    IEC0bits.T3IE = 1; // Enable Timer3 interrupt
+000FD2  A80821     BSET 0x821, #0
+26:                    T2CONbits.TON = 1; // Start 32-bit Timer
+000FD4  A8E111     BSET 0x111, #7
+27:                    /* Example code for Timer3 ISR */
+28:                }
+000FD6  FA8000     ULNK
+000FD8  060000     RETURN
+29:                
+30:                //Interruption du timer 32 bits sur 2-3
+31:                
+32:                void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
+0002FA  FA0000     LNK #0x0
+33:                    IFS0bits.T3IF = 0; // Clear Timer3 Interrupt Flag
+0002FC  A90801     BCLR 0x801, #0
+34:                //    if (toggle == 0) {
+35:                //        PWMSetSpeedConsigne(20, MOTEUR_DROIT);
+36:                //        PWMSetSpeedConsigne(20, MOTEUR_GAUCHE);
+37:                //        toggle = 1;
+38:                //    } else {
+39:                //        PWMSetSpeedConsigne(-20, MOTEUR_DROIT);
+40:                //        PWMSetSpeedConsigne(-20, MOTEUR_GAUCHE);
+41:                //        toggle = 0;
+42:                //    }
+43:                }
+0002FE  FA8000     ULNK
+000300  064000     RETFIE
+44:                
+45:                //Initialisation d?un timer 16 bits
+46:                
+47:                void InitTimer1(void) {
+000FDA  FA0000     LNK #0x0
+48:                    //Timer1 pour horodater les mesures (1ms)
+49:                    T1CONbits.TON = 0; // Disable Timer
+000FDC  A9E105     BCLR 0x105, #7
+50:                //    T1CONbits.TCKPS = 0b11; //Prescaler
+51:                    //11 = 1:256 prescale value
+52:                    //10 = 1:64 prescale value
+53:                    //01 = 1:8 prescale value
+54:                    //00 = 1:1 prescale value
+55:                    SetFreqTimer1(125);
+000FDE  200000     MOV #0x0, W0
+000FE0  242FA1     MOV #0x42FA, W1
+000FE2  070006     RCALL SetFreqTimer1
+56:                    T1CONbits.TCS = 0; //clock source = internal clock
+000FE4  A92104     BCLR T1CON, #1
+57:                //    PR1 = 0x0C35;
+58:                //
+59:                    IFS0bits.T1IF = 0; // Clear Timer Interrupt Flag
+000FE6  A96800     BCLR IFS0, #3
+60:                    IEC0bits.T1IE = 1; // Enable Timer interrupt
+000FE8  A86820     BSET IEC0, #3
+61:                    T1CONbits.TON = 1; // Enable Timer
+000FEA  A8E105     BSET 0x105, #7
+62:                }
+000FEC  FA8000     ULNK
+000FEE  060000     RETURN
+63:                
+64:                //Interruption du timer 1
+65:                
+66:                void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void) {
+000302  F80036     PUSH RCOUNT
+000304  BE9F80     MOV.D W0, [W15++]
+000306  BE9F82     MOV.D W2, [W15++]
+000308  BE9F84     MOV.D W4, [W15++]
+00030A  BE9F86     MOV.D W6, [W15++]
+00030C  FA0000     LNK #0x0
+67:                    IFS0bits.T1IF = 0;
+00030E  A96800     BCLR IFS0, #3
+68:                //    LED_BLEUE = !LED_BLEUE;
+69:                
+70:                    PWMUpdateSpeed();
+000310  070875     RCALL PWMUpdateSpeed
+71:                
+72:                    ADC1StartConversionSequence();
+000312  070A55     RCALL ADC1StartConversionSequence
+73:                }
+000314  FA8000     ULNK
+000316  BE034F     MOV.D [--W15], W6
+000318  BE024F     MOV.D [--W15], W4
+00031A  BE014F     MOV.D [--W15], W2
+00031C  BE004F     MOV.D [--W15], W0
+00031E  F90036     POP RCOUNT
+000320  064000     RETFIE
+74:                
+75:                void SetFreqTimer1(float freq) {
+000FF0  FA0004     LNK #0x4
+000FF2  781F88     MOV W8, [W15++]
+000FF4  BE8F00     MOV.D W0, [W14]
+76:                    T1CONbits.TCKPS = 0b00; //00 = 1:1 prescaler value
+000FF6  800821     MOV T1CON, W1
+000FF8  2FFCF0     MOV #0xFFCF, W0
+000FFA  608000     AND W1, W0, W0
+000FFC  880820     MOV W0, T1CON
+77:                    if (FCY / freq > 65535) {
+000FFE  78011E     MOV [W14], W2
+001000  90019E     MOV [W14+2], W3
+001002  296800     MOV #0x9680, W0
+001004  24C181     MOV #0x4C18, W1
+001006  07FA65     RCALL ___divsf3
+001008  B3C018     MOV.B #0x1, W8
+00100A  2FF002     MOV #0xFF00, W2
+00100C  2477F3     MOV #0x477F, W3
+00100E  07FAA5     RCALL ___gesf2, ___gtsf2
+001010  E00000     CP0 W0
+001012  3C0001     BRA GT, .L6
+001014  EB4400     CLR.B W8
+001016  E00408     CP0.B W8
+001018  320054     BRA Z, .L7
+78:                        T1CONbits.TCKPS = 0b01; //01 = 1:8 prescaler value
+00101A  800821     MOV T1CON, W1
+00101C  2FFCF0     MOV #0xFFCF, W0
+00101E  608000     AND W1, W0, W0
+001020  A04000     BSET W0, #4
+001022  880820     MOV W0, T1CON
+79:                        if (FCY / freq / 8 > 65535) {
+001024  78011E     MOV [W14], W2
+001026  90019E     MOV [W14+2], W3
+001028  296800     MOV #0x9680, W0
+00102A  24C181     MOV #0x4C18, W1
+00102C  07FA52     RCALL ___divsf3
+00102E  200002     MOV #0x0, W2
+001030  241003     MOV #0x4100, W3
+001032  07FA4F     RCALL ___divsf3
+001034  B3C018     MOV.B #0x1, W8
+001036  2FF002     MOV #0xFF00, W2
+001038  2477F3     MOV #0x477F, W3
+00103A  07FA8F     RCALL ___gesf2, ___gtsf2
+00103C  E00000     CP0 W0
+00103E  3C0001     BRA GT, .L8
+001040  EB4400     CLR.B W8
+001042  E00408     CP0.B W8
+001044  320032     BRA Z, .L9
+80:                            T1CONbits.TCKPS = 0b10; //10 = 1:64 prescaler value
+001046  800821     MOV T1CON, W1
+001048  2FFCF0     MOV #0xFFCF, W0
+00104A  608000     AND W1, W0, W0
+00104C  A05000     BSET W0, #5
+00104E  880820     MOV W0, T1CON
+81:                            if (FCY / freq / 64 > 65535) {
+001050  78011E     MOV [W14], W2
+001052  90019E     MOV [W14+2], W3
+001054  296800     MOV #0x9680, W0
+001056  24C181     MOV #0x4C18, W1
+001058  07FA3C     RCALL ___divsf3
+00105A  200002     MOV #0x0, W2
+00105C  242803     MOV #0x4280, W3
+00105E  07FA39     RCALL ___divsf3
+001060  B3C018     MOV.B #0x1, W8
+001062  2FF002     MOV #0xFF00, W2
+001064  2477F3     MOV #0x477F, W3
+001066  07FA79     RCALL ___gesf2, ___gtsf2
+001068  E00000     CP0 W0
+00106A  3C0001     BRA GT, .L10
+00106C  EB4400     CLR.B W8
+00106E  E00408     CP0.B W8
+001070  320010     BRA Z, .L11
+82:                                T1CONbits.TCKPS = 0b11; //11 = 1:256 prescaler value
+001072  800821     MOV T1CON, W1
+001074  200300     MOV #0x30, W0
+001076  700001     IOR W0, W1, W0
+001078  880820     MOV W0, T1CON
+83:                                PR1 = (int) (FCY / freq / 256);
+00107A  78011E     MOV [W14], W2
+00107C  90019E     MOV [W14+2], W3
+00107E  296800     MOV #0x9680, W0
+001080  24C181     MOV #0x4C18, W1
+001082  07FA27     RCALL ___divsf3
+001084  200002     MOV #0x0, W2
+001086  243803     MOV #0x4380, W3
+001088  07FA24     RCALL ___divsf3
+00108A  07FA69     RCALL ___fixsfsi
+00108C  780000     MOV W0, W0
+00108E  880810     MOV W0, PR1
+001090  370020     BRA .L5
+84:                            } else
+85:                                PR1 = (int) (FCY / freq / 64);
+001092  78011E     MOV [W14], W2
+001094  90019E     MOV [W14+2], W3
+001096  296800     MOV #0x9680, W0
+001098  24C181     MOV #0x4C18, W1
+00109A  07FA1B     RCALL ___divsf3
+00109C  200002     MOV #0x0, W2
+00109E  242803     MOV #0x4280, W3
+0010A0  07FA18     RCALL ___divsf3
+0010A2  07FA5D     RCALL ___fixsfsi
+0010A4  780000     MOV W0, W0
+0010A6  880810     MOV W0, PR1
+0010A8  370014     BRA .L5
+86:                        } else
+87:                            PR1 = (int) (FCY / freq / 8);
+0010AA  78011E     MOV [W14], W2
+0010AC  90019E     MOV [W14+2], W3
+0010AE  296800     MOV #0x9680, W0
+0010B0  24C181     MOV #0x4C18, W1
+0010B2  07FA0F     RCALL ___divsf3
+0010B4  200002     MOV #0x0, W2
+0010B6  241003     MOV #0x4100, W3
+0010B8  07FA0C     RCALL ___divsf3
+0010BA  07FA51     RCALL ___fixsfsi
+0010BC  780000     MOV W0, W0
+0010BE  880810     MOV W0, PR1
+0010C0  370008     BRA .L5
+88:                    } else
+89:                        PR1 = (int) (FCY / freq);
+0010C2  78011E     MOV [W14], W2
+0010C4  90019E     MOV [W14+2], W3
+0010C6  296800     MOV #0x9680, W0
+0010C8  24C181     MOV #0x4C18, W1
+0010CA  07FA03     RCALL ___divsf3
+0010CC  07FA48     RCALL ___fixsfsi
+0010CE  780000     MOV W0, W0
+0010D0  880810     MOV W0, PR1
+90:                }
+0010D2  78044F     MOV [--W15], W8
+0010D4  FA8000     ULNK
+0010D6  060000     RETURN
+91:                
+92:                void InitTimer4(void) {
+0010D8  FA0000     LNK #0x0
+93:                    //Timer4 pour horodater les mesures
+94:                    T4CONbits.TON = 0; // Disable Timer
+0010DA  A9E11F     BCLR 0x11F, #7
+95:                    SetFreqTimer4(1000);
+0010DC  200000     MOV #0x0, W0
+0010DE  2447A1     MOV #0x447A, W1
+0010E0  070006     RCALL SetFreqTimer4
+96:                    T4CONbits.TCS = 0; //clock source = internal clock
+0010E2  A9211E     BCLR T4CON, #1
+97:                    IFS1bits.T4IF = 0; // Clear Timer Interrupt Flag
+0010E4  A96803     BCLR 0x803, #3
+98:                    IEC1bits.T4IE = 1; // Enable Timer interrupt
+0010E6  A86823     BSET 0x823, #3
+99:                    T4CONbits.TON = 1; // Enable Timer
+0010E8  A8E11F     BSET 0x11F, #7
+100:               }
+0010EA  FA8000     ULNK
+0010EC  060000     RETURN
+101:               
+102:               //Interruption du timer 4
+103:               
+104:               void __attribute__((interrupt, no_auto_psv)) _T4Interrupt(void) {
+000322  F80036     PUSH RCOUNT
+000324  BE9F80     MOV.D W0, [W15++]
+000326  BE9F82     MOV.D W2, [W15++]
+000328  BE9F84     MOV.D W4, [W15++]
+00032A  BE9F86     MOV.D W6, [W15++]
+00032C  FA0000     LNK #0x0
+105:                   IFS1bits.T4IF = 0;
+00032E  A96803     BCLR 0x803, #3
+106:                   timestamp++;
+000330  8082D0     MOV timestamp, W0
+000332  8082E1     MOV 0x105C, W1
+000334  400061     ADD W0, #0x1, W0
+000336  4880E0     ADDC W1, #0x0, W1
+000338  8882D0     MOV W0, timestamp
+00033A  8882E1     MOV W1, 0x105C
+107:                   OperatingSystemLoop();
+00033C  070358     RCALL OperatingSystemLoop
+108:               }
+00033E  FA8000     ULNK
+000340  BE034F     MOV.D [--W15], W6
+000342  BE024F     MOV.D [--W15], W4
+000344  BE014F     MOV.D [--W15], W2
+000346  BE004F     MOV.D [--W15], W0
+000348  F90036     POP RCOUNT
+00034A  064000     RETFIE
+109:               
+110:               void SetFreqTimer4(float freq) {
+0010EE  FA0004     LNK #0x4
+0010F0  781F88     MOV W8, [W15++]
+0010F2  BE8F00     MOV.D W0, [W14]
+111:                   T4CONbits.TCKPS = 0b00; //00 = 1:1 prescaler value
+0010F4  8008F1     MOV T4CON, W1
+0010F6  2FFCF0     MOV #0xFFCF, W0
+0010F8  608000     AND W1, W0, W0
+0010FA  8808F0     MOV W0, T4CON
+112:                   if (FCY / freq > 65535) {
+0010FC  78011E     MOV [W14], W2
+0010FE  90019E     MOV [W14+2], W3
+001100  296800     MOV #0x9680, W0
+001102  24C181     MOV #0x4C18, W1
+001104  07F9E6     RCALL ___divsf3
+001106  B3C018     MOV.B #0x1, W8
+001108  2FF002     MOV #0xFF00, W2
+00110A  2477F3     MOV #0x477F, W3
+00110C  07FA26     RCALL ___gesf2, ___gtsf2
+00110E  E00000     CP0 W0
+001110  3C0001     BRA GT, .L16
+001112  EB4400     CLR.B W8
+001114  E00408     CP0.B W8
+001116  320054     BRA Z, .L17
+113:                       T4CONbits.TCKPS = 0b01; //01 = 1:8 prescaler value
+001118  8008F1     MOV T4CON, W1
+00111A  2FFCF0     MOV #0xFFCF, W0
+00111C  608000     AND W1, W0, W0
+00111E  A04000     BSET W0, #4
+001120  8808F0     MOV W0, T4CON
+114:                       if (FCY / freq / 8 > 65535) {
+001122  78011E     MOV [W14], W2
+001124  90019E     MOV [W14+2], W3
+001126  296800     MOV #0x9680, W0
+001128  24C181     MOV #0x4C18, W1
+00112A  07F9D3     RCALL ___divsf3
+00112C  200002     MOV #0x0, W2
+00112E  241003     MOV #0x4100, W3
+001130  07F9D0     RCALL ___divsf3
+001132  B3C018     MOV.B #0x1, W8
+001134  2FF002     MOV #0xFF00, W2
+001136  2477F3     MOV #0x477F, W3
+001138  07FA10     RCALL ___gesf2, ___gtsf2
+00113A  E00000     CP0 W0
+00113C  3C0001     BRA GT, .L18
+00113E  EB4400     CLR.B W8
+001140  E00408     CP0.B W8
+001142  320032     BRA Z, .L19
+115:                           T4CONbits.TCKPS = 0b10; //10 = 1:64 prescaler value
+001144  8008F1     MOV T4CON, W1
+001146  2FFCF0     MOV #0xFFCF, W0
+001148  608000     AND W1, W0, W0
+00114A  A05000     BSET W0, #5
+00114C  8808F0     MOV W0, T4CON
+116:                           if (FCY / freq / 64 > 65535) {
+00114E  78011E     MOV [W14], W2
+001150  90019E     MOV [W14+2], W3
+001152  296800     MOV #0x9680, W0
+001154  24C181     MOV #0x4C18, W1
+001156  07F9BD     RCALL ___divsf3
+001158  200002     MOV #0x0, W2
+00115A  242803     MOV #0x4280, W3
+00115C  07F9BA     RCALL ___divsf3
+00115E  B3C018     MOV.B #0x1, W8
+001160  2FF002     MOV #0xFF00, W2
+001162  2477F3     MOV #0x477F, W3
+001164  07F9FA     RCALL ___gesf2, ___gtsf2
+001166  E00000     CP0 W0
+001168  3C0001     BRA GT, .L20
+00116A  EB4400     CLR.B W8
+00116C  E00408     CP0.B W8
+00116E  320010     BRA Z, .L21
+117:                               T4CONbits.TCKPS = 0b11; //11 = 1:256 prescaler value
+001170  8008F1     MOV T4CON, W1
+001172  200300     MOV #0x30, W0
+001174  700001     IOR W0, W1, W0
+001176  8808F0     MOV W0, T4CON
+118:                               PR4 = (int) (FCY / freq / 256);
+001178  78011E     MOV [W14], W2
+00117A  90019E     MOV [W14+2], W3
+00117C  296800     MOV #0x9680, W0
+00117E  24C181     MOV #0x4C18, W1
+001180  07F9A8     RCALL ___divsf3
+001182  200002     MOV #0x0, W2
+001184  243803     MOV #0x4380, W3
+001186  07F9A5     RCALL ___divsf3
+001188  07F9EA     RCALL ___fixsfsi
+00118A  780000     MOV W0, W0
+00118C  8808D0     MOV W0, PR4
+00118E  370020     BRA .L15
+119:                           } else
+120:                               PR4 = (int) (FCY / freq / 64);
+001190  78011E     MOV [W14], W2
+001192  90019E     MOV [W14+2], W3
+001194  296800     MOV #0x9680, W0
+001196  24C181     MOV #0x4C18, W1
+001198  07F99C     RCALL ___divsf3
+00119A  200002     MOV #0x0, W2
+00119C  242803     MOV #0x4280, W3
+00119E  07F999     RCALL ___divsf3
+0011A0  07F9DE     RCALL ___fixsfsi
+0011A2  780000     MOV W0, W0
+0011A4  8808D0     MOV W0, PR4
+0011A6  370014     BRA .L15
+121:                       } else
+122:                           PR4 = (int) (FCY / freq / 8);
+0011A8  78011E     MOV [W14], W2
+0011AA  90019E     MOV [W14+2], W3
+0011AC  296800     MOV #0x9680, W0
+0011AE  24C181     MOV #0x4C18, W1
+0011B0  07F990     RCALL ___divsf3
+0011B2  200002     MOV #0x0, W2
+0011B4  241003     MOV #0x4100, W3
+0011B6  07F98D     RCALL ___divsf3
+0011B8  07F9D2     RCALL ___fixsfsi
+0011BA  780000     MOV W0, W0
+0011BC  8808D0     MOV W0, PR4
+0011BE  370008     BRA .L15
+123:                   } else
+124:                       PR4 = (int) (FCY / freq);
+0011C0  78011E     MOV [W14], W2
+0011C2  90019E     MOV [W14+2], W3
+0011C4  296800     MOV #0x9680, W0
+0011C6  24C181     MOV #0x4C18, W1
+0011C8  07F984     RCALL ___divsf3
+0011CA  07F9C9     RCALL ___fixsfsi
+0011CC  780000     MOV W0, W0
+0011CE  8808D0     MOV W0, PR4
+125:               }
+0011D0  78044F     MOV [--W15], W8
+0011D2  FA8000     ULNK
+0011D4  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/main.c  -----------------------------------------------
+1:                 #include <stdio.h>
+2:                 #include <stdlib.h>
+3:                 #include <xc.h>
+4:                 #include <libpic30.h>
+5:                 #include "ChipConfig.h"
+6:                 #include "IO.h"
+7:                 #include "timer.h"
+8:                 #include "PWM.h"
+9:                 #include "Robot.h"
+10:                #include "ADC.h"
+11:                #include "main.h"
+12:                #include "UART.h"
+13:                #include "CB_TX1.h"
+14:                #include "CB_RX1.h"
+15:                #include "UART_Protocol.h"
+16:                
+17:                int main(void) {
+0007A2  FA0010     LNK #0x10
+0007A4  BE9F88     MOV.D W8, [W15++]
+18:                    /***************************************************************************************************/
+19:                    //Initialisation de l'oscillateur
+20:                    /****************************************************************************************************/
+21:                    InitOscillator();
+0007A6  070895     RCALL InitOscillator
+22:                
+23:                    /****************************************************************************************************/
+24:                    // Configuration des entrées sorties
+25:                    /****************************************************************************************************/
+26:                    InitIO();
+0007A8  0708E5     RCALL InitIO
+27:                    InitTimer1();
+0007AA  070417     RCALL InitTimer1
+28:                    InitTimer23();
+0007AC  0703FD     RCALL InitTimer23
+29:                    InitTimer4();
+0007AE  070494     RCALL InitTimer4
+30:                    InitPWM();
+0007B0  070609     RCALL InitPWM
+31:                    InitADC1();
+0007B2  0707CB     RCALL InitADC1
+32:                    InitUART();
+0007B4  07085A     RCALL InitUART
+33:                
+34:                    /****************************************************************************************************/
+35:                    // Boucle Principale
+36:                    /****************************************************************************************************/
+37:                    while (1) {
+38:                        if (ADCIsConversionFinished() == 1) {
+0007B6  07080B     RCALL ADCIsConversionFinished
+0007B8  504FE1     SUB.B W0, #0x1, [W15]
+0007BA  3A0084     BRA NZ, .L2, .LBE3
+39:                            ADCClearConversionFinishedFlag();
+0007BC  07080C     RCALL ADCClearConversionFinishedFlag
+40:                            unsigned int * result = ADCGetResult();
+0007BE  070803     RCALL ADCGetResult
+0007C0  980710     MOV W0, [W14+2]
+41:                            float volts = ((float) result [0]) * 3.3 / 4096 * 3.2;
+0007C2  90001E     MOV [W14+2], W0
+0007C4  780010     MOV [W0], W0
+0007C6  EB0080     CLR W1
+0007C8  07FF09     RCALL ___floatunsisf
+0007CA  233332     MOV #0x3333, W2
+0007CC  240533     MOV #0x4053, W3
+0007CE  07FF5B     RCALL ___mulsf3
+0007D0  200002     MOV #0x0, W2
+0007D2  245803     MOV #0x4580, W3
+0007D4  07FE7E     RCALL ___divsf3
+0007D6  2CCCD2     MOV #0xCCCD, W2
+0007D8  2404C3     MOV #0x404C, W3
+0007DA  07FF55     RCALL ___mulsf3
+0007DC  980720     MOV W0, [W14+4]
+0007DE  980731     MOV W1, [W14+6]
+42:                            robotState.distanceTelemetreDroit2 = 34 / volts - 5;
+0007E0  90012E     MOV [W14+4], W2
+0007E2  9001BE     MOV [W14+6], W3
+0007E4  200000     MOV #0x0, W0
+0007E6  242081     MOV #0x4208, W1
+0007E8  07FE74     RCALL ___divsf3
+0007EA  200002     MOV #0x0, W2
+0007EC  240A03     MOV #0x40A0, W3
+0007EE  07FE13     RCALL ___subsf3
+0007F0  889010     MOV W0, 0x1202
+0007F2  889021     MOV W1, 0x1204
+43:                            volts = ((float) result [1]) * 3.3 / 4096 * 3.2;
+0007F4  90001E     MOV [W14+2], W0
+0007F6  E88000     INC2 W0, W0
+0007F8  780010     MOV [W0], W0
+0007FA  EB0080     CLR W1
+0007FC  07FEEF     RCALL ___floatunsisf
+0007FE  233332     MOV #0x3333, W2
+000800  240533     MOV #0x4053, W3
+000802  07FF41     RCALL ___mulsf3
+000804  200002     MOV #0x0, W2
+000806  245803     MOV #0x4580, W3
+000808  07FE64     RCALL ___divsf3
+00080A  2CCCD2     MOV #0xCCCD, W2
+00080C  2404C3     MOV #0x404C, W3
+00080E  07FF3B     RCALL ___mulsf3
+000810  980720     MOV W0, [W14+4]
+000812  980731     MOV W1, [W14+6]
+44:                            robotState.distanceTelemetreDroit = 34 / volts - 5;
+000814  90012E     MOV [W14+4], W2
+000816  9001BE     MOV [W14+6], W3
+000818  200000     MOV #0x0, W0
+00081A  242081     MOV #0x4208, W1
+00081C  07FE5A     RCALL ___divsf3
+00081E  200002     MOV #0x0, W2
+000820  240A03     MOV #0x40A0, W3
+000822  07FDF9     RCALL ___subsf3
+000824  889030     MOV W0, 0x1206
+000826  889041     MOV W1, 0x1208
+45:                            volts = ((float) result [2]) * 3.3 / 4096 * 3.2;
+000828  90001E     MOV [W14+2], W0
+00082A  400064     ADD W0, #0x4, W0
+00082C  780010     MOV [W0], W0
+00082E  EB0080     CLR W1
+000830  07FED5     RCALL ___floatunsisf
+000832  233332     MOV #0x3333, W2
+000834  240533     MOV #0x4053, W3
+000836  07FF27     RCALL ___mulsf3
+000838  200002     MOV #0x0, W2
+00083A  245803     MOV #0x4580, W3
+00083C  07FE4A     RCALL ___divsf3
+00083E  2CCCD2     MOV #0xCCCD, W2
+000840  2404C3     MOV #0x404C, W3
+000842  07FF21     RCALL ___mulsf3
+000844  980720     MOV W0, [W14+4]
+000846  980731     MOV W1, [W14+6]
+46:                            robotState.distanceTelemetreCentre = 34 / volts - 5;
+000848  90012E     MOV [W14+4], W2
+00084A  9001BE     MOV [W14+6], W3
+00084C  200000     MOV #0x0, W0
+00084E  242081     MOV #0x4208, W1
+000850  07FE40     RCALL ___divsf3
+000852  200002     MOV #0x0, W2
+000854  240A03     MOV #0x40A0, W3
+000856  07FDDF     RCALL ___subsf3
+000858  889050     MOV W0, 0x120A
+00085A  889061     MOV W1, 0x120C
+47:                            volts = ((float) result [4]) * 3.3 / 4096 * 3.2;
+00085C  90001E     MOV [W14+2], W0
+00085E  400068     ADD W0, #0x8, W0
+000860  780010     MOV [W0], W0
+000862  EB0080     CLR W1
+000864  07FEBB     RCALL ___floatunsisf
+000866  233332     MOV #0x3333, W2
+000868  240533     MOV #0x4053, W3
+00086A  07FF0D     RCALL ___mulsf3
+00086C  200002     MOV #0x0, W2
+00086E  245803     MOV #0x4580, W3
+000870  07FE30     RCALL ___divsf3
+000872  2CCCD2     MOV #0xCCCD, W2
+000874  2404C3     MOV #0x404C, W3
+000876  07FF07     RCALL ___mulsf3
+000878  980720     MOV W0, [W14+4]
+00087A  980731     MOV W1, [W14+6]
+48:                            robotState.distanceTelemetreGauche = 34 / volts - 5;
+00087C  90012E     MOV [W14+4], W2
+00087E  9001BE     MOV [W14+6], W3
+000880  200000     MOV #0x0, W0
+000882  242081     MOV #0x4208, W1
+000884  07FE26     RCALL ___divsf3
+000886  200002     MOV #0x0, W2
+000888  240A03     MOV #0x40A0, W3
+00088A  07FDC5     RCALL ___subsf3
+00088C  889070     MOV W0, 0x120E
+00088E  889081     MOV W1, 0x1210
+49:                            volts = ((float) result [3]) * 3.3 / 4096 * 3.2;
+000890  90001E     MOV [W14+2], W0
+000892  400066     ADD W0, #0x6, W0
+000894  780010     MOV [W0], W0
+000896  EB0080     CLR W1
+000898  07FEA1     RCALL ___floatunsisf
+00089A  233332     MOV #0x3333, W2
+00089C  240533     MOV #0x4053, W3
+00089E  07FEF3     RCALL ___mulsf3
+0008A0  200002     MOV #0x0, W2
+0008A2  245803     MOV #0x4580, W3
+0008A4  07FE16     RCALL ___divsf3
+0008A6  2CCCD2     MOV #0xCCCD, W2
+0008A8  2404C3     MOV #0x404C, W3
+0008AA  07FEED     RCALL ___mulsf3
+0008AC  980720     MOV W0, [W14+4]
+0008AE  980731     MOV W1, [W14+6]
+50:                            robotState.distanceTelemetreGauche2 = 34 / volts - 5;
+0008B0  90012E     MOV [W14+4], W2
+0008B2  9001BE     MOV [W14+6], W3
+0008B4  200000     MOV #0x0, W0
+0008B6  242081     MOV #0x4208, W1
+0008B8  07FE0C     RCALL ___divsf3
+0008BA  200002     MOV #0x0, W2
+0008BC  240A03     MOV #0x40A0, W3
+0008BE  07FDAB     RCALL ___subsf3
+0008C0  889090     MOV W0, 0x1212
+0008C2  8890A1     MOV W1, .L3
+51:                        }
+52:                
+53:                        unsigned char fonction = 0x0030;
+0008C4  B3C300     MOV.B #0x30, W0
+0008C6  984F00     MOV.B W0, [W14+8]
+54:                        int payloadLength = 3;
+0008C8  200030     MOV #0x3, W0
+0008CA  980750     MOV W0, [W14+10]
+55:                        unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
+0008CC  809070     MOV 0x120E, W0
+0008CE  809081     MOV 0x1210, W1
+0008D0  07FE67     RCALL ___fixunssfsi
+0008D2  784480     MOV.B W0, W9
+0008D4  809050     MOV 0x120A, W0
+0008D6  809061     MOV 0x120C, W1
+0008D8  07FE63     RCALL ___fixunssfsi
+0008DA  784400     MOV.B W0, W8
+0008DC  809030     MOV 0x1206, W0
+0008DE  809041     MOV 0x1208, W1
+0008E0  07FE5F     RCALL ___fixunssfsi
+0008E2  784000     MOV.B W0, W0
+0008E4  984F49     MOV.B W9, [W14+12]
+0008E6  984F58     MOV.B W8, [W14+13]
+0008E8  984F60     MOV.B W0, [W14+14]
+56:                        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+0008EA  90480E     MOV.B [W14+8], W0
+0008EC  FB8000     ZE W0, W0
+0008EE  4700EC     ADD W14, #0xC, W1
+0008F0  780101     MOV W1, W2
+0008F2  9000DE     MOV [W14+10], W1
+0008F4  07049E     RCALL UartEncodeAndSendMessage
+57:                
+58:                        fonction = 0x0020;
+0008F6  B3C200     MOV.B #0x20, W0
+0008F8  984F00     MOV.B W0, [W14+8]
+59:                        payloadLength = 2;
+0008FA  200020     MOV #0x2, W0
+0008FC  980750     MOV W0, [W14+10]
+60:                
+61:                        if (robotState.distanceTelemetreDroit > 20) {
+0008FE  809030     MOV 0x1206, W0
+000900  809041     MOV 0x1208, W1
+000902  B3C018     MOV.B #0x1, W8
+000904  200002     MOV #0x0, W2
+000906  241A03     MOV #0x41A0, W3
+000908  07FE28     RCALL ___gesf2, ___gtsf2
+00090A  E00000     CP0 W0
+00090C  3C0001     BRA GT, .L3
+00090E  EB4400     CLR.B W8
+000910  E00408     CP0.B W8
+000912  320002     BRA Z, .L4
+62:                            LED_ORANGE = 1;
+000914  A84E25     BSET 0xE25, #2
+000916  370001     BRA .L5
+63:                        } else {
+64:                            LED_ORANGE = 0;
+000918  A94E25     BCLR 0xE25, #2
+65:                        }
+66:                
+67:                        payload[0] = 1;
+00091A  B3C010     MOV.B #0x1, W0
+00091C  984F40     MOV.B W0, [W14+12]
+68:                        payload[1] = LED_ORANGE;
+00091E  807120     MOV LATC, W0
+000920  DE004A     LSR W0, #10, W0
+000922  604061     AND.B W0, #0x1, W0
+000924  984F50     MOV.B W0, [W14+13]
+69:                        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+000926  90480E     MOV.B [W14+8], W0
+000928  FB8000     ZE W0, W0
+00092A  4700EC     ADD W14, #0xC, W1
+00092C  780101     MOV W1, W2
+00092E  9000DE     MOV [W14+10], W1
+000930  070480     RCALL UartEncodeAndSendMessage
+70:                
+71:                        if (robotState.distanceTelemetreCentre > 15) {
+000932  809050     MOV 0x120A, W0
+000934  809061     MOV 0x120C, W1
+000936  B3C018     MOV.B #0x1, W8
+000938  200002     MOV #0x0, W2
+00093A  241703     MOV #0x4170, W3
+00093C  07FE0E     RCALL ___gesf2, ___gtsf2
+00093E  E00000     CP0 W0
+000940  3C0001     BRA GT, .L6
+000942  EB4400     CLR.B W8
+000944  E00408     CP0.B W8
+000946  320002     BRA Z, .L7
+72:                            LED_BLEUE = 1;
+000948  A8EE64     BSET LATG, #7
+00094A  370001     BRA .L8
+73:                        } else {
+74:                            LED_BLEUE = 0;
+00094C  A9EE64     BCLR LATG, #7
+75:                        }
+76:                
+77:                        payload[0] = 2;
+00094E  B3C020     MOV.B #0x2, W0
+000950  984F40     MOV.B W0, [W14+12]
+78:                        payload[1] = LED_BLEUE;
+000952  807320     MOV LATG, W0
+000954  DE0047     LSR W0, #7, W0
+000956  604061     AND.B W0, #0x1, W0
+000958  984F50     MOV.B W0, [W14+13]
+79:                        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+00095A  90480E     MOV.B [W14+8], W0
+00095C  FB8000     ZE W0, W0
+00095E  4700EC     ADD W14, #0xC, W1
+000960  780101     MOV W1, W2
+000962  9000DE     MOV [W14+10], W1
+000964  070466     RCALL UartEncodeAndSendMessage
+80:                
+81:                        if (robotState.distanceTelemetreGauche > 20) {
+000966  809070     MOV 0x120E, W0
+000968  809081     MOV 0x1210, W1
+00096A  B3C018     MOV.B #0x1, W8
+00096C  200002     MOV #0x0, W2
+00096E  241A03     MOV #0x41A0, W3
+000970  07FDF4     RCALL ___gesf2, ___gtsf2
+000972  E00000     CP0 W0
+000974  3C0001     BRA GT, .L9
+000976  EB4400     CLR.B W8
+000978  E00408     CP0.B W8
+00097A  320002     BRA Z, .L10
+82:                            LED_BLANCHE = 1;
+00097C  A8CE64     BSET LATG, #6
+00097E  370001     BRA .L11
+83:                        } else {
+84:                            LED_BLANCHE = 0;
+000980  A9CE64     BCLR LATG, #6
+85:                        }
+86:                
+87:                        payload[0] = 3;
+000982  B3C030     MOV.B #0x3, W0
+000984  984F40     MOV.B W0, [W14+12]
+88:                        payload[1] = LED_BLANCHE;
+000986  807320     MOV LATG, W0
+000988  DE0046     LSR W0, #6, W0
+00098A  604061     AND.B W0, #0x1, W0
+00098C  984F50     MOV.B W0, [W14+13]
+89:                        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+00098E  90480E     MOV.B [W14+8], W0
+000990  FB8000     ZE W0, W0
+000992  4700EC     ADD W14, #0xC, W1
+000994  780101     MOV W1, W2
+000996  9000DE     MOV [W14+10], W1
+000998  07044C     RCALL UartEncodeAndSendMessage
+90:                
+91:                        fonction = 0x0040;
+00099A  B3C400     MOV.B #0x40, W0
+00099C  984F00     MOV.B W0, [W14+8]
+92:                        payloadLength = 2;
+00099E  200020     MOV #0x2, W0
+0009A0  980750     MOV W0, [W14+10]
+93:                        payload[0] = abs(robotState.vitesseGaucheConsigne);
+0009A2  808F90     MOV 0x11F2, W0
+0009A4  808FA1     MOV 0x11F4, W1
+0009A6  07FDDB     RCALL ___fixsfsi
+0009A8  780000     MOV W0, W0
+0009AA  A7F000     BTSC W0, #15
+0009AC  EA0000     NEG W0, W0
+0009AE  784000     MOV.B W0, W0
+0009B0  984F40     MOV.B W0, [W14+12]
+94:                        payload[1] = abs(robotState.vitesseDroiteConsigne);
+0009B2  808FD0     MOV 0x11FA, W0
+0009B4  808FE1     MOV 0x11FC, W1
+0009B6  07FDD3     RCALL ___fixsfsi
+0009B8  780000     MOV W0, W0
+0009BA  A7F000     BTSC W0, #15
+0009BC  EA0000     NEG W0, W0
+0009BE  784000     MOV.B W0, W0
+0009C0  984F50     MOV.B W0, [W14+13]
+95:                        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+0009C2  90480E     MOV.B [W14+8], W0
+0009C4  FB8000     ZE W0, W0
+0009C6  4700EC     ADD W14, #0xC, W1
+0009C8  780101     MOV W1, W2
+0009CA  9000DE     MOV [W14+10], W1
+0009CC  070432     RCALL UartEncodeAndSendMessage
+96:                
+97:                        //        unsigned char fonction = 0x0080;
+98:                        //        int payloadLength = 7;
+99:                        //        unsigned char payload[] = {'B', 'o', 'n', 'j', 'o', 'u', 'r'} ;
+100:                       //        UartEncodeAndSendMessage(fonction, payloadLength, payload);
+101:                       //        __delay32(40000000);
+102:               
+103:               
+104:                       //        SendMessage((unsigned char*) "Bonjour", 7);
+105:                       //        __delay32(4000000);
+106:                       int i;
+107:                       for (i = 0; i < CB_RX1_GetDataSize(); i++) {
+0009CE  EB0000     CLR W0
+0009D0  780F00     MOV W0, [W14]
+0009D2  370006     BRA .L12
+0009DE  E80F1E     INC [W14], [W14]
+0009E0  07072B     RCALL CB_RX1_GetDataSize
+0009E2  500F9E     SUB W0, [W14], [W15]
+0009E4  3CFFF7     BRA GT, .L13, .LBB4
+108:                           unsigned char c = CB_RX1_Get();
+0009D4  070717     RCALL CB_RX1_Get
+0009D6  984F70     MOV.B W0, [W14+15]
+109:                           SendMessage(&c, 1);
+0009D8  47006F     ADD W14, #0xF, W0
+0009DA  200011     MOV #0x1, W1
+0009DC  070654     RCALL SendMessage
+110:                       }
+111:                       __delay32(10000);
+0009E6  227100     MOV #0x2710, W0
+0009E8  200001     MOV #0x0, W1
+0009EA  0707DF     RCALL ___delay32, .Letext0, .LFE0
+112:               
+113:               
+114:                   }
+0009EC  37FEE4     BRA .L14, .LBB2
+115:               }
+116:               
+117:               int alea = 0;
+118:               unsigned char stateRobot;
+119:               
+120:               void OperatingSystemLoop(void) {
+0009EE  FA0000     LNK #0x0
+121:                   switch (stateRobot) {
+0009F0  BFD066     MOV.B stateRobot, WREG
+0009F2  FB8000     ZE W0, W0
+0009F4  DE80CF     ASR W0, #15, W1
+0009F6  2001D2     MOV #0x1D, W2
+0009F8  200003     MOV #0x0, W3
+0009FA  500F82     SUB W0, W2, [W15]
+0009FC  588F83     SUBB W1, W3, [W15]
+0009FE  3E00BF     BRA GTU, .L16
+000A00  010600     BRA W0
+000A02  37001D     BRA .L17
+000A04  370026     BRA .L18
+000A06  37002F     BRA .L19
+000A08  370039     BRA .L20
+000A0A  37003A     BRA .L21
+000A0C  370043     BRA .L22
+000A0E  370044     BRA .L23
+000A10  37004D     BRA .L24
+000A12  37004E     BRA .L25
+000A14  370057     BRA .L26
+000A16  370058     BRA .L27
+000A18  370061     BRA .L28
+000A1A  370062     BRA .L29
+000A1C  37006B     BRA .L30
+000A1E  37006C     BRA .L31
+000A20  370075     BRA .L32
+000A22  370076     BRA .L33
+000A24  370080     BRA .L34
+000A26  370081     BRA .L35
+000A28  37008B     BRA .L36
+000A2A  3700A9     BRA .L16
+000A2C  3700A8     BRA .L16
+000A2E  3700A7     BRA .L16
+000A30  3700A6     BRA .L16
+000A32  370088     BRA .L37
+000A34  370092     BRA .L38
+000A36  3700A3     BRA .L16
+000A38  3700A2     BRA .L16
+000A3A  370091     BRA .L39
+000A3C  37009E     BRA .L40
+122:                       case STATE_ATTENTE:
+123:                           timestamp = 0;
+000A3E  EF305A     CLR timestamp
+000A40  EF305C     CLR 0x105C
+124:                           PWMSetSpeedConsigne(0, MOTEUR_DROIT);
+000A42  EB4100     CLR.B W2
+000A44  B80060     MUL.UU W0, #0x0, W0
+000A46  070585     RCALL PWMSetSpeedConsigne
+125:                           PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
+000A48  B3C012     MOV.B #0x1, W2
+000A4A  B80060     MUL.UU W0, #0x0, W0
+000A4C  070582     RCALL PWMSetSpeedConsigne
+126:                           stateRobot = STATE_ATTENTE_EN_COURS;
+000A4E  B3C010     MOV.B #0x1, W0
+000A50  B7F066     MOV.B WREG, stateRobot
+127:               
+128:                       case STATE_ATTENTE_EN_COURS:
+129:                           if (timestamp > 1000)
+000A52  8082D2     MOV timestamp, W2
+000A54  8082E3     MOV 0x105C, W3
+000A56  203E80     MOV #0x3E8, W0
+000A58  200001     MOV #0x0, W1
+000A5A  510F80     SUB W2, W0, [W15]
+000A5C  598F81     SUBB W3, W1, [W15]
+000A5E  360092     BRA LEU, .L44
+130:                               stateRobot = STATE_AVANCE;
+000A60  B3C020     MOV.B #0x2, W0
+000A62  B7F066     MOV.B WREG, stateRobot
+131:                           break;
+000A64  370090     BRA .L15
+000B84  000000     NOP
+132:               
+133:                       case STATE_AVANCE:
+134:                           PWMSetSpeedConsigne(18, MOTEUR_DROIT);
+000A66  EB4100     CLR.B W2
+000A68  200000     MOV #0x0, W0
+000A6A  241901     MOV #0x4190, W1
+000A6C  070572     RCALL PWMSetSpeedConsigne
+135:                           PWMSetSpeedConsigne(18, MOTEUR_GAUCHE);
+000A6E  B3C012     MOV.B #0x1, W2
+000A70  200000     MOV #0x0, W0
+000A72  241901     MOV #0x4190, W1
+000A74  07056E     RCALL PWMSetSpeedConsigne
+136:                           stateRobot = STATE_AVANCE_EN_COURS;
+000A76  B3C030     MOV.B #0x3, W0
+000A78  B7F066     MOV.B WREG, stateRobot
+137:                           break;
+000A7A  370085     BRA .L15
+138:                       case STATE_AVANCE_EN_COURS:
+139:                           SetNextRobotStateInAutomaticMode();
+000A7C  070086     RCALL SetNextRobotStateInAutomaticMode
+140:                           break;
+000A7E  370083     BRA .L15
+141:               
+142:                       case STATE_TOURNE_PEU_GAUCHE:
+143:                           PWMSetSpeedConsigne(16, MOTEUR_DROIT);
+000A80  EB4100     CLR.B W2
+000A82  200000     MOV #0x0, W0
+000A84  241801     MOV #0x4180, W1
+000A86  070565     RCALL PWMSetSpeedConsigne
+144:                           PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
+000A88  B3C012     MOV.B #0x1, W2
+000A8A  B80060     MUL.UU W0, #0x0, W0
+000A8C  070562     RCALL PWMSetSpeedConsigne
+145:                           stateRobot = STATE_TOURNE_PEU_GAUCHE_EN_COURS;
+000A8E  B3C050     MOV.B #0x5, W0
+000A90  B7F066     MOV.B WREG, stateRobot
+146:                           break;
+000A92  370079     BRA .L15
+147:                       case STATE_TOURNE_PEU_GAUCHE_EN_COURS:
+148:                           SetNextRobotStateInAutomaticMode();
+000A94  07007A     RCALL SetNextRobotStateInAutomaticMode
+149:                           break;
+000A96  370077     BRA .L15
+150:               
+151:                       case STATE_TOURNE_PEU_DROITE:
+152:                           PWMSetSpeedConsigne(0, MOTEUR_DROIT);
+000A98  EB4100     CLR.B W2
+000A9A  B80060     MUL.UU W0, #0x0, W0
+000A9C  07055A     RCALL PWMSetSpeedConsigne
+153:                           PWMSetSpeedConsigne(16, MOTEUR_GAUCHE);
+000A9E  B3C012     MOV.B #0x1, W2
+000AA0  200000     MOV #0x0, W0
+000AA2  241801     MOV #0x4180, W1
+000AA4  070556     RCALL PWMSetSpeedConsigne
+154:                           stateRobot = STATE_TOURNE_PEU_DROITE_EN_COURS;
+000AA6  B3C070     MOV.B #0x7, W0
+000AA8  B7F066     MOV.B WREG, stateRobot
+155:                           break;
+000AAA  37006D     BRA .L15
+156:                       case STATE_TOURNE_PEU_DROITE_EN_COURS:
+157:                           SetNextRobotStateInAutomaticMode();
+000AAC  07006E     RCALL SetNextRobotStateInAutomaticMode
+158:                           break;
+000AAE  37006B     BRA .L15
+159:               
+160:                       case STATE_TOURNE_GAUCHE:
+161:                           PWMSetSpeedConsigne(21, MOTEUR_DROIT);
+000AB0  EB4100     CLR.B W2
+000AB2  200000     MOV #0x0, W0
+000AB4  241A81     MOV #0x41A8, W1
+000AB6  07054D     RCALL PWMSetSpeedConsigne
+162:                           PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
+000AB8  B3C012     MOV.B #0x1, W2
+000ABA  B80060     MUL.UU W0, #0x0, W0
+000ABC  07054A     RCALL PWMSetSpeedConsigne
+163:                           stateRobot = STATE_TOURNE_GAUCHE_EN_COURS;
+000ABE  B3C090     MOV.B #0x9, W0
+000AC0  B7F066     MOV.B WREG, stateRobot
+164:                           break;
+000AC2  370061     BRA .L15
+165:                       case STATE_TOURNE_GAUCHE_EN_COURS:
+166:                           SetNextRobotStateInAutomaticMode();
+000AC4  070062     RCALL SetNextRobotStateInAutomaticMode
+167:                           break;
+000AC6  37005F     BRA .L15
+168:               
+169:                       case STATE_TOURNE_DROITE:
+170:                           PWMSetSpeedConsigne(0, MOTEUR_DROIT);
+000AC8  EB4100     CLR.B W2
+000ACA  B80060     MUL.UU W0, #0x0, W0
+000ACC  070542     RCALL PWMSetSpeedConsigne
+171:                           PWMSetSpeedConsigne(21, MOTEUR_GAUCHE);
+000ACE  B3C012     MOV.B #0x1, W2
+000AD0  200000     MOV #0x0, W0
+000AD2  241A81     MOV #0x41A8, W1
+000AD4  07053E     RCALL PWMSetSpeedConsigne
+172:                           stateRobot = STATE_TOURNE_DROITE_EN_COURS;
+000AD6  B3C0B0     MOV.B #0xB, W0
+000AD8  B7F066     MOV.B WREG, stateRobot
+173:                           break;
+000ADA  370055     BRA .L15
+174:                       case STATE_TOURNE_DROITE_EN_COURS:
+175:                           SetNextRobotStateInAutomaticMode();
+000ADC  070056     RCALL SetNextRobotStateInAutomaticMode
+176:                           break;
+000ADE  370053     BRA .L15
+177:               
+178:                       case STATE_TOURNE_BEAUCOUP_GAUCHE:
+179:                           PWMSetSpeedConsigne(26, MOTEUR_DROIT);
+000AE0  EB4100     CLR.B W2
+000AE2  200000     MOV #0x0, W0
+000AE4  241D01     MOV #0x41D0, W1
+000AE6  070535     RCALL PWMSetSpeedConsigne
+180:                           PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
+000AE8  B3C012     MOV.B #0x1, W2
+000AEA  B80060     MUL.UU W0, #0x0, W0
+000AEC  070532     RCALL PWMSetSpeedConsigne
+181:                           stateRobot = STATE_TOURNE_BEAUCOUP_GAUCHE_EN_COURS;
+000AEE  B3C0D0     MOV.B #0xD, W0
+000AF0  B7F066     MOV.B WREG, stateRobot
+182:                           break;
+000AF2  370049     BRA .L15
+183:                       case STATE_TOURNE_BEAUCOUP_GAUCHE_EN_COURS:
+184:                           SetNextRobotStateInAutomaticMode();
+000AF4  07004A     RCALL SetNextRobotStateInAutomaticMode
+185:                           break;
+000AF6  370047     BRA .L15
+186:               
+187:                       case STATE_TOURNE_BEAUCOUP_DROITE:
+188:                           PWMSetSpeedConsigne(0, MOTEUR_DROIT);
+000AF8  EB4100     CLR.B W2
+000AFA  B80060     MUL.UU W0, #0x0, W0
+000AFC  07052A     RCALL PWMSetSpeedConsigne
+189:                           PWMSetSpeedConsigne(26, MOTEUR_GAUCHE);
+000AFE  B3C012     MOV.B #0x1, W2
+000B00  200000     MOV #0x0, W0
+000B02  241D01     MOV #0x41D0, W1
+000B04  070526     RCALL PWMSetSpeedConsigne
+190:                           stateRobot = STATE_TOURNE_BEAUCOUP_DROITE_EN_COURS;
+000B06  B3C0F0     MOV.B #0xF, W0
+000B08  B7F066     MOV.B WREG, stateRobot
+191:                           break;
+000B0A  37003D     BRA .L15
+192:                       case STATE_TOURNE_BEAUCOUP_DROITE_EN_COURS:
+193:                           SetNextRobotStateInAutomaticMode();
+000B0C  07003E     RCALL SetNextRobotStateInAutomaticMode
+194:                           break;
+000B0E  37003B     BRA .L15
+195:               
+196:                       case STATE_TOURNE_SUR_PLACE_GAUCHE:
+197:                           PWMSetSpeedConsigne(16, MOTEUR_DROIT);
+000B10  EB4100     CLR.B W2
+000B12  200000     MOV #0x0, W0
+000B14  241801     MOV #0x4180, W1
+000B16  07051D     RCALL PWMSetSpeedConsigne
+198:                           PWMSetSpeedConsigne(-16, MOTEUR_GAUCHE);
+000B18  B3C012     MOV.B #0x1, W2
+000B1A  200000     MOV #0x0, W0
+000B1C  2C1801     MOV #0xC180, W1
+000B1E  070519     RCALL PWMSetSpeedConsigne
+199:                           stateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE_EN_COURS;
+000B20  B3C110     MOV.B #0x11, W0
+000B22  B7F066     MOV.B WREG, stateRobot
+200:                           break;
+000B24  370030     BRA .L15
+201:                       case STATE_TOURNE_SUR_PLACE_GAUCHE_EN_COURS:
+202:                           SetNextRobotStateInAutomaticMode();
+000B26  070031     RCALL SetNextRobotStateInAutomaticMode
+203:                           break;
+000B28  37002E     BRA .L15
+204:               
+205:                       case STATE_TOURNE_SUR_PLACE_DROITE:
+206:                           PWMSetSpeedConsigne(-16, MOTEUR_DROIT);
+000B2A  EB4100     CLR.B W2
+000B2C  200000     MOV #0x0, W0
+000B2E  2C1801     MOV #0xC180, W1
+000B30  070510     RCALL PWMSetSpeedConsigne
+207:                           PWMSetSpeedConsigne(16, MOTEUR_GAUCHE);
+000B32  B3C012     MOV.B #0x1, W2
+000B34  200000     MOV #0x0, W0
+000B36  241801     MOV #0x4180, W1
+000B38  07050C     RCALL PWMSetSpeedConsigne
+208:                           stateRobot = STATE_TOURNE_SUR_PLACE_DROITE_EN_COURS;
+000B3A  B3C130     MOV.B #0x13, W0
+000B3C  B7F066     MOV.B WREG, stateRobot
+209:                           break;
+000B3E  370023     BRA .L15
+210:                       case STATE_TOURNE_SUR_PLACE_DROITE_EN_COURS:
+211:                           SetNextRobotStateInAutomaticMode();
+000B40  070024     RCALL SetNextRobotStateInAutomaticMode
+212:                           break;
+000B42  370021     BRA .L15
+213:               
+214:                       case STATE_AVANCE_LENT:
+215:                           PWMSetSpeedConsigne(8, MOTEUR_DROIT);
+000B44  EB4100     CLR.B W2
+000B46  200000     MOV #0x0, W0
+000B48  241001     MOV #0x4100, W1
+000B4A  070503     RCALL PWMSetSpeedConsigne
+216:                           PWMSetSpeedConsigne(8, MOTEUR_GAUCHE);
+000B4C  B3C012     MOV.B #0x1, W2
+000B4E  200000     MOV #0x0, W0
+000B50  241001     MOV #0x4100, W1
+000B52  0704FF     RCALL PWMSetSpeedConsigne
+217:                           stateRobot = STATE_AVANCE_EN_COURS;
+000B54  B3C030     MOV.B #0x3, W0
+000B56  B7F066     MOV.B WREG, stateRobot
+218:                           break;
+000B58  370016     BRA .L15
+219:                       case STATE_AVANCE_LENT_EN_COURS:
+220:                           SetNextRobotStateInAutomaticMode();
+000B5A  070017     RCALL SetNextRobotStateInAutomaticMode
+221:                           break;
+000B5C  370014     BRA .L15
+222:               
+223:                           //        case STATE_AVANCE_RAPIDE:
+224:                           //            PWMSetSpeedConsigne(22, MOTEUR_DROIT);
+225:                           //            PWMSetSpeedConsigne(22, MOTEUR_GAUCHE);
+226:                           //            stateRobot = STATE_AVANCE_EN_COURS;
+227:                           //            break;
+228:                           //        case STATE_AVANCE_RAPIDE_EN_COURS:
+229:                           //            SetNextRobotStateInAutomaticMode();
+230:                           //            break;
+231:               
+232:                       case STATE_TURBO:
+233:                           alea++;
+000B5E  808320     MOV alea, W0
+000B60  E80000     INC W0, W0
+000B62  888320     MOV W0, alea
+234:                           PWMSetSpeedConsigne(24, MOTEUR_DROIT);
+000B64  EB4100     CLR.B W2
+000B66  200000     MOV #0x0, W0
+000B68  241C01     MOV #0x41C0, W1
+000B6A  0704F3     RCALL PWMSetSpeedConsigne
+235:                           PWMSetSpeedConsigne(24, MOTEUR_GAUCHE);
+000B6C  B3C012     MOV.B #0x1, W2
+000B6E  200000     MOV #0x0, W0
+000B70  241C01     MOV #0x41C0, W1
+000B72  0704EF     RCALL PWMSetSpeedConsigne
+236:                           stateRobot = STATE_TURBO_EN_COURS;
+000B74  B3C1D0     MOV.B #0x1D, W0
+000B76  B7F066     MOV.B WREG, stateRobot
+237:                           break;
+000B78  370006     BRA .L15
+238:                       case STATE_TURBO_EN_COURS:
+239:                           SetNextRobotStateInAutomaticMode();
+000B7A  070007     RCALL SetNextRobotStateInAutomaticMode
+240:                           break;
+000B7C  370004     BRA .L15
+241:               
+242:                       default:
+243:                           stateRobot = STATE_ATTENTE;
+000B7E  EF7066     CLR.B stateRobot
+244:                           break;
+000B80  000000     NOP
+000B82  370001     BRA .L15
+245:                   }
+246:               }
+000B86  FA8000     ULNK
+000B88  060000     RETURN
+247:               
+248:               unsigned char nextStateRobot = 0;
+249:               
+250:               void SetNextRobotStateInAutomaticMode(void) {
+000B8A  FA000A     LNK #0xA
+000B8C  781F88     MOV W8, [W15++]
+251:                   unsigned char positionObstacle = PAS_D_OBSTACLE;
+000B8E  EB4000     CLR.B W0
+000B90  784F00     MOV.B W0, [W14]
+252:               
+253:                   //Détermination de la position des obstacles en fonction des télémètres
+254:               
+255:                   if (robotState.distanceTelemetreDroit < 18 &&
+000B92  809030     MOV 0x1206, W0
+000B94  809041     MOV 0x1208, W1
+000B96  B3C018     MOV.B #0x1, W8
+000B98  200002     MOV #0x0, W2
+000B9A  241903     MOV #0x4190, W3
+000B9C  07FCDC     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000B9E  E00000     CP0 W0
+000BA0  350001     BRA LT, .L46
+000BA2  EB4400     CLR.B W8
+000BA4  E00408     CP0.B W8
+000BA6  320019     BRA Z, .L47
+000BBA  E00408     CP0.B W8
+000BBC  32000E     BRA Z, .L47
+256:                           robotState.distanceTelemetreCentre > 23 &&
+000BA8  809050     MOV 0x120A, W0
+000BAA  809061     MOV 0x120C, W1
+000BAC  B3C018     MOV.B #0x1, W8
+000BAE  200002     MOV #0x0, W2
+000BB0  241B83     MOV #0x41B8, W3
+000BB2  07FCD3     RCALL ___gesf2, ___gtsf2
+000BB4  E00000     CP0 W0
+000BB6  3C0001     BRA GT, .L48
+000BB8  EB4400     CLR.B W8
+000BD0  E00408     CP0.B W8
+000BD2  320003     BRA Z, .L47
+257:                           robotState.distanceTelemetreGauche > 18)
+000BBE  809070     MOV 0x120E, W0
+000BC0  809081     MOV 0x1210, W1
+000BC2  B3C018     MOV.B #0x1, W8
+000BC4  200002     MOV #0x0, W2
+000BC6  241903     MOV #0x4190, W3
+000BC8  07FCC8     RCALL ___gesf2, ___gtsf2
+000BCA  E00000     CP0 W0
+000BCC  3C0001     BRA GT, .L49
+000BCE  EB4400     CLR.B W8
+258:                       positionObstacle = OBSTACLE_A_DROITE_PROCHE;
+000BD4  B3C040     MOV.B #0x4, W0
+000BD6  784F00     MOV.B W0, [W14]
+000BD8  370165     BRA .L50
+259:                   else if (robotState.distanceTelemetreDroit > 18 &&
+000BDA  809030     MOV 0x1206, W0
+000BDC  809041     MOV 0x1208, W1
+000BDE  B3C018     MOV.B #0x1, W8
+000BE0  200002     MOV #0x0, W2
+000BE2  241903     MOV #0x4190, W3
+000BE4  07FCBA     RCALL ___gesf2, ___gtsf2
+000BE6  E00000     CP0 W0
+000BE8  3C0001     BRA GT, .L51
+000BEA  EB4400     CLR.B W8
+000BEC  E00408     CP0.B W8
+000BEE  320019     BRA Z, .L52
+000C02  E00408     CP0.B W8
+000C04  32000E     BRA Z, .L52
+260:                           robotState.distanceTelemetreCentre > 23 &&
+000BF0  809050     MOV 0x120A, W0
+000BF2  809061     MOV 0x120C, W1
+000BF4  B3C018     MOV.B #0x1, W8
+000BF6  200002     MOV #0x0, W2
+000BF8  241B83     MOV #0x41B8, W3
+000BFA  07FCAF     RCALL ___gesf2, ___gtsf2
+000BFC  E00000     CP0 W0
+000BFE  3C0001     BRA GT, .L53
+000C00  EB4400     CLR.B W8
+000C18  E00408     CP0.B W8
+000C1A  320003     BRA Z, .L52
+261:                           robotState.distanceTelemetreGauche < 18)
+000C06  809070     MOV 0x120E, W0
+000C08  809081     MOV 0x1210, W1
+000C0A  B3C018     MOV.B #0x1, W8
+000C0C  200002     MOV #0x0, W2
+000C0E  241903     MOV #0x4190, W3
+000C10  07FCA2     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000C12  E00000     CP0 W0
+000C14  350001     BRA LT, .L54
+000C16  EB4400     CLR.B W8
+262:                       positionObstacle = OBSTACLE_A_GAUCHE_PROCHE;
+000C1C  B3C030     MOV.B #0x3, W0
+000C1E  784F00     MOV.B W0, [W14]
+000C20  370141     BRA .L50
+263:                   else if (robotState.distanceTelemetreCentre < 22) //Obstacle en face
+000C22  809050     MOV 0x120A, W0
+000C24  809061     MOV 0x120C, W1
+000C26  B3C018     MOV.B #0x1, W8
+000C28  200002     MOV #0x0, W2
+000C2A  241B03     MOV #0x41B0, W3
+000C2C  07FC94     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000C2E  E00000     CP0 W0
+000C30  350001     BRA LT, .L55
+000C32  EB4400     CLR.B W8
+000C34  E00408     CP0.B W8
+000C36  320003     BRA Z, .L56
+264:                       positionObstacle = OBSTACLE_EN_FACE_PROCHE;
+000C38  B3C0A0     MOV.B #0xA, W0
+000C3A  784F00     MOV.B W0, [W14]
+000C3C  370133     BRA .L50
+265:                   else if (robotState.distanceTelemetreDroit < 22 &&
+000C3E  809030     MOV 0x1206, W0
+000C40  809041     MOV 0x1208, W1
+000C42  B3C018     MOV.B #0x1, W8
+000C44  200002     MOV #0x0, W2
+000C46  241B03     MOV #0x41B0, W3
+000C48  07FC86     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000C4A  E00000     CP0 W0
+000C4C  350001     BRA LT, .L57
+000C4E  EB4400     CLR.B W8
+000C50  E00408     CP0.B W8
+000C52  320019     BRA Z, .L58
+000C66  E00408     CP0.B W8
+000C68  32000E     BRA Z, .L58
+266:                           robotState.distanceTelemetreCentre > 27 &&
+000C54  809050     MOV 0x120A, W0
+000C56  809061     MOV 0x120C, W1
+000C58  B3C018     MOV.B #0x1, W8
+000C5A  200002     MOV #0x0, W2
+000C5C  241D83     MOV #0x41D8, W3
+000C5E  07FC7D     RCALL ___gesf2, ___gtsf2
+000C60  E00000     CP0 W0
+000C62  3C0001     BRA GT, .L59
+000C64  EB4400     CLR.B W8
+000C7C  E00408     CP0.B W8
+000C7E  320003     BRA Z, .L58
+267:                           robotState.distanceTelemetreGauche > 22) //Obstacle à droite
+000C6A  809070     MOV 0x120E, W0
+000C6C  809081     MOV 0x1210, W1
+000C6E  B3C018     MOV.B #0x1, W8
+000C70  200002     MOV #0x0, W2
+000C72  241B03     MOV #0x41B0, W3
+000C74  07FC72     RCALL ___gesf2, ___gtsf2
+000C76  E00000     CP0 W0
+000C78  3C0001     BRA GT, .L60
+000C7A  EB4400     CLR.B W8
+268:                       positionObstacle = OBSTACLE_A_DROITE;
+000C80  B3C020     MOV.B #0x2, W0
+000C82  784F00     MOV.B W0, [W14]
+000C84  37010F     BRA .L50
+269:                   else if (robotState.distanceTelemetreDroit > 22 &&
+000C86  809030     MOV 0x1206, W0
+000C88  809041     MOV 0x1208, W1
+000C8A  B3C018     MOV.B #0x1, W8
+000C8C  200002     MOV #0x0, W2
+000C8E  241B03     MOV #0x41B0, W3
+000C90  07FC64     RCALL ___gesf2, ___gtsf2
+000C92  E00000     CP0 W0
+000C94  3C0001     BRA GT, .L61
+000C96  EB4400     CLR.B W8
+000C98  E00408     CP0.B W8
+000C9A  320019     BRA Z, .L62
+000CAE  E00408     CP0.B W8
+000CB0  32000E     BRA Z, .L62
+270:                           robotState.distanceTelemetreCentre > 27 &&
+000C9C  809050     MOV 0x120A, W0
+000C9E  809061     MOV 0x120C, W1
+000CA0  B3C018     MOV.B #0x1, W8
+000CA2  200002     MOV #0x0, W2
+000CA4  241D83     MOV #0x41D8, W3
+000CA6  07FC59     RCALL ___gesf2, ___gtsf2
+000CA8  E00000     CP0 W0
+000CAA  3C0001     BRA GT, .L63
+000CAC  EB4400     CLR.B W8
+000CC4  E00408     CP0.B W8
+000CC6  320003     BRA Z, .L62
+271:                           robotState.distanceTelemetreGauche < 22) //Obstacle à gauche
+000CB2  809070     MOV 0x120E, W0
+000CB4  809081     MOV 0x1210, W1
+000CB6  B3C018     MOV.B #0x1, W8
+000CB8  200002     MOV #0x0, W2
+000CBA  241B03     MOV #0x41B0, W3
+000CBC  07FC4C     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000CBE  E00000     CP0 W0
+000CC0  350001     BRA LT, .L64
+000CC2  EB4400     CLR.B W8
+272:                       positionObstacle = OBSTACLE_A_GAUCHE;
+000CC8  B3C010     MOV.B #0x1, W0
+000CCA  784F00     MOV.B W0, [W14]
+000CCC  3700EB     BRA .L50
+273:                   else if (robotState.distanceTelemetreDroit2 < 26 &&
+000CCE  809010     MOV 0x1202, W0
+000CD0  809021     MOV 0x1204, W1
+000CD2  B3C018     MOV.B #0x1, W8
+000CD4  200002     MOV #0x0, W2
+000CD6  241D03     MOV #0x41D0, W3
+000CD8  07FC3E     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000CDA  E00000     CP0 W0
+000CDC  350001     BRA LT, .L65
+000CDE  EB4400     CLR.B W8
+000CE0  E00408     CP0.B W8
+000CE2  32000E     BRA Z, .L66
+000CF6  E00408     CP0.B W8
+000CF8  320003     BRA Z, .L66
+274:                           robotState.distanceTelemetreGauche2 > 26)
+000CE4  809090     MOV 0x1212, W0
+000CE6  8090A1     MOV .L3, W1
+000CE8  B3C018     MOV.B #0x1, W8
+000CEA  200002     MOV #0x0, W2
+000CEC  241D03     MOV #0x41D0, W3
+000CEE  07FC35     RCALL ___gesf2, ___gtsf2
+000CF0  E00000     CP0 W0
+000CF2  3C0001     BRA GT, .L67
+000CF4  EB4400     CLR.B W8
+275:                       positionObstacle = OBSTACLE_A_DROITE2;
+000CFA  B3C0D0     MOV.B #0xD, W0
+000CFC  784F00     MOV.B W0, [W14]
+000CFE  3700D2     BRA .L50
+276:                   else if (robotState.distanceTelemetreDroit2 > 26 &&
+000D00  809010     MOV 0x1202, W0
+000D02  809021     MOV 0x1204, W1
+000D04  B3C018     MOV.B #0x1, W8
+000D06  200002     MOV #0x0, W2
+000D08  241D03     MOV #0x41D0, W3
+000D0A  07FC27     RCALL ___gesf2, ___gtsf2
+000D0C  E00000     CP0 W0
+000D0E  3C0001     BRA GT, .L68
+000D10  EB4400     CLR.B W8
+000D12  E00408     CP0.B W8
+000D14  32000E     BRA Z, .L69
+000D28  E00408     CP0.B W8
+000D2A  320003     BRA Z, .L69
+277:                           robotState.distanceTelemetreGauche2 < 26)
+000D16  809090     MOV 0x1212, W0
+000D18  8090A1     MOV .L3, W1
+000D1A  B3C018     MOV.B #0x1, W8
+000D1C  200002     MOV #0x0, W2
+000D1E  241D03     MOV #0x41D0, W3
+000D20  07FC1A     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000D22  E00000     CP0 W0
+000D24  350001     BRA LT, .L70
+000D26  EB4400     CLR.B W8
+278:                       positionObstacle = OBSTACLE_A_GAUCHE2;
+000D2C  B3C0C0     MOV.B #0xC, W0
+000D2E  784F00     MOV.B W0, [W14]
+000D30  3700B9     BRA .L50
+279:                   else if (robotState.distanceTelemetreDroit < 27 &&
+000D32  809030     MOV 0x1206, W0
+000D34  809041     MOV 0x1208, W1
+000D36  B3C018     MOV.B #0x1, W8
+000D38  200002     MOV #0x0, W2
+000D3A  241D83     MOV #0x41D8, W3
+000D3C  07FC0C     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000D3E  E00000     CP0 W0
+000D40  350001     BRA LT, .L71
+000D42  EB4400     CLR.B W8
+000D44  E00408     CP0.B W8
+000D46  320019     BRA Z, .L72
+000D5A  E00408     CP0.B W8
+000D5C  32000E     BRA Z, .L72
+280:                           robotState.distanceTelemetreCentre > 37 &&
+000D48  809050     MOV 0x120A, W0
+000D4A  809061     MOV 0x120C, W1
+000D4C  B3C018     MOV.B #0x1, W8
+000D4E  200002     MOV #0x0, W2
+000D50  242143     MOV #0x4214, W3
+000D52  07FC03     RCALL ___gesf2, ___gtsf2
+000D54  E00000     CP0 W0
+000D56  3C0001     BRA GT, .L73
+000D58  EB4400     CLR.B W8
+000D70  E00408     CP0.B W8
+000D72  320003     BRA Z, .L72
+281:                           robotState.distanceTelemetreGauche > 27)
+000D5E  809070     MOV 0x120E, W0
+000D60  809081     MOV 0x1210, W1
+000D62  B3C018     MOV.B #0x1, W8
+000D64  200002     MOV #0x0, W2
+000D66  241D83     MOV #0x41D8, W3
+000D68  07FBF8     RCALL ___gesf2, ___gtsf2
+000D6A  E00000     CP0 W0
+000D6C  3C0001     BRA GT, .L74
+000D6E  EB4400     CLR.B W8
+282:                       positionObstacle = OBSTACLE_A_DROITE_LOIN;
+000D74  B3C060     MOV.B #0x6, W0
+000D76  784F00     MOV.B W0, [W14]
+000D78  370095     BRA .L50
+283:                   else if (robotState.distanceTelemetreDroit > 27 &&
+000D7A  809030     MOV 0x1206, W0
+000D7C  809041     MOV 0x1208, W1
+000D7E  B3C018     MOV.B #0x1, W8
+000D80  200002     MOV #0x0, W2
+000D82  241D83     MOV #0x41D8, W3
+000D84  07FBEA     RCALL ___gesf2, ___gtsf2
+000D86  E00000     CP0 W0
+000D88  3C0001     BRA GT, .L75
+000D8A  EB4400     CLR.B W8
+000D8C  E00408     CP0.B W8
+000D8E  320019     BRA Z, .L76
+000DA2  E00408     CP0.B W8
+000DA4  32000E     BRA Z, .L76
+284:                           robotState.distanceTelemetreCentre > 37 &&
+000D90  809050     MOV 0x120A, W0
+000D92  809061     MOV 0x120C, W1
+000D94  B3C018     MOV.B #0x1, W8
+000D96  200002     MOV #0x0, W2
+000D98  242143     MOV #0x4214, W3
+000D9A  07FBDF     RCALL ___gesf2, ___gtsf2
+000D9C  E00000     CP0 W0
+000D9E  3C0001     BRA GT, .L77
+000DA0  EB4400     CLR.B W8
+000DB8  E00408     CP0.B W8
+000DBA  320003     BRA Z, .L76
+285:                           robotState.distanceTelemetreGauche < 27)
+000DA6  809070     MOV 0x120E, W0
+000DA8  809081     MOV 0x1210, W1
+000DAA  B3C018     MOV.B #0x1, W8
+000DAC  200002     MOV #0x0, W2
+000DAE  241D83     MOV #0x41D8, W3
+000DB0  07FBD2     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000DB2  E00000     CP0 W0
+000DB4  350001     BRA LT, .L78
+000DB6  EB4400     CLR.B W8
+286:                       positionObstacle = OBSTACLE_A_GAUCHE_LOIN;
+000DBC  B3C050     MOV.B #0x5, W0
+000DBE  784F00     MOV.B W0, [W14]
+000DC0  370071     BRA .L50
+287:                       //        else if (robotState.distanceTelemetreDroit2 < robotState.distanceTelemetreGauche2 &&
+288:                       //                robotState.distanceTelemetreDroit2 < 20)
+289:                       //                positionObstacle = OBSTACLE_A_DROITE2;
+290:                       //        else if (robotState.distanceTelemetreGauche2 < robotState.distanceTelemetreDroit2 &&
+291:                       //                robotState.distanceTelemetreGauche2 < 20)
+292:                       //                positionObstacle = OBSTACLE_A_GAUCHE2;
+293:                   else if (robotState.distanceTelemetreCentre < 33)
+000DC2  809050     MOV 0x120A, W0
+000DC4  809061     MOV 0x120C, W1
+000DC6  B3C018     MOV.B #0x1, W8
+000DC8  200002     MOV #0x0, W2
+000DCA  242043     MOV #0x4204, W3
+000DCC  07FBC4     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000DCE  E00000     CP0 W0
+000DD0  350001     BRA LT, .L79
+000DD2  EB4400     CLR.B W8
+000DD4  E00408     CP0.B W8
+000DD6  320003     BRA Z, .L80
+294:                       positionObstacle = OBSTACLE_EN_FACE;
+000DD8  B3C070     MOV.B #0x7, W0
+000DDA  784F00     MOV.B W0, [W14]
+000DDC  370063     BRA .L50
+295:                   else if (robotState.distanceTelemetreDroit2 < 15 &&
+000DDE  809010     MOV 0x1202, W0
+000DE0  809021     MOV 0x1204, W1
+000DE2  B3C018     MOV.B #0x1, W8
+000DE4  200002     MOV #0x0, W2
+000DE6  241703     MOV #0x4170, W3
+000DE8  07FBB6     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000DEA  E00000     CP0 W0
+000DEC  350001     BRA LT, .L81
+000DEE  EB4400     CLR.B W8
+000DF0  E00408     CP0.B W8
+000DF2  32000E     BRA Z, .L82
+000E06  E00408     CP0.B W8
+000E08  320003     BRA Z, .L82
+296:                           robotState.distanceTelemetreGauche2 > 30)
+000DF4  809090     MOV 0x1212, W0
+000DF6  8090A1     MOV .L3, W1
+000DF8  B3C018     MOV.B #0x1, W8
+000DFA  200002     MOV #0x0, W2
+000DFC  241F03     MOV #0x41F0, W3
+000DFE  07FBAD     RCALL ___gesf2, ___gtsf2
+000E00  E00000     CP0 W0
+000E02  3C0001     BRA GT, .L83
+000E04  EB4400     CLR.B W8
+297:                       positionObstacle = OBSTACLE_A_DROITE2_PROCHE;
+000E0A  B3C0F0     MOV.B #0xF, W0
+000E0C  784F00     MOV.B W0, [W14]
+000E0E  37004A     BRA .L50
+298:                   else if (robotState.distanceTelemetreDroit2 > 30 &&
+000E10  809010     MOV 0x1202, W0
+000E12  809021     MOV 0x1204, W1
+000E14  B3C018     MOV.B #0x1, W8
+000E16  200002     MOV #0x0, W2
+000E18  241F03     MOV #0x41F0, W3
+000E1A  07FB9F     RCALL ___gesf2, ___gtsf2
+000E1C  E00000     CP0 W0
+000E1E  3C0001     BRA GT, .L84
+000E20  EB4400     CLR.B W8
+000E22  E00408     CP0.B W8
+000E24  32000E     BRA Z, .L85
+000E38  E00408     CP0.B W8
+000E3A  320003     BRA Z, .L85
+299:                           robotState.distanceTelemetreGauche2 < 15)
+000E26  809090     MOV 0x1212, W0
+000E28  8090A1     MOV .L3, W1
+000E2A  B3C018     MOV.B #0x1, W8
+000E2C  200002     MOV #0x0, W2
+000E2E  241703     MOV #0x4170, W3
+000E30  07FB92     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000E32  E00000     CP0 W0
+000E34  350001     BRA LT, .L86
+000E36  EB4400     CLR.B W8
+300:                       positionObstacle = OBSTACLE_A_GAUCHE2_PROCHE;
+000E3C  B3C0E0     MOV.B #0xE, W0
+000E3E  784F00     MOV.B W0, [W14]
+000E40  370031     BRA .L50
+301:                   else if (robotState.distanceTelemetreCentre < 44)
+000E42  809050     MOV 0x120A, W0
+000E44  809061     MOV 0x120C, W1
+000E46  B3C018     MOV.B #0x1, W8
+000E48  200002     MOV #0x0, W2
+000E4A  242303     MOV #0x4230, W3
+000E4C  07FB84     RCALL ___ltsf2, ___eqsf2, ___lesf2
+000E4E  E00000     CP0 W0
+000E50  350001     BRA LT, .L87
+000E52  EB4400     CLR.B W8
+000E54  E00408     CP0.B W8
+000E56  320003     BRA Z, .L88
+302:                       positionObstacle = OBSTACLE_EN_FACE_LOIN;
+000E58  B3C0B0     MOV.B #0xB, W0
+000E5A  784F00     MOV.B W0, [W14]
+000E5C  370023     BRA .L50
+303:                   else if (robotState.distanceTelemetreDroit > 40 &&
+000E5E  809030     MOV 0x1206, W0
+000E60  809041     MOV 0x1208, W1
+000E62  B3C018     MOV.B #0x1, W8
+000E64  200002     MOV #0x0, W2
+000E66  242203     MOV #0x4220, W3
+000E68  07FB78     RCALL ___gesf2, ___gtsf2
+000E6A  E00000     CP0 W0
+000E6C  3C0001     BRA GT, .L89
+000E6E  EB4400     CLR.B W8
+000E70  E00408     CP0.B W8
+000E72  320018     BRA Z, .L50
+000E86  E00408     CP0.B W8
+000E88  32000D     BRA Z, .L50
+304:                           robotState.distanceTelemetreCentre > 60 &&
+000E74  809050     MOV 0x120A, W0
+000E76  809061     MOV 0x120C, W1
+000E78  B3C018     MOV.B #0x1, W8
+000E7A  200002     MOV #0x0, W2
+000E7C  242703     MOV #0x4270, W3
+000E7E  07FB6D     RCALL ___gesf2, ___gtsf2
+000E80  E00000     CP0 W0
+000E82  3C0001     BRA GT, .L90
+000E84  EB4400     CLR.B W8
+000E9C  E00408     CP0.B W8
+000E9E  320002     BRA Z, .L50
+305:                           robotState.distanceTelemetreGauche > 40) //pas d'obstacle
+000E8A  809070     MOV 0x120E, W0
+000E8C  809081     MOV 0x1210, W1
+000E8E  B3C018     MOV.B #0x1, W8
+000E90  200002     MOV #0x0, W2
+000E92  242203     MOV #0x4220, W3
+000E94  07FB62     RCALL ___gesf2, ___gtsf2
+000E96  E00000     CP0 W0
+000E98  3C0001     BRA GT, .L91
+000E9A  EB4400     CLR.B W8
+306:                       positionObstacle = PAS_D_OBSTACLE;
+000EA0  EB4000     CLR.B W0
+000EA2  784F00     MOV.B W0, [W14]
+307:               
+308:                   //Détermination de l'état à venir du robot
+309:                   if (positionObstacle == PAS_D_OBSTACLE)
+000EA4  78401E     MOV.B [W14], W0
+000EA6  E00400     CP0.B W0
+000EA8  3A0003     BRA NZ, .L92
+310:                       nextStateRobot = STATE_TURBO;
+000EAA  B3C1C0     MOV.B #0x1C, W0
+000EAC  B7F067     MOV.B WREG, nextStateRobot
+000EAE  37004E     BRA .L93
+311:               
+312:                   else if (positionObstacle == OBSTACLE_A_DROITE_PROCHE)
+000EB0  78401E     MOV.B [W14], W0
+000EB2  504FE4     SUB.B W0, #0x4, [W15]
+000EB4  3A0003     BRA NZ, .L94
+313:                       nextStateRobot = STATE_TOURNE_BEAUCOUP_GAUCHE;
+000EB6  B3C0C0     MOV.B #0xC, W0
+000EB8  B7F067     MOV.B WREG, nextStateRobot
+000EBA  370048     BRA .L93
+314:               
+315:                   else if (positionObstacle == OBSTACLE_A_GAUCHE_PROCHE)
+000EBC  78401E     MOV.B [W14], W0
+000EBE  504FE3     SUB.B W0, #0x3, [W15]
+000EC0  3A0003     BRA NZ, .L95
+316:                       nextStateRobot = STATE_TOURNE_BEAUCOUP_DROITE;
+000EC2  B3C0E0     MOV.B #0xE, W0
+000EC4  B7F067     MOV.B WREG, nextStateRobot
+000EC6  370042     BRA .L93
+317:               
+318:                   else if (positionObstacle == OBSTACLE_A_DROITE)
+000EC8  78401E     MOV.B [W14], W0
+000ECA  504FE2     SUB.B W0, #0x2, [W15]
+000ECC  3A0003     BRA NZ, .L96
+319:                       nextStateRobot = STATE_TOURNE_GAUCHE;
+000ECE  B3C080     MOV.B #0x8, W0
+000ED0  B7F067     MOV.B WREG, nextStateRobot
+000ED2  37003C     BRA .L93
+320:               
+321:                   else if (positionObstacle == OBSTACLE_A_GAUCHE)
+000ED4  78401E     MOV.B [W14], W0
+000ED6  504FE1     SUB.B W0, #0x1, [W15]
+000ED8  3A0003     BRA NZ, .L97
+322:                       nextStateRobot = STATE_TOURNE_DROITE;
+000EDA  B3C0A0     MOV.B #0xA, W0
+000EDC  B7F067     MOV.B WREG, nextStateRobot
+000EDE  370036     BRA .L93
+323:               
+324:                   else if (positionObstacle == OBSTACLE_A_DROITE_LOIN)
+000EE0  78401E     MOV.B [W14], W0
+000EE2  504FE6     SUB.B W0, #0x6, [W15]
+000EE4  3A0003     BRA NZ, .L98
+325:                       nextStateRobot = STATE_TOURNE_PEU_GAUCHE;
+000EE6  B3C040     MOV.B #0x4, W0
+000EE8  B7F067     MOV.B WREG, nextStateRobot
+000EEA  370030     BRA .L93
+326:               
+327:                   else if (positionObstacle == OBSTACLE_A_GAUCHE_LOIN)
+000EEC  78401E     MOV.B [W14], W0
+000EEE  504FE5     SUB.B W0, #0x5, [W15]
+000EF0  3A0003     BRA NZ, .L99
+328:                       nextStateRobot = STATE_TOURNE_PEU_DROITE;
+000EF2  B3C060     MOV.B #0x6, W0
+000EF4  B7F067     MOV.B WREG, nextStateRobot
+000EF6  37002A     BRA .L93
+329:               
+330:                   else if (positionObstacle == OBSTACLE_EN_FACE_PROCHE ||
+000EF8  78401E     MOV.B [W14], W0
+000EFA  504FEA     SUB.B W0, #0xA, [W15]
+000EFC  320006     BRA Z, .L100
+000EFE  78401E     MOV.B [W14], W0
+000F00  504FEF     SUB.B W0, #0xF, [W15]
+000F02  320003     BRA Z, .L100
+331:                           positionObstacle == OBSTACLE_A_DROITE2_PROCHE ||
+000F04  78401E     MOV.B [W14], W0
+000F06  504FEE     SUB.B W0, #0xE, [W15]
+000F08  3A000A     BRA NZ, .L101
+332:                           positionObstacle == OBSTACLE_A_GAUCHE2_PROCHE)
+333:                       if (alea % 2 == 0)
+000F0A  808320     MOV alea, W0
+000F0C  600061     AND W0, #0x1, W0
+000F0E  E00000     CP0 W0
+000F10  3A0003     BRA NZ, .L102
+000F16  37001A     BRA .L93
+000F1C  370017     BRA .L93
+334:                           nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+000F12  B3C120     MOV.B #0x12, W0
+000F14  B7F067     MOV.B WREG, nextStateRobot
+335:                       else
+336:                           nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+000F18  B3C100     MOV.B #0x10, W0
+000F1A  B7F067     MOV.B WREG, nextStateRobot
+337:               
+338:                       //    else if (positionObstacle == OBSTACLE_A_DROITE2_PROCHE)
+339:                       //        nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+340:                       //    
+341:                       //    else if (positionObstacle == OBSTACLE_A_GAUCHE2_PROCHE)
+342:                       //        nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+343:               
+344:                   else if (positionObstacle == OBSTACLE_EN_FACE)
+000F1E  78401E     MOV.B [W14], W0
+000F20  504FE7     SUB.B W0, #0x7, [W15]
+000F22  3A0003     BRA NZ, .L104
+345:                       nextStateRobot = STATE_AVANCE_LENT;
+000F24  B3C180     MOV.B #0x18, W0
+000F26  B7F067     MOV.B WREG, nextStateRobot
+000F28  370011     BRA .L93
+346:               
+347:                   else if (positionObstacle == OBSTACLE_EN_FACE_LOIN)
+000F2A  78401E     MOV.B [W14], W0
+000F2C  504FEB     SUB.B W0, #0xB, [W15]
+000F2E  3A0003     BRA NZ, .L105
+348:                       nextStateRobot = STATE_AVANCE;
+000F30  B3C020     MOV.B #0x2, W0
+000F32  B7F067     MOV.B WREG, nextStateRobot
+000F34  37000B     BRA .L93
+349:               
+350:                   else if (positionObstacle == OBSTACLE_A_DROITE2)
+000F36  78401E     MOV.B [W14], W0
+000F38  504FED     SUB.B W0, #0xD, [W15]
+000F3A  3A0003     BRA NZ, .L106
+351:                       nextStateRobot = STATE_TOURNE_PEU_GAUCHE;
+000F3C  B3C040     MOV.B #0x4, W0
+000F3E  B7F067     MOV.B WREG, nextStateRobot
+000F40  370005     BRA .L93
+352:               
+353:                   else if (positionObstacle == OBSTACLE_A_GAUCHE2)
+000F42  78401E     MOV.B [W14], W0
+000F44  504FEC     SUB.B W0, #0xC, [W15]
+000F46  3A0002     BRA NZ, .L93
+354:                       nextStateRobot = STATE_TOURNE_PEU_DROITE;
+000F48  B3C060     MOV.B #0x6, W0
+000F4A  B7F067     MOV.B WREG, nextStateRobot
+355:               
+356:                   //Si l'on n'est pas dans la transition de l'étape en cours
+357:                   if (nextStateRobot != stateRobot - 1) {
+000F4C  BFD067     MOV.B nextStateRobot, WREG
+000F4E  FB8080     ZE W0, W1
+000F50  BFD066     MOV.B stateRobot, WREG
+000F52  FB8000     ZE W0, W0
+000F54  E90000     DEC W0, W0
+000F56  508F80     SUB W1, W0, [W15]
+000F58  320024     BRA Z, .L45, .LBE5
+358:                       stateRobot = nextStateRobot;
+000F5A  BFD067     MOV.B nextStateRobot, WREG
+000F5C  B7F066     MOV.B WREG, stateRobot
+359:               
+360:                       //    if (nextStateRobot == STATE_TURBO) {
+361:                       //        LED_BLEUE = 1;
+362:                       //    } else {
+363:                       //        LED_BLEUE = 0;
+364:                       //    }
+365:                       //    
+366:                       //    if (nextStateRobot == STATE_AVANCE) {
+367:                       //        LED_BLANCHE = 1;
+368:                       //    } else {
+369:                       //        LED_BLANCHE = 0;
+370:                       //    }
+371:                       //    
+372:                       //    if (nextStateRobot == STATE_AVANCE_LENT) {
+373:                       //        LED_ORANGE = 1;
+374:                       //    } else {
+375:                       //        LED_ORANGE = 0;
+376:                       //    }
+377:               
+378:               
+379:                       unsigned char fonction = 0x0050;
+000F5E  B3C500     MOV.B #0x50, W0
+000F60  984710     MOV.B W0, [W14+1]
+380:                       int payloadLength = 5;
+000F62  200050     MOV #0x5, W0
+000F64  980710     MOV W0, [W14+2]
+381:                       unsigned char payload[5];
+382:                       payload[0] = nextStateRobot;
+000F66  BFD067     MOV.B nextStateRobot, WREG
+000F68  984740     MOV.B W0, [W14+4]
+383:                       payload[1] = timestamp >> 24;
+000F6A  8082D0     MOV timestamp, W0
+000F6C  8082E1     MOV 0x105C, W1
+000F6E  DE0848     LSR W1, #8, W0
+000F70  784000     MOV.B W0, W0
+000F72  984750     MOV.B W0, [W14+5]
+384:                       payload[2] = timestamp >> 16;
+000F74  8082D0     MOV timestamp, W0
+000F76  8082E1     MOV 0x105C, W1
+000F78  DE0840     LSR W1, #0, W0
+000F7A  784000     MOV.B W0, W0
+000F7C  984760     MOV.B W0, [W14+6]
+385:                       payload[3] = timestamp >> 8;
+000F7E  8082D0     MOV timestamp, W0
+000F80  8082E1     MOV 0x105C, W1
+000F82  DD0948     SL W1, #8, W2
+000F84  DE0048     LSR W0, #8, W0
+000F86  710000     IOR W2, W0, W0
+000F88  DE08C8     LSR W1, #8, W1
+000F8A  784000     MOV.B W0, W0
+000F8C  984770     MOV.B W0, [W14+7]
+386:                       payload[4] = timestamp >> 0;
+000F8E  8082D0     MOV timestamp, W0
+000F90  8082E1     MOV 0x105C, W1
+000F92  784000     MOV.B W0, W0
+000F94  984F00     MOV.B W0, [W14+8]
+387:                       UartEncodeAndSendMessage(fonction, payloadLength, payload);
+000F96  90401E     MOV.B [W14+1], W0
+000F98  FB8000     ZE W0, W0
+000F9A  4700E4     ADD W14, #0x4, W1
+000F9C  780101     MOV W1, W2
+000F9E  90009E     MOV [W14+2], W1
+000FA0  070148     RCALL UartEncodeAndSendMessage
+388:                   }
+389:               }
+000FA2  78044F     MOV [--W15], W8
+000FA4  FA8000     ULNK
+000FA6  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/UART_Protocol.c  --------------------------------------
+1:                 #include <xc.h>
+2:                 #include <libpic30.h>
+3:                 #include "UART_Protocol.h"
+4:                 #include "CB_TX1.h"
+5:                 #include "CB_RX1.h"
+6:                 
+7:                 unsigned char UartCalculateChecksum(int msgFunction, int msgPayloadLength, unsigned char* msgPayload) {
+0011D6  FA000A     LNK #0xA
+0011D8  980720     MOV W0, [W14+4]
+0011DA  980731     MOV W1, [W14+6]
+0011DC  980742     MOV W2, [W14+8]
+8:                     //Fonction prenant entrée la trame et sa longueur pour calculer le checksum
+9:                     unsigned char checksum = 0xFE;
+0011DE  B3CFE0     MOV.B #0xFE, W0
+0011E0  784F00     MOV.B W0, [W14]
+10:                    checksum ^= msgFunction >> 8;
+0011E2  90002E     MOV [W14+4], W0
+0011E4  DE8048     ASR W0, #8, W0
+0011E6  784080     MOV.B W0, W1
+0011E8  78401E     MOV.B [W14], W0
+0011EA  68C000     XOR.B W1, W0, W0
+0011EC  784F00     MOV.B W0, [W14]
+11:                    checksum ^= msgFunction >> 0;
+0011EE  90002E     MOV [W14+4], W0
+0011F0  784080     MOV.B W0, W1
+0011F2  78401E     MOV.B [W14], W0
+0011F4  68C000     XOR.B W1, W0, W0
+0011F6  784F00     MOV.B W0, [W14]
+12:                    checksum ^= msgPayloadLength >> 8;
+0011F8  90003E     MOV [W14+6], W0
+0011FA  DE8048     ASR W0, #8, W0
+0011FC  784080     MOV.B W0, W1
+0011FE  78401E     MOV.B [W14], W0
+001200  68C000     XOR.B W1, W0, W0
+001202  784F00     MOV.B W0, [W14]
+13:                    checksum ^= msgPayloadLength >> 0;
+001204  90003E     MOV [W14+6], W0
+001206  784080     MOV.B W0, W1
+001208  78401E     MOV.B [W14], W0
+00120A  68C000     XOR.B W1, W0, W0
+00120C  784F00     MOV.B W0, [W14]
+14:                    int i;
+15:                    for (i = 0; i < msgPayloadLength; i++) {
+00120E  EB0000     CLR W0
+001210  980710     MOV W0, [W14+2]
+001212  370008     BRA .L2
+00121E  90001E     MOV [W14+2], W0
+001220  E80000     INC W0, W0
+001222  980710     MOV W0, [W14+2]
+001224  90009E     MOV [W14+2], W1
+001226  90003E     MOV [W14+6], W0
+001228  508F80     SUB W1, W0, [W15]
+00122A  35FFF4     BRA LT, .L3
+16:                        checksum ^= msgPayload[i];
+001214  90001E     MOV [W14+2], W0
+001216  9000CE     MOV [W14+8], W1
+001218  408000     ADD W1, W0, W0
+00121A  784010     MOV.B [W0], W0
+00121C  684F1E     XOR.B W0, [W14], [W14]
+17:                    }
+18:                    return checksum;
+00122C  78401E     MOV.B [W14], W0
+19:                }
+00122E  FA8000     ULNK
+001230  060000     RETURN
+20:                
+21:                void UartEncodeAndSendMessage(int msgFunction, int msgPayloadLength, unsigned char* msgPayload) {
+001232  FA0010     LNK #0x10
+001234  BE9F88     MOV.D W8, [W15++]
+001236  980750     MOV W0, [W14+10]
+001238  980761     MOV W1, [W14+12]
+00123A  980772     MOV W2, [W14+14]
+00123E  78000F     MOV W15, W0
+001240  780480     MOV W0, W9
+22:                    //Fonction d?encodage et d?envoi d?un message
+23:                    unsigned char checksum = UartCalculateChecksum(msgFunction, msgPayloadLength, msgPayload);
+001242  90017E     MOV [W14+14], W2
+001244  9000EE     MOV [W14+12], W1
+001246  90005E     MOV [W14+10], W0
+001248  07FFC6     RCALL UartCalculateChecksum
+00124A  984740     MOV.B W0, [W14+4]
+24:                    unsigned char msg[6 + msgPayloadLength];
+00124C  90006E     MOV [W14+12], W0
+00124E  400066     ADD W0, #0x6, W0
+001250  E90080     DEC W0, W1
+001252  980731     MOV W1, [W14+6]
+001254  E80000     INC W0, W0
+001256  E80000     INC W0, W0
+001258  D10000     LSR W0, W0
+00125A  400080     ADD W0, W0, W1
+00125C  78000F     MOV W15, W0
+00125E  478781     ADD W15, W1, W15
+001260  E80000     INC W0, W0
+001262  D10000     LSR W0, W0
+001264  400000     ADD W0, W0, W0
+001266  980740     MOV W0, [W14+8]
+25:                    int pos = 0;
+001268  EB0000     CLR W0
+00126A  780F00     MOV W0, [W14]
+26:                    msg[pos++] = 0xFE;
+00126C  90004E     MOV [W14+8], W0
+00126E  40001E     ADD W0, [W14], W0
+001270  B3CFE1     MOV.B #0xFE, W1
+001272  784801     MOV.B W1, [W0]
+001274  E80F1E     INC [W14], [W14]
+27:                    msg[pos++] = msgFunction >> 8;
+001276  90005E     MOV [W14+10], W0
+001278  DE8048     ASR W0, #8, W0
+00127A  784080     MOV.B W0, W1
+00127C  90004E     MOV [W14+8], W0
+00127E  40001E     ADD W0, [W14], W0
+001280  784801     MOV.B W1, [W0]
+001282  E80F1E     INC [W14], [W14]
+28:                    msg[pos++] = msgFunction >> 0;
+001284  90005E     MOV [W14+10], W0
+001286  784080     MOV.B W0, W1
+001288  90004E     MOV [W14+8], W0
+00128A  40001E     ADD W0, [W14], W0
+00128C  784801     MOV.B W1, [W0]
+00128E  E80F1E     INC [W14], [W14]
+29:                    msg[pos++] = msgPayloadLength >> 8;
+001290  90006E     MOV [W14+12], W0
+001292  DE8048     ASR W0, #8, W0
+001294  784080     MOV.B W0, W1
+001296  90004E     MOV [W14+8], W0
+001298  40001E     ADD W0, [W14], W0
+00129A  784801     MOV.B W1, [W0]
+00129C  E80F1E     INC [W14], [W14]
+30:                    msg[pos++] = msgPayloadLength >> 0;
+00129E  90006E     MOV [W14+12], W0
+0012A0  784080     MOV.B W0, W1
+0012A2  90004E     MOV [W14+8], W0
+0012A4  40001E     ADD W0, [W14], W0
+0012A6  784801     MOV.B W1, [W0]
+0012A8  E80F1E     INC [W14], [W14]
+31:                    int i;
+32:                    for (i = 0; i < msgPayloadLength; i++) {
+0012AA  EB0000     CLR W0
+0012AC  980710     MOV W0, [W14+2]
+0012AE  37000B     BRA .L5
+0012C0  90001E     MOV [W14+2], W0
+0012C2  E80000     INC W0, W0
+0012C4  980710     MOV W0, [W14+2]
+0012C6  90009E     MOV [W14+2], W1
+0012C8  90006E     MOV [W14+12], W0
+0012CA  508F80     SUB W1, W0, [W15]
+0012CC  35FFF1     BRA LT, .L6
+33:                        msg[pos++] = msgPayload[i];
+0012B0  90001E     MOV [W14+2], W0
+0012B2  9000FE     MOV [W14+14], W1
+0012B4  408000     ADD W1, W0, W0
+0012B6  784090     MOV.B [W0], W1
+0012B8  90004E     MOV [W14+8], W0
+0012BA  40001E     ADD W0, [W14], W0
+0012BC  784801     MOV.B W1, [W0]
+0012BE  E80F1E     INC [W14], [W14]
+34:                    }
+35:                    msg[pos++] = checksum;
+0012CE  90004E     MOV [W14+8], W0
+0012D0  40001E     ADD W0, [W14], W0
+0012D2  9040CE     MOV.B [W14+4], W1
+0012D4  784801     MOV.B W1, [W0]
+0012D6  E80F1E     INC [W14], [W14]
+36:                    SendMessage(msg, 6 + msgPayloadLength);
+0012D8  90006E     MOV [W14+12], W0
+0012DA  4000E6     ADD W0, #0x6, W1
+0012DC  90004E     MOV [W14+8], W0
+0012DE  0701D3     RCALL SendMessage
+37:                    __delay32(400000);
+0012E0  21A800     MOV #0x1A80, W0
+0012E2  200061     MOV #0x6, W1
+0012E4  070362     RCALL ___delay32, .Letext0, .LFE0
+0012E6  780789     MOV W9, W15
+38:                }
+00123C  78040F     MOV W15, W8
+0012E8  780788     MOV W8, W15
+0012EA  BE044F     MOV.D [--W15], W8
+0012EC  FA8000     ULNK
+0012EE  060000     RETURN
+39:                
+40:                int msgDecodedFunction = 0;
+41:                int msgDecodedPayloadLength = 0;
+42:                unsigned char msgDecodedPayload[128];
+43:                int msgDecodedPayloadIndex = 0;
+44:                
+45:                enum rcvState {
+46:                    Waiting,
+47:                    FunctionMSB,
+48:                    FunctionLSB,
+49:                    PayloadLengthMSB,
+50:                    PayloadLengthLSB,
+51:                    Payload,
+52:                    CheckSum
+53:                };
+54:                
+55:                unsigned char rcvState = Waiting;
+56:                unsigned char calculatedChecksum = 0;
+57:                
+58:                void UartDecodeMessage(unsigned char c) {
+0012F0  FA0004     LNK #0x4
+0012F2  984720     MOV.B W0, [W14+2]
+59:                    //Fonction prenant en entrée un octet et servant à reconstituer les trames
+60:                
+61:                    switch (rcvState) {
+0012F4  BFD056     MOV.B rcvState, WREG
+0012F6  FB8000     ZE W0, W0
+0012F8  500FE3     SUB W0, #0x3, [W15]
+0012FA  320026     BRA Z, .L12
+0012FC  500FE3     SUB W0, #0x3, [W15]
+0012FE  3C0007     BRA GT, .L16
+001300  500FE1     SUB W0, #0x1, [W15]
+001302  320013     BRA Z, .L10
+001304  500FE1     SUB W0, #0x1, [W15]
+001306  3C0018     BRA GT, .L11
+001308  E00000     CP0 W0
+00130A  320008     BRA Z, .L9, .LBB2
+00130C  37004D     BRA .L8
+00130E  500FE5     SUB W0, #0x5, [W15]
+001310  320034     BRA Z, .L14
+001312  500FE5     SUB W0, #0x5, [W15]
+001314  350020     BRA LT, .L13
+001316  500FE6     SUB W0, #0x6, [W15]
+001318  32003E     BRA Z, .L15
+00131A  370046     BRA .L8
+62:                        case Waiting:
+63:                            if (c == 0xFE) {
+00131C  90402E     MOV.B [W14+2], W0
+00131E  404FE2     ADD.B W0, #0x2, [W15]
+001320  3A0046     BRA NZ, .L23
+64:                                rcvState = FunctionMSB;
+001322  B3C010     MOV.B #0x1, W0
+001324  B7F056     MOV.B WREG, rcvState
+65:                                msgDecodedFunction = 0;
+001326  EF3050     CLR msgDecodedFunction
+66:                            }
+67:                            break;
+001328  370045     BRA .L7, .LBE2
+0013AE  000000     NOP
+0013B0  370001     BRA .L7, .LBE2
+68:                
+69:                        case FunctionMSB:
+70:                            msgDecodedFunction = c << 8;
+00132A  90402E     MOV.B [W14+2], W0
+00132C  FB8000     ZE W0, W0
+00132E  DD0048     SL W0, #8, W0
+001330  888280     MOV W0, msgDecodedFunction
+71:                            rcvState = FunctionLSB;
+001332  B3C020     MOV.B #0x2, W0
+001334  B7F056     MOV.B WREG, rcvState
+72:                            break;
+001336  37003E     BRA .L7, .LBE2
+73:                
+74:                        case FunctionLSB:
+75:                            msgDecodedFunction += c << 0;
+001338  90402E     MOV.B [W14+2], W0
+00133A  FB8080     ZE W0, W1
+00133C  808280     MOV msgDecodedFunction, W0
+00133E  408000     ADD W1, W0, W0
+001340  888280     MOV W0, msgDecodedFunction
+76:                            rcvState = PayloadLengthMSB;
+001342  B3C030     MOV.B #0x3, W0
+001344  B7F056     MOV.B WREG, rcvState
+77:                            break;
+001346  370036     BRA .L7, .LBE2
+78:                
+79:                        case PayloadLengthMSB:
+80:                            msgDecodedPayloadLength = c << 8;
+001348  90402E     MOV.B [W14+2], W0
+00134A  FB8000     ZE W0, W0
+00134C  DD0048     SL W0, #8, W0
+00134E  888290     MOV W0, msgDecodedPayloadLength
+81:                            rcvState = PayloadLengthLSB;
+001350  B3C040     MOV.B #0x4, W0
+001352  B7F056     MOV.B WREG, rcvState
+82:                            break;
+001354  37002F     BRA .L7, .LBE2
+83:                
+84:                        case PayloadLengthLSB:
+85:                            msgDecodedPayloadLength += c << 0;
+001356  90402E     MOV.B [W14+2], W0
+001358  FB8080     ZE W0, W1
+00135A  808290     MOV msgDecodedPayloadLength, W0
+00135C  408000     ADD W1, W0, W0
+00135E  888290     MOV W0, msgDecodedPayloadLength
+86:                            if (msgDecodedPayloadLength == 0 || msgDecodedPayloadLength > 1024) {
+001360  808290     MOV msgDecodedPayloadLength, W0
+001362  E00000     CP0 W0
+001364  320004     BRA Z, .L19
+001366  808291     MOV msgDecodedPayloadLength, W1
+001368  204000     MOV #0x400, W0
+00136A  508F80     SUB W1, W0, [W15]
+00136C  340002     BRA LE, .L20
+87:                                rcvState = Waiting;
+00136E  EF7056     CLR.B rcvState
+88:                            } else {
+89:                                rcvState = Payload;
+001372  B3C050     MOV.B #0x5, W0
+001374  B7F056     MOV.B WREG, rcvState
+90:                                msgDecodedPayload[msgDecodedPayloadLength];
+91:                                msgDecodedPayloadIndex = 0;
+001376  EF3054     CLR msgDecodedPayloadIndex
+92:                            }
+93:                            break;
+001370  370021     BRA .L7, .LBE2
+001378  37001D     BRA .L7, .LBE2
+94:                
+95:                        case Payload:
+96:                            msgDecodedPayload[msgDecodedPayloadIndex++] = c;
+00137A  8082A0     MOV msgDecodedPayloadIndex, W0
+00137C  211701     MOV #0x1170, W1
+00137E  408080     ADD W1, W0, W1
+001380  90412E     MOV.B [W14+2], W2
+001382  784882     MOV.B W2, [W1]
+001384  E80000     INC W0, W0
+001386  8882A0     MOV W0, msgDecodedPayloadIndex
+97:                            if (msgDecodedPayloadIndex >= msgDecodedPayloadLength) {
+001388  8082A1     MOV msgDecodedPayloadIndex, W1
+00138A  808290     MOV msgDecodedPayloadLength, W0
+00138C  508F80     SUB W1, W0, [W15]
+00138E  350011     BRA LT, .L24
+98:                                rcvState = CheckSum;
+001390  B3C060     MOV.B #0x6, W0
+001392  B7F056     MOV.B WREG, rcvState
+99:                            }
+100:                           break;
+001394  37000F     BRA .L7, .LBE2
+0013B2  000000     NOP
+101:               
+102:                       case CheckSum:
+103:                           calculatedChecksum = UartCalculateChecksum(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
+001396  808291     MOV msgDecodedPayloadLength, W1
+001398  808280     MOV msgDecodedFunction, W0
+00139A  211702     MOV #0x1170, W2
+00139C  07FF1C     RCALL UartCalculateChecksum
+00139E  B7F057     MOV.B WREG, calculatedChecksum
+104:                           unsigned char receivedChecksum = c;
+0013A0  9040AE     MOV.B [W14+2], W1
+0013A2  784F01     MOV.B W1, [W14]
+105:                           if (calculatedChecksum == receivedChecksum) {
+106:                               //textBoxReception.Text += "Message valide" + "\n";
+107:                               //Dispatcher.Invoke(delegate{ProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);});
+108:                           } else {
+109:                               //Dispatcher.Invoke(delegate{textBoxReception.Text += "Message invalide + \n";});
+110:                           }
+111:                           rcvState = Waiting;
+0013A4  EF7056     CLR.B rcvState
+112:                           break;
+0013A6  370006     BRA .L7, .LBE2
+113:               
+114:                       default:
+115:                           rcvState = Waiting;
+0013A8  EF7056     CLR.B rcvState
+116:                           break;
+0013AA  000000     NOP
+0013AC  370003     BRA .L7, .LBE2
+117:                   }
+118:               }
+0013B4  FA8000     ULNK
+0013B6  060000     RETURN
+119:               
+120:               void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLength, unsigned char* payload) {
+0013B8  FA0004     LNK #0x4
+0013BA  784F00     MOV.B W0, [W14]
+0013BC  984711     MOV.B W1, [W14+1]
+0013BE  980712     MOV W2, [W14+2]
+121:                   //Fonction appelée après le décodage pour exécuter l?action
+122:                   //correspondant au message reçu
+123:               }
+0013C0  FA8000     ULNK
+0013C2  060000     RETURN
+124:               
+125:               //*************************************************************************/
+126:               //Fonctions correspondant aux messages
+127:               //*************************************************************************/
+---  C:/Github/robot-armand-locquin/RobotEmbedded/UART.c  -----------------------------------------------
+1:                 #include <xc.h>
+2:                 #include "UART.h"
+3:                 #include "ChipConfig.h"
+4:                 
+5:                 #define BAUDRATE 115200
+6:                 #define BRGVAL ((FCY/BAUDRATE)/4)-1
+7:                 
+8:                 void InitUART(void) {
+00186A  FA0000     LNK #0x0
+9:                     U1MODEbits.STSEL = 0; // 1-stop bit
+00186C  A90220     BCLR U1MODE, #0
+10:                    U1MODEbits.PDSEL = 0; // No Parity, 8-data bits
+00186E  801101     MOV U1MODE, W1
+001870  2FFF90     MOV #0xFFF9, W0
+001872  608000     AND W1, W0, W0
+001874  881100     MOV W0, U1MODE
+11:                    U1MODEbits.ABAUD = 0; // Auto-Baud Disabled
+001876  A9A220     BCLR U1MODE, #5
+12:                    U1MODEbits.BRGH = 1; // Low Speed mode
+001878  A86220     BSET U1MODE, #3
+13:                    U1BRG = BRGVAL; // BAUD Rate Setting
+00187A  200550     MOV #0x55, W0
+00187C  881140     MOV W0, U1BRG
+14:                
+15:                    U1STAbits.UTXISEL0 = 0; // Interrupt after one Tx character is transmitted
+00187E  A9A223     BCLR 0x223, #5
+16:                    U1STAbits.UTXISEL1 = 0;
+001880  A9E223     BCLR 0x223, #7
+17:                    IFS0bits.U1TXIF = 0; // clear TX interrupt flag
+001882  A98801     BCLR 0x801, #4
+18:                    IEC0bits.U1TXIE = 1; // Disable UART Tx interrupt
+001884  A88821     BSET 0x821, #4
+19:                
+20:                    U1STAbits.URXISEL = 0; // Interrupt after one RX character is received;
+001886  801111     MOV U1STA, W1
+001888  2FF3F0     MOV #0xFF3F, W0
+00188A  608000     AND W1, W0, W0
+00188C  881110     MOV W0, U1STA
+21:                    IFS0bits.U1RXIF = 0; // clear RX interrupt flag
+00188E  A96801     BCLR 0x801, #3
+22:                    IEC0bits.U1RXIE = 1; // Disable  UART Rx interrupt
+001890  A86821     BSET 0x821, #3
+23:                
+24:                    U1MODEbits.UARTEN = 1; // Enable UART
+001892  A8E221     BSET 0x221, #7
+25:                    U1STAbits.UTXEN = 1; // Enable UART Tx
+001894  A84223     BSET 0x223, #2
+26:                }
+001896  FA8000     ULNK
+001898  060000     RETURN
+27:                
+28:                void SendMessageDirect(unsigned char* message, int length) {
+00189A  FA0006     LNK #0x6
+00189C  980710     MOV W0, [W14+2]
+00189E  980721     MOV W1, [W14+4]
+29:                    unsigned char i = 0;
+0018A0  EB4000     CLR.B W0
+0018A2  784F00     MOV.B W0, [W14]
+30:                    for (i = 0; i < length; i++) {
+0018A4  EB4000     CLR.B W0
+0018A6  784F00     MOV.B W0, [W14]
+0018A8  37000E     BRA .L3
+0018C4  E84F1E     INC.B [W14], [W14]
+0018C6  FB809E     ZE [W14], W1
+0018C8  90002E     MOV [W14+4], W0
+0018CA  508F80     SUB W1, W0, [W15]
+0018CC  35FFEE     BRA LT, .L6
+31:                        while (U1STAbits .UTXBF); // wait while Tx buffer full
+0018AA  000000     NOP
+0018AC  801111     MOV U1STA, W1
+0018AE  202000     MOV #0x200, W0
+0018B0  608000     AND W1, W0, W0
+0018B2  E00000     CP0 W0
+0018B4  3AFFFB     BRA NZ, .L4
+32:                        U1TXREG = *(message)++; // Transmit one character
+0018B6  90001E     MOV [W14+2], W0
+0018B8  784010     MOV.B [W0], W0
+0018BA  FB8000     ZE W0, W0
+0018BC  881120     MOV W0, U1TXREG
+0018BE  90001E     MOV [W14+2], W0
+0018C0  E80000     INC W0, W0
+0018C2  980710     MOV W0, [W14+2]
+33:                    }
+34:                }
+0018CE  FA8000     ULNK
+0018D0  060000     RETURN
+35:                
+36:                //Interruption en mode loopback
+37:                void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
+000370  781F80     MOV W0, [W15++]
+000372  FA0000     LNK #0x0
+38:                IFS0bits.U1RXIF = 0; // clear RX interrupt flag
+000374  A96801     BCLR 0x801, #3
+39:                /* check for receive errors */
+40:                if (U1STAbits.FERR == 1) {
+000376  801110     MOV U1STA, W0
+000378  600064     AND W0, #0x4, W0
+00037A  E00000     CP0 W0
+00037C  320001     BRA Z, .L8
+41:                U1STAbits.FERR = 0;
+00037E  A94222     BCLR U1STA, #2
+42:                }
+43:                /* must clear the overrun error to keep uart receiving */
+44:                if (U1STAbits.OERR == 1) {
+000380  801110     MOV U1STA, W0
+000382  600062     AND W0, #0x2, W0
+000384  E00000     CP0 W0
+000386  320005     BRA Z, .L12
+45:                U1STAbits.OERR = 0;
+000388  A92222     BCLR U1STA, #1
+46:                }
+47:                /* get the data */
+48:                while (U1STAbits.URXDA == 1) {
+00038A  370004     BRA .L10
+000392  000000     NOP
+000394  801110     MOV U1STA, W0
+000396  600061     AND W0, #0x1, W0
+000398  E00000     CP0 W0
+00039A  3AFFF8     BRA NZ, .L11
+49:                U1TXREG = U1RXREG;
+00038C  801130     MOV U1RXREG, W0
+00038E  881120     MOV W0, U1TXREG
+000390  370001     BRA .L10
+50:                }
+51:                }
+00039C  FA8000     ULNK
+00039E  78004F     MOV [--W15], W0
+0003A0  064000     RETFIE
+---  C:/Github/robot-armand-locquin/RobotEmbedded/ToolBox.c  --------------------------------------------
+1:                 #include "ToolBox.h"
+2:                 
+3:                 float Abs(float value) {
+001578  FA0004     LNK #0x4
+00157A  781F88     MOV W8, [W15++]
+00157C  BE8F00     MOV.D W0, [W14]
+4:                     if (value >= 0)
+00157E  B3C018     MOV.B #0x1, W8
+001580  B81160     MUL.UU W2, #0x0, W2
+001582  78001E     MOV [W14], W0
+001584  90009E     MOV [W14+2], W1
+001586  07F7E9     RCALL ___gesf2, ___gtsf2
+001588  E00000     CP0 W0
+00158A  3D0001     BRA GE, .L2
+00158C  EB4400     CLR.B W8
+00158E  E00408     CP0.B W8
+001590  320003     BRA Z, .L3
+5:                         return value;
+001592  78001E     MOV [W14], W0
+001594  90009E     MOV [W14+2], W1
+001596  370003     BRA .L4
+6:                     else return -value;
+001598  78001E     MOV [W14], W0
+00159A  90009E     MOV [W14+2], W1
+00159C  A2F001     BTG W1, #15
+7:                 }
+00159E  78044F     MOV [--W15], W8
+0015A0  FA8000     ULNK
+0015A2  060000     RETURN
+8:                 
+9:                 float Max(float value, float value2) {
+0015A4  FA0008     LNK #0x8
+0015A6  781F88     MOV W8, [W15++]
+0015A8  BE8F00     MOV.D W0, [W14]
+0015AA  980722     MOV W2, [W14+4]
+0015AC  980733     MOV W3, [W14+6]
+10:                    if (value > value2)
+0015AE  B3C018     MOV.B #0x1, W8
+0015B0  90012E     MOV [W14+4], W2
+0015B2  9001BE     MOV [W14+6], W3
+0015B4  78001E     MOV [W14], W0
+0015B6  90009E     MOV [W14+2], W1
+0015B8  07F7D0     RCALL ___gesf2, ___gtsf2
+0015BA  E00000     CP0 W0
+0015BC  3C0001     BRA GT, .L6
+0015BE  EB4400     CLR.B W8
+0015C0  E00408     CP0.B W8
+0015C2  320003     BRA Z, .L7
+11:                        return value;
+0015C4  78001E     MOV [W14], W0
+0015C6  90009E     MOV [W14+2], W1
+0015C8  370002     BRA .L8
+12:                    else
+13:                        return value2;
+0015CA  90002E     MOV [W14+4], W0
+0015CC  9000BE     MOV [W14+6], W1
+14:                }
+0015CE  78044F     MOV [--W15], W8
+0015D0  FA8000     ULNK
+0015D2  060000     RETURN
+15:                
+16:                float Min(float value, float value2) {
+0015D4  FA0008     LNK #0x8
+0015D6  781F88     MOV W8, [W15++]
+0015D8  BE8F00     MOV.D W0, [W14]
+0015DA  980722     MOV W2, [W14+4]
+0015DC  980733     MOV W3, [W14+6]
+17:                    if (value < value2)
+0015DE  B3C018     MOV.B #0x1, W8
+0015E0  90012E     MOV [W14+4], W2
+0015E2  9001BE     MOV [W14+6], W3
+0015E4  78001E     MOV [W14], W0
+0015E6  90009E     MOV [W14+2], W1
+0015E8  07F7B6     RCALL ___ltsf2, ___eqsf2, ___lesf2
+0015EA  E00000     CP0 W0
+0015EC  350001     BRA LT, .L10
+0015EE  EB4400     CLR.B W8
+0015F0  E00408     CP0.B W8
+0015F2  320003     BRA Z, .L11
+18:                        return value;
+0015F4  78001E     MOV [W14], W0
+0015F6  90009E     MOV [W14+2], W1
+0015F8  370002     BRA .L12
+19:                    else
+20:                        return value2;
+0015FA  90002E     MOV [W14+4], W0
+0015FC  9000BE     MOV [W14+6], W1
+21:                }
+0015FE  78044F     MOV [--W15], W8
+001600  FA8000     ULNK
+001602  060000     RETURN
+22:                
+23:                float LimitToInterval(float value, float lowLimit, float highLimit) {
+001604  FA000C     LNK #0xC
+001606  781F88     MOV W8, [W15++]
+001608  BE8F00     MOV.D W0, [W14]
+00160A  980722     MOV W2, [W14+4]
+00160C  980733     MOV W3, [W14+6]
+00160E  980744     MOV W4, [W14+8]
+001610  980755     MOV W5, [W14+10]
+24:                    if (value > highLimit)
+001612  B3C018     MOV.B #0x1, W8
+001614  90014E     MOV [W14+8], W2
+001616  9001DE     MOV [W14+10], W3
+001618  78001E     MOV [W14], W0
+00161A  90009E     MOV [W14+2], W1
+00161C  07F79E     RCALL ___gesf2, ___gtsf2
+00161E  E00000     CP0 W0
+001620  3C0001     BRA GT, .L14
+001622  EB4400     CLR.B W8
+001624  E00408     CP0.B W8
+001626  320004     BRA Z, .L15
+25:                        value = highLimit;
+001628  90014E     MOV [W14+8], W2
+00162A  9001DE     MOV [W14+10], W3
+00162C  BE8F02     MOV.D W2, [W14]
+00162E  37000E     BRA .L16
+26:                    else if (value < lowLimit)
+001630  B3C018     MOV.B #0x1, W8
+001632  90012E     MOV [W14+4], W2
+001634  9001BE     MOV [W14+6], W3
+001636  78001E     MOV [W14], W0
+001638  90009E     MOV [W14+2], W1
+00163A  07F78D     RCALL ___ltsf2, ___eqsf2, ___lesf2
+00163C  E00000     CP0 W0
+00163E  350001     BRA LT, .L17
+001640  EB4400     CLR.B W8
+001642  E00408     CP0.B W8
+001644  320003     BRA Z, .L16
+27:                        value = lowLimit;
+001646  90012E     MOV [W14+4], W2
+001648  9001BE     MOV [W14+6], W3
+00164A  BE8F02     MOV.D W2, [W14]
+28:                
+29:                    return value;
+00164C  78001E     MOV [W14], W0
+00164E  90009E     MOV [W14+2], W1
+30:                }
+001650  78044F     MOV [--W15], W8
+001652  FA8000     ULNK
+001654  060000     RETURN
+31:                
+32:                float RadianToDegree(float value) {
+001656  FA0004     LNK #0x4
+001658  BE8F00     MOV.D W0, [W14]
+33:                    return value / PI * 180.0;
+00165A  20FDB2     MOV #0xFDB, W2
+00165C  240493     MOV #0x4049, W3
+00165E  78001E     MOV [W14], W0
+001660  90009E     MOV [W14+2], W1
+001662  07F737     RCALL ___divsf3
+001664  200002     MOV #0x0, W2
+001666  243343     MOV #0x4334, W3
+001668  07F80E     RCALL ___mulsf3
+34:                }
+00166A  FA8000     ULNK
+00166C  060000     RETURN
+35:                
+36:                float DegreeToRadian(float value) {
+00166E  FA0004     LNK #0x4
+001670  BE8F00     MOV.D W0, [W14]
+37:                    return value * PI / 180.0;
+001672  20FDB2     MOV #0xFDB, W2
+001674  240493     MOV #0x4049, W3
+001676  78001E     MOV [W14], W0
+001678  90009E     MOV [W14+2], W1
+00167A  07F805     RCALL ___mulsf3
+00167C  200002     MOV #0x0, W2
+00167E  243343     MOV #0x4334, W3
+001680  07F728     RCALL ___divsf3
+38:                }
+001682  FA8000     ULNK
+001684  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/PWM.c  ------------------------------------------------
+1:                 //Partie PWM
+2:                 #include <xc.h> // library xc.h inclut tous les uC
+3:                 #include "IO.h"
+4:                 #include "PWM.h"
+5:                 #include "Robot.h"
+6:                 #include "ToolBox.h"
+7:                 
+8:                 #define PWMPER 40.0
+9:                 unsigned char acceleration = 5;
+10:                
+11:                void InitPWM(void) {
+0013C4  FA0000     LNK #0x0
+12:                    PTCON2bits.PCLKDIV = 0b000; //Divide by 1
+0013C6  806011     MOV PTCON2, W1
+0013C8  2FFF80     MOV #0xFFF8, W0
+0013CA  608000     AND W1, W0, W0
+0013CC  886010     MOV W0, PTCON2
+13:                    PTPER = 100 * PWMPER; //Période en pourcentage
+0013CE  20FA00     MOV #0xFA0, W0
+0013D0  886020     MOV W0, PTPER
+14:                
+15:                    //Réglage PWM moteur 1 sur hacheur 1
+16:                    IOCON1bits.POLH = 1; //High = 1 and active on low =0
+0013D2  A8AC23     BSET 0xC23, #5
+17:                    IOCON1bits.POLL = 1; //High = 1
+0013D4  A88C23     BSET 0xC23, #4
+18:                    IOCON1bits.PMOD = 0b01; //Set PWM Mode to Redundant
+0013D6  806111     MOV IOCON1, W1
+0013D8  2F3FF0     MOV #0xF3FF, W0
+0013DA  608000     AND W1, W0, W0
+0013DC  A0A000     BSET W0, #10
+0013DE  886110     MOV W0, IOCON1
+19:                    FCLCON1 = 0x0003; //Désactive la gestion des faults
+0013E0  200030     MOV #0x3, W0
+0013E2  886120     MOV W0, FCLCON1
+20:                
+21:                    //Reglage PWM moteur 2 sur hacheur 6
+22:                    IOCON6bits.POLH = 1; //High = 1
+0013E4  A8ACC3     BSET 0xCC3, #5
+23:                    IOCON6bits.POLL = 1; //High = 1
+0013E6  A88CC3     BSET 0xCC3, #4
+24:                    IOCON6bits.PMOD = 0b01; //Set PWM Mode to Redundant
+0013E8  806611     MOV IOCON6, W1
+0013EA  2F3FF0     MOV #0xF3FF, W0
+0013EC  608000     AND W1, W0, W0
+0013EE  A0A000     BSET W0, #10
+0013F0  886610     MOV W0, IOCON6
+25:                    FCLCON6 = 0x0003; //Désactive la gestion des faults
+0013F2  200030     MOV #0x3, W0
+0013F4  886620     MOV W0, FCLCON6
+26:                
+27:                    /* Enable PWM Module */
+28:                    PTCONbits.PTEN = 1;
+0013F6  A8EC01     BSET 0xC01, #7
+29:                }
+0013F8  FA8000     ULNK
+0013FA  060000     RETURN
+30:                
+31:                //void PWMSetSpeed(float vitesseEnPourcents, int moteur) {
+32:                //    robotState.vitesseDroiteCommandeCourante = vitesseEnPourcents;
+33:                //    robotState.vitesseGaucheCommandeCourante = vitesseEnPourcents;
+34:                //    if (moteur == 0) {
+35:                //        if (vitesseEnPourcents > 0) {
+36:                //            MOTEUR_DROIT_L_PWM_ENABLE = 1; //Pilotage de la pin en mode IO
+37:                //            MOTEUR_DROIT_H_IO_OUTPUT = 1; //Mise à 1 de la pin
+38:                //            MOTEUR_DROIT_H_PWM_ENABLE = 0; //Pilotage de la pin en mode PWM
+39:                //        } else {
+40:                //            MOTEUR_DROIT_L_PWM_ENABLE = 0; //Pilotage de la pin en mode IO
+41:                //            MOTEUR_DROIT_L_IO_OUTPUT = 1; //Mise à 1 de la pin
+42:                //            MOTEUR_DROIT_H_PWM_ENABLE = 1; //Pilotage de la pin en mode PWM
+43:                //        }
+44:                //        MOTEUR_DROIT_DUTY_CYCLE = Abs(robotState.vitesseDroiteCommandeCourante * PWMPER);
+45:                //    }
+46:                //    if (moteur == 1) {
+47:                //        if (vitesseEnPourcents > 0) {
+48:                //            MOTEUR_GAUCHE_L_PWM_ENABLE = 0; //Pilotage de la pin en mode IO
+49:                //            MOTEUR_GAUCHE_L_IO_OUTPUT = 1; //Mise à 1 de la pin
+50:                //            MOTEUR_GAUCHE_H_PWM_ENABLE = 1; //Pilotage de la pin en mode PWM
+51:                //        } else {
+52:                //            MOTEUR_GAUCHE_L_PWM_ENABLE = 1; //Pilotage de la pin en mode IO
+53:                //            MOTEUR_GAUCHE_H_IO_OUTPUT = 1; //Mise à 1 de la pin
+54:                //            MOTEUR_GAUCHE_H_PWM_ENABLE = 0; //Pilotage de la pin en mode PWM
+55:                //        }
+56:                //        MOTEUR_GAUCHE_DUTY_CYCLE = Abs(robotState.vitesseGaucheCommandeCourante * PWMPER);
+57:                //    }
+58:                //}
+59:                
+60:                void PWMUpdateSpeed() {
+0013FC  FA0000     LNK #0x0
+0013FE  BE9F88     MOV.D W8, [W15++]
+001400  BE9F8A     MOV.D W10, [W15++]
+61:                    // Cette fonction est appelée sur timer et permet de suivre des rampes d?accélération
+62:                    if (robotState.vitesseDroiteCommandeCourante < robotState.vitesseDroiteConsigne)
+001402  808FF4     MOV 0x11FE, W4
+001404  809005     MOV 0x1200, W5
+001406  808FD0     MOV 0x11FA, W0
+001408  808FE1     MOV 0x11FC, W1
+00140A  B3C018     MOV.B #0x1, W8
+00140C  BE0100     MOV.D W0, W2
+00140E  BE0004     MOV.D W4, W0
+001410  07F8A2     RCALL ___ltsf2, ___eqsf2, ___lesf2
+001412  E00000     CP0 W0
+001414  350001     BRA LT, .L3
+001416  EB4400     CLR.B W8
+001418  E00408     CP0.B W8
+00141A  32000F     BRA Z, .L4
+63:                        robotState.vitesseDroiteCommandeCourante = Min(
+00141C  808FD8     MOV 0x11FA, W8
+00141E  808FE9     MOV 0x11FC, W9
+001424  BFD06C     MOV.B 0x106C, WREG
+001426  FB8000     ZE W0, W0
+001428  DE80CF     ASR W0, #15, W1
+00142A  07F8D5     RCALL ___floatsisf
+00142C  BE0100     MOV.D W0, W2
+00142E  BE000A     MOV.D W10, W0
+001430  07F7F3     RCALL ___addsf3
+001432  BE0108     MOV.D W8, W2
+001434  0700CF     RCALL Min
+001436  888FF0     MOV W0, 0x11FE
+001438  889001     MOV W1, 0x1200
+64:                            robotState.vitesseDroiteCommandeCourante + acceleration,
+001420  808FFA     MOV 0x11FE, W10
+001422  80900B     MOV 0x1200, W11
+65:                            robotState.vitesseDroiteConsigne);
+66:                    if (robotState.vitesseDroiteCommandeCourante > robotState.vitesseDroiteConsigne)
+00143A  808FF4     MOV 0x11FE, W4
+00143C  809005     MOV 0x1200, W5
+00143E  808FD0     MOV 0x11FA, W0
+001440  808FE1     MOV 0x11FC, W1
+001442  B3C018     MOV.B #0x1, W8
+001444  BE0100     MOV.D W0, W2
+001446  BE0004     MOV.D W4, W0
+001448  07F888     RCALL ___gesf2, ___gtsf2
+00144A  E00000     CP0 W0
+00144C  3C0001     BRA GT, .L5
+00144E  EB4400     CLR.B W8
+001450  E00408     CP0.B W8
+001452  32000F     BRA Z, .L6
+67:                        robotState.vitesseDroiteCommandeCourante = Max(
+001454  808FD8     MOV 0x11FA, W8
+001456  808FE9     MOV 0x11FC, W9
+00145C  BFD06C     MOV.B 0x106C, WREG
+00145E  FB8000     ZE W0, W0
+001460  DE80CF     ASR W0, #15, W1
+001462  07F8B9     RCALL ___floatsisf
+001464  BE0100     MOV.D W0, W2
+001466  BE000A     MOV.D W10, W0
+001468  07F7D6     RCALL ___subsf3
+00146A  BE0108     MOV.D W8, W2
+00146C  07009B     RCALL Max
+00146E  888FF0     MOV W0, 0x11FE
+001470  889001     MOV W1, 0x1200
+68:                            robotState.vitesseDroiteCommandeCourante - acceleration,
+001458  808FFA     MOV 0x11FE, W10
+00145A  80900B     MOV 0x1200, W11
+69:                            robotState.vitesseDroiteConsigne);
+70:                
+71:                    if (robotState.vitesseDroiteCommandeCourante > 0) {
+001472  808FF0     MOV 0x11FE, W0
+001474  809001     MOV 0x1200, W1
+001476  B3C018     MOV.B #0x1, W8
+001478  B81160     MUL.UU W2, #0x0, W2
+00147A  07F86F     RCALL ___gesf2, ___gtsf2
+00147C  E00000     CP0 W0
+00147E  3C0001     BRA GT, .L7
+001480  EB4400     CLR.B W8
+001482  E00408     CP0.B W8
+001484  320004     BRA Z, .L8
+72:                        MOTEUR_DROIT_L_PWM_ENABLE = 1; //Pilotage de la pin en mode IO
+001486  A8CCC3     BSET 0xCC3, #6
+73:                        MOTEUR_DROIT_H_IO_OUTPUT = 1; //Mise à 1 de la pin
+001488  A8CE24     BSET LATC, #6
+74:                        MOTEUR_DROIT_H_PWM_ENABLE = 0; //Pilotage de la pin en mode PWM
+00148A  A9ECC3     BCLR 0xCC3, #7
+00148C  370003     BRA .L9
+75:                    } else {
+76:                        MOTEUR_DROIT_L_PWM_ENABLE = 0; //Pilotage de la pin en mode IO
+00148E  A9CCC3     BCLR 0xCC3, #6
+77:                        MOTEUR_DROIT_L_IO_OUTPUT = 1; //Mise à 1 de la pin
+001490  A8EE24     BSET LATC, #7
+78:                        MOTEUR_DROIT_H_PWM_ENABLE = 1; //Pilotage de la pin en mode PWM
+001492  A8ECC3     BSET 0xCC3, #7
+79:                    }
+80:                    MOTEUR_DROIT_DUTY_CYCLE = Abs(robotState.vitesseDroiteCommandeCourante) * PWMPER;
+001494  808FF0     MOV 0x11FE, W0
+001496  809001     MOV 0x1200, W1
+001498  07006F     RCALL Abs
+00149A  200002     MOV #0x0, W2
+00149C  242203     MOV #0x4220, W3
+00149E  07F8F3     RCALL ___mulsf3
+0014A0  07F87F     RCALL ___fixunssfsi
+0014A2  780000     MOV W0, W0
+0014A4  886630     MOV W0, PDC6
+81:                
+82:                    if (robotState.vitesseGaucheCommandeCourante < robotState.vitesseGaucheConsigne)
+0014A6  808FB4     MOV 0x11F6, W4
+0014A8  808FC5     MOV 0x11F8, W5
+0014AA  808F90     MOV 0x11F2, W0
+0014AC  808FA1     MOV 0x11F4, W1
+0014AE  B3C018     MOV.B #0x1, W8
+0014B0  BE0100     MOV.D W0, W2
+0014B2  BE0004     MOV.D W4, W0
+0014B4  07F850     RCALL ___ltsf2, ___eqsf2, ___lesf2
+0014B6  E00000     CP0 W0
+0014B8  350001     BRA LT, .L10
+0014BA  EB4400     CLR.B W8
+0014BC  E00408     CP0.B W8
+0014BE  32000F     BRA Z, .L11
+83:                        robotState.vitesseGaucheCommandeCourante = Min(
+0014C0  808F98     MOV 0x11F2, W8
+0014C2  808FA9     MOV 0x11F4, W9
+0014C8  BFD06C     MOV.B 0x106C, WREG
+0014CA  FB8000     ZE W0, W0
+0014CC  DE80CF     ASR W0, #15, W1
+0014CE  07F883     RCALL ___floatsisf
+0014D0  BE0100     MOV.D W0, W2
+0014D2  BE000A     MOV.D W10, W0
+0014D4  07F7A1     RCALL ___addsf3
+0014D6  BE0108     MOV.D W8, W2
+0014D8  07007D     RCALL Min
+0014DA  888FB0     MOV W0, 0x11F6
+0014DC  888FC1     MOV W1, 0x11F8
+84:                            robotState.vitesseGaucheCommandeCourante + acceleration,
+0014C4  808FBA     MOV 0x11F6, W10
+0014C6  808FCB     MOV 0x11F8, W11
+85:                            robotState.vitesseGaucheConsigne);
+86:                    if (robotState.vitesseGaucheCommandeCourante > robotState.vitesseGaucheConsigne)
+0014DE  808FB4     MOV 0x11F6, W4
+0014E0  808FC5     MOV 0x11F8, W5
+0014E2  808F90     MOV 0x11F2, W0
+0014E4  808FA1     MOV 0x11F4, W1
+0014E6  B3C018     MOV.B #0x1, W8
+0014E8  BE0100     MOV.D W0, W2
+0014EA  BE0004     MOV.D W4, W0
+0014EC  07F836     RCALL ___gesf2, ___gtsf2
+0014EE  E00000     CP0 W0
+0014F0  3C0001     BRA GT, .L12
+0014F2  EB4400     CLR.B W8
+0014F4  E00408     CP0.B W8
+0014F6  32000F     BRA Z, .L13
+87:                        robotState.vitesseGaucheCommandeCourante = Max(
+0014F8  808F98     MOV 0x11F2, W8
+0014FA  808FA9     MOV 0x11F4, W9
+001500  BFD06C     MOV.B 0x106C, WREG
+001502  FB8000     ZE W0, W0
+001504  DE80CF     ASR W0, #15, W1
+001506  07F867     RCALL ___floatsisf
+001508  BE0100     MOV.D W0, W2
+00150A  BE000A     MOV.D W10, W0
+00150C  07F784     RCALL ___subsf3
+00150E  BE0108     MOV.D W8, W2
+001510  070049     RCALL Max
+001512  888FB0     MOV W0, 0x11F6
+001514  888FC1     MOV W1, 0x11F8
+88:                            robotState.vitesseGaucheCommandeCourante - acceleration,
+0014FC  808FBA     MOV 0x11F6, W10
+0014FE  808FCB     MOV 0x11F8, W11
+89:                            robotState.vitesseGaucheConsigne);
+90:                
+91:                    if (robotState.vitesseGaucheCommandeCourante > 0) {
+001516  808FB0     MOV 0x11F6, W0
+001518  808FC1     MOV 0x11F8, W1
+00151A  B3C018     MOV.B #0x1, W8
+00151C  B81160     MUL.UU W2, #0x0, W2
+00151E  07F81D     RCALL ___gesf2, ___gtsf2
+001520  E00000     CP0 W0
+001522  3C0001     BRA GT, .L14
+001524  EB4400     CLR.B W8
+001526  E00408     CP0.B W8
+001528  320004     BRA Z, .L15
+92:                        MOTEUR_GAUCHE_L_PWM_ENABLE = 0; //pilotage de la pin en mode IO
+00152A  A9CC23     BCLR 0xC23, #6
+93:                        MOTEUR_GAUCHE_L_IO_OUTPUT = 1; //Mise à 1 de la pin
+00152C  A8EE15     BSET 0xE15, #7
+94:                        MOTEUR_GAUCHE_H_PWM_ENABLE = 1; //Pilotage de la pin en mode PWM
+00152E  A8EC23     BSET 0xC23, #7
+001530  370003     BRA .L16
+95:                    } else {
+96:                        MOTEUR_GAUCHE_H_PWM_ENABLE = 0; //pilotage de la pin en mode IO
+001532  A9EC23     BCLR 0xC23, #7
+97:                        MOTEUR_GAUCHE_H_IO_OUTPUT = 1; //Mise à 1 de la pin
+001534  A8CE15     BSET 0xE15, #6
+98:                        MOTEUR_GAUCHE_L_PWM_ENABLE = 1; //Pilotage de la pin en mode PWM
+001536  A8CC23     BSET 0xC23, #6
+99:                    }
+100:                   MOTEUR_GAUCHE_DUTY_CYCLE = Abs(robotState.vitesseGaucheCommandeCourante) * PWMPER;
+001538  808FB0     MOV 0x11F6, W0
+00153A  808FC1     MOV 0x11F8, W1
+00153C  07001D     RCALL Abs
+00153E  200002     MOV #0x0, W2
+001540  242203     MOV #0x4220, W3
+001542  07F8A1     RCALL ___mulsf3
+001544  07F82D     RCALL ___fixunssfsi
+001546  780000     MOV W0, W0
+001548  886130     MOV W0, PDC1
+101:               }
+00154A  BE054F     MOV.D [--W15], W10
+00154C  BE044F     MOV.D [--W15], W8
+00154E  FA8000     ULNK
+001550  060000     RETURN
+102:               
+103:               void PWMSetSpeedConsigne(float vitesseEnPourcents, char moteur) {
+001552  FA0006     LNK #0x6
+001554  BE8F00     MOV.D W0, [W14]
+001556  984742     MOV.B W2, [W14+4]
+104:                   if (moteur == 0) {
+001558  90404E     MOV.B [W14+4], W0
+00155A  E00400     CP0.B W0
+00155C  3A0004     BRA NZ, .L18
+105:                       robotState.vitesseDroiteConsigne = vitesseEnPourcents;
+00155E  78011E     MOV [W14], W2
+001560  90019E     MOV [W14+2], W3
+001562  888FD2     MOV W2, 0x11FA
+001564  888FE3     MOV W3, 0x11FC
+106:                   }
+107:                   if (moteur == 1) {
+001566  90404E     MOV.B [W14+4], W0
+001568  504FE1     SUB.B W0, #0x1, [W15]
+00156A  3A0004     BRA NZ, .L17
+108:                       robotState.vitesseGaucheConsigne = vitesseEnPourcents;
+00156C  78011E     MOV [W14], W2
+00156E  90019E     MOV [W14+2], W3
+001570  888F92     MOV W2, 0x11F2
+001572  888FA3     MOV W3, 0x11F4
+109:                   }
+110:               }
+001574  FA8000     ULNK
+001576  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/IO.c  -------------------------------------------------
+1:                 /*
+2:                 
+3:                  * File:   IO.c
+4:                 
+5:                  */
+6:                 
+7:                 
+8:                 
+9:                 #include <xc.h>
+10:                
+11:                #include "IO.h"
+12:                
+13:                
+14:                
+15:                void InitIO()
+16:                
+17:                {
+001974  FA0000     LNK #0x0
+18:                
+19:                    _U1RXR = 24; //Remappe la RPI24 sur l'entrée Rx1
+001976  803621     MOV RPINR18, W1
+001978  2FF800     MOV #0xFF80, W0
+00197A  608000     AND W1, W0, W0
+00197C  B30180     IOR #0x18, W0
+00197E  883620     MOV W0, RPINR18
+20:                    _RP36R = 0b00001; //Remappe la sortie Tx1 vers RP36
+001980  803411     MOV RPOR1, W1
+001982  2FFC00     MOV #0xFFC0, W0
+001984  608000     AND W1, W0, W0
+001986  A00000     BSET W0, #0
+001988  883410     MOV W0, RPOR1
+21:                    
+22:                    // IMPORTANT : désactiver les entrées analogiques, sinon on perd les entrées numériques
+23:                
+24:                    ANSELA = 0; // 0 desactive
+00198A  EF2E0E     CLR ANSELA
+25:                
+26:                    ANSELB = 0;
+00198C  EF2E1E     CLR ANSELB
+27:                
+28:                    ANSELC = 0;
+00198E  EF2E2E     CLR ANSELC
+29:                
+30:                    ANSELD = 0;
+001990  EF2E3E     CLR ANSELD
+31:                
+32:                    ANSELE = 0;
+001992  EF2E4E     CLR ANSELE
+33:                
+34:                    ANSELF = 0;
+001994  EF2E5E     CLR ANSELF
+35:                
+36:                    ANSELG = 0;
+001996  EF2E6E     CLR ANSELG
+37:                
+38:                
+39:                
+40:                    //********** Configuration des sorties : _TRISxx = 0 ********************************
+41:                
+42:                    // LED
+43:                
+44:                    _TRISC10 = 0;  // LED Orange
+001998  A94E21     BCLR 0xE21, #2
+45:                
+46:                    _TRISG6 = 0; //LED Blanche
+00199A  A9CE60     BCLR TRISG, #6
+47:                
+48:                    _TRISG7 = 0; // LED Bleue
+00199C  A9EE60     BCLR TRISG, #7
+49:                
+50:                    
+51:                
+52:                    // Moteurs 
+53:                
+54:                    _TRISB14 = 0;  // Moteur 1
+00199E  A9CE11     BCLR 0xE11, #6
+55:                
+56:                    _TRISB15 = 0;  // Moteur 1
+0019A0  A9EE11     BCLR 0xE11, #7
+57:                    
+58:                    _TRISC6 = 0;  // Moteur 6
+0019A2  A9CE20     BCLR TRISC, #6
+59:                
+60:                    _TRISC7 = 0;  // Moteur 6
+0019A4  A9EE20     BCLR TRISC, #7
+61:                    
+62:                    //********** Configuration des entrées : _TRISxx = 1 ********************************   
+63:                
+64:                    
+65:                
+66:                }
+0019A6  FA8000     ULNK
+0019A8  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/ChipConfig.c  -----------------------------------------
+1:                 #include <xc.h>
+2:                 
+3:                 // DSPIC33EP512GM306 Configuration Bit Settings
+4:                 
+5:                 // 'C' source line config statements
+6:                 
+7:                 // FICD
+8:                 #pragma config ICS = PGD1               // ICD Communication Channel Select bits (Communicate on PGEC1 and PGED1)
+9:                 #pragma config JTAGEN = OFF             // JTAG Enable bit (JTAG is disabled)
+10:                
+11:                // FPOR
+12:                #pragma config BOREN = ON               //  (BOR is enabled)
+13:                #pragma config ALTI2C1 = OFF            // Alternate I2C1 pins (I2C1 mapped to SDA1/SCL1 pins)
+14:                #pragma config ALTI2C2 = OFF            // Alternate I2C2 pins (I2C2 mapped to SDA2/SCL2 pins)
+15:                #pragma config WDTWIN = WIN25           // Watchdog Window Select bits (WDT Window is 25% of WDT period)
+16:                
+17:                // FWDT
+18:                #pragma config WDTPOST = PS32768        // Watchdog Timer Postscaler bits (1:32,768)
+19:                #pragma config WDTPRE = PR128           // Watchdog Timer Prescaler bit (1:128)
+20:                #pragma config PLLKEN = ON              // PLL Lock Enable bit (Clock switch to PLL source will wait until the PLL lock signal is valid.)
+21:                #pragma config WINDIS = OFF             // Watchdog Timer Window Enable bit (Watchdog Timer in Non-Window mode)
+22:                #pragma config FWDTEN = OFF              // Watchdog Timer Enable bit (Watchdog timer always enabled)
+23:                
+24:                // FOSC
+25:                #pragma config POSCMD = NONE            // Primary Oscillator Mode Select bits (Primary Oscillator disabled)
+26:                #pragma config OSCIOFNC = OFF           // OSC2 Pin Function bit (OSC2 is clock output)
+27:                #pragma config IOL1WAY = OFF            // Peripheral pin select configuration (Allow multiple reconfigurations)
+28:                #pragma config FCKSM = CSECMD           // Clock Switching Mode bits (Clock switching is enabled,Fail-safe Clock Monitor is disabled)
+29:                
+30:                // FOSCSEL
+31:                #pragma config FNOSC = FRC              // Oscillator Source Selection (Internal Fast RC (FRC))
+32:                #pragma config PWMLOCK = OFF            // PWM Lock Enable bit (PWM registers may be written without key sequence)
+33:                #pragma config IESO = OFF               // Two-speed Oscillator Start-up Enable bit (Start up with user-selected oscillator source)
+34:                
+35:                // FGS
+36:                #pragma config GWRP = OFF               // General Segment Write-Protect bit (General Segment may be written)
+37:                #pragma config GCP = OFF                // General Segment Code-Protect bit (General Segment Code protect is Disabled)
+38:                
+39:                // #pragma config statements should precede project file includes.
+40:                // Use project enums instead of #define for ON and OFF.
+41:                    
+42:                void InitOscillator() 
+43:                {
+0018D2  FA0000     LNK #0x0
+44:                    // Configure PLL prescaler, PLL postscaler, PLL divisor
+45:                    PLLFBD = 63; // M=65
+0018D4  2003F0     MOV #0x3F, W0
+0018D6  883A30     MOV W0, PLLFBD
+46:                    CLKDIVbits.PLLPOST = 0; // N2=2
+0018D8  803A21     MOV CLKDIV, W1
+0018DA  2FF3F0     MOV #0xFF3F, W0
+0018DC  608000     AND W1, W0, W0
+0018DE  883A20     MOV W0, CLKDIV
+47:                    CLKDIVbits.PLLPRE = 1; // N1=3
+0018E0  803A21     MOV CLKDIV, W1
+0018E2  2FFE00     MOV #0xFFE0, W0
+0018E4  608000     AND W1, W0, W0
+0018E6  A00000     BSET W0, #0
+0018E8  883A20     MOV W0, CLKDIV
+48:                    // Initiate Clock Switch to FRC oscillator with PLL (NOSC=0b001)
+49:                    __builtin_write_OSCCONH(0x01);
+0018EA  200012     MOV #0x1, W2
+0018EC  200780     MOV #0x78, W0
+0018EE  2009A1     MOV #0x9A, W1
+0018F0  207433     MOV #0x743, W3
+0018F2  784980     MOV.B W0, [W3]
+0018F4  784981     MOV.B W1, [W3]
+0018F6  784982     MOV.B W2, [W3]
+50:                    __builtin_write_OSCCONL(OSCCON | 0x01);
+0018F8  803A10     MOV OSCCON, W0
+0018FA  780100     MOV W0, W2
+0018FC  A00002     BSET W2, #0
+0018FE  200460     MOV #0x46, W0
+001900  200571     MOV #0x57, W1
+001902  207423     MOV #0x742, W3
+001904  784980     MOV.B W0, [W3]
+001906  784981     MOV.B W1, [W3]
+001908  784982     MOV.B W2, [W3]
+51:                    // Wait for Clock switch to occur
+52:                    while (OSCCONbits.COSC != 0b001);
+00190A  000000     NOP
+00190C  803A11     MOV OSCCON, W1
+00190E  270000     MOV #0x7000, W0
+001910  608080     AND W1, W0, W1
+001912  210000     MOV #0x1000, W0
+001914  508F80     SUB W1, W0, [W15]
+001916  3AFFFA     BRA NZ, .L2
+53:                    // Wait for PLL to lock
+54:                    while (OSCCONbits.LOCK != 1);
+001918  000000     NOP
+00191A  803A11     MOV OSCCON, W1
+00191C  200200     MOV #0x20, W0
+00191E  608000     AND W1, W0, W0
+001920  E00000     CP0 W0
+001922  32FFFB     BRA Z, .L3
+55:                }
+001924  FA8000     ULNK
+001926  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/CB_TX1.c  ---------------------------------------------
+1:                 #include <xc.h>
+2:                 #include <stdio.h>
+3:                 #include <stdlib.h>
+4:                 #include "CB_TX1.h"
+5:                 #define CBTX1_BUFFER_SIZE 128
+6:                 
+7:                 int cbTx1Head;
+8:                 int cbTx1Tail;
+9:                 unsigned char cbTx1Buffer[CBTX1_BUFFER_SIZE];
+10:                unsigned char isTransmitting = 0;
+11:                
+12:                void SendMessage(unsigned char* message, int length) {
+001686  FA0006     LNK #0x6
+001688  980710     MOV W0, [W14+2]
+00168A  980721     MOV W1, [W14+4]
+13:                    unsigned char i = 0;
+00168C  EB4000     CLR.B W0
+00168E  784F00     MOV.B W0, [W14]
+14:                
+15:                    if (CB_TX1_GetRemainingSize() > length) {
+001690  070055     RCALL CB_TX1_GetRemainingSize
+001692  9000AE     MOV [W14+4], W1
+001694  500F81     SUB W0, W1, [W15]
+001696  340011     BRA LE, .L1
+16:                        //On peut écrire le message  
+17:                        for (i = 0; i < length; i++)
+001698  EB4000     CLR.B W0
+00169A  784F00     MOV.B W0, [W14]
+00169C  370006     BRA .L3
+0016A8  E84F1E     INC.B [W14], [W14]
+0016AA  FB809E     ZE [W14], W1
+0016AC  90002E     MOV [W14+4], W0
+0016AE  508F80     SUB W1, W0, [W15]
+0016B0  35FFF6     BRA LT, .L4
+18:                            CB_TX1_Add(message[i]);
+00169E  FB801E     ZE [W14], W0
+0016A0  90009E     MOV [W14+2], W1
+0016A2  408000     ADD W1, W0, W0
+0016A4  784010     MOV.B [W0], W0
+0016A6  07000B     RCALL CB_TX1_Add
+19:                        if (!CB_TX1_IsTransmitting())
+0016B2  07002E     RCALL CB_TX1_IsTransmitting
+0016B4  E00400     CP0.B W0
+0016B6  3A0001     BRA NZ, .L1
+20:                            SendOne();
+0016B8  070022     RCALL SendOne
+21:                    }
+22:                }
+0016BA  FA8000     ULNK
+0016BC  060000     RETURN
+23:                
+24:                void CB_TX1_Add(unsigned char value) {
+0016BE  FA0002     LNK #0x2
+0016C0  784F00     MOV.B W0, [W14]
+25:                    cbTx1Buffer[cbTx1Head] = value;
+0016C2  8082F0     MOV cbTx1Head, W0
+0016C4  210701     MOV #0x1070, W1
+0016C6  408000     ADD W1, W0, W0
+0016C8  78481E     MOV.B [W14], [W0]
+26:                    cbTx1Head++;
+0016CA  8082F0     MOV cbTx1Head, W0
+0016CC  E80000     INC W0, W0
+0016CE  8882F0     MOV W0, cbTx1Head
+27:                    if(cbTx1Head >= CBTX1_BUFFER_SIZE){
+0016D0  8082F1     MOV cbTx1Head, W1
+0016D2  2007F0     MOV #0x7F, W0
+0016D4  508F80     SUB W1, W0, [W15]
+0016D6  340001     BRA LE, .L5
+28:                        cbTx1Head = 0;
+0016D8  EF305E     CLR cbTx1Head
+29:                    }
+30:                }
+0016DA  FA8000     ULNK
+0016DC  060000     RETURN
+31:                
+32:                unsigned char CB_TX1_Get(void) {
+0016DE  FA0002     LNK #0x2
+33:                    unsigned char value = cbTx1Buffer[cbTx1Tail];
+0016E0  808300     MOV cbTx1Tail, W0
+0016E2  210701     MOV #0x1070, W1
+0016E4  408000     ADD W1, W0, W0
+0016E6  784F10     MOV.B [W0], [W14]
+34:                    cbTx1Tail++;
+0016E8  808300     MOV cbTx1Tail, W0
+0016EA  E80000     INC W0, W0
+0016EC  888300     MOV W0, cbTx1Tail
+35:                    if(cbTx1Tail >= CBTX1_BUFFER_SIZE){
+0016EE  808301     MOV cbTx1Tail, W1
+0016F0  2007F0     MOV #0x7F, W0
+0016F2  508F80     SUB W1, W0, [W15]
+0016F4  340001     BRA LE, .L8
+36:                        cbTx1Tail = 0;
+0016F6  EF3060     CLR cbTx1Tail
+37:                    }
+38:                    return value;
+0016F8  78401E     MOV.B [W14], W0
+39:                }
+0016FA  FA8000     ULNK
+0016FC  060000     RETURN
+40:                
+41:                void __attribute__((interrupt, no_auto_psv)) _U1TXInterrupt(void) {
+0003A2  F80036     PUSH RCOUNT
+0003A4  BE9F80     MOV.D W0, [W15++]
+0003A6  BE9F82     MOV.D W2, [W15++]
+0003A8  BE9F84     MOV.D W4, [W15++]
+0003AA  BE9F86     MOV.D W6, [W15++]
+0003AC  FA0000     LNK #0x0
+42:                    IFS0bits.U1TXIF = 0; // clear TX interrupt flag
+0003AE  A98801     BCLR 0x801, #4
+43:                    if (cbTx1Tail != cbTx1Head) {
+0003B0  808301     MOV cbTx1Tail, W1
+0003B2  8082F0     MOV cbTx1Head, W0
+0003B4  508F80     SUB W1, W0, [W15]
+0003B6  320002     BRA Z, .L10
+44:                        SendOne();
+0003B8  0709A2     RCALL SendOne
+0003BA  370001     BRA .L9
+45:                    } else
+46:                        isTransmitting = 0;
+0003BC  EF7062     CLR.B isTransmitting
+47:                }
+0003BE  FA8000     ULNK
+0003C0  BE034F     MOV.D [--W15], W6
+0003C2  BE024F     MOV.D [--W15], W4
+0003C4  BE014F     MOV.D [--W15], W2
+0003C6  BE004F     MOV.D [--W15], W0
+0003C8  F90036     POP RCOUNT
+0003CA  064000     RETFIE
+48:                
+49:                void SendOne() {
+0016FE  FA0002     LNK #0x2
+50:                    isTransmitting = 1;
+001700  B3C010     MOV.B #0x1, W0
+001702  B7F062     MOV.B WREG, isTransmitting
+51:                    unsigned char value = CB_TX1_Get();
+001704  07FFEC     RCALL CB_TX1_Get
+001706  784F00     MOV.B W0, [W14]
+52:                    U1TXREG = value; // Transmit one character
+001708  FB801E     ZE [W14], W0
+00170A  881120     MOV W0, U1TXREG
+53:                }
+00170C  FA8000     ULNK
+00170E  060000     RETURN
+54:                
+55:                unsigned char CB_TX1_IsTransmitting(void) {
+001710  FA0000     LNK #0x0
+56:                    return isTransmitting;
+001712  BFD062     MOV.B isTransmitting, WREG
+57:                }
+001714  FA8000     ULNK
+001716  060000     RETURN
+58:                
+59:                int CB_TX1_GetDataSize(void) {
+001718  FA0002     LNK #0x2
+60:                    int dataSize;
+61:                    if (cbTx1Head >= cbTx1Tail){
+00171A  8082F1     MOV cbTx1Head, W1
+00171C  808300     MOV cbTx1Tail, W0
+00171E  508F80     SUB W1, W0, [W15]
+001720  350005     BRA LT, .L15
+62:                    dataSize = cbTx1Head - cbTx1Tail;
+001722  8082F1     MOV cbTx1Head, W1
+001724  808300     MOV cbTx1Tail, W0
+001726  508F00     SUB W1, W0, [W14]
+63:                    return dataSize;
+001728  78001E     MOV [W14], W0
+00172A  370006     BRA .L16
+64:                    }
+65:                    else {
+66:                    dataSize = CBTX1_BUFFER_SIZE - cbTx1Head + cbTx1Tail;
+00172C  8082F0     MOV cbTx1Head, W0
+00172E  200801     MOV #0x80, W1
+001730  508080     SUB W1, W0, W1
+001732  808300     MOV cbTx1Tail, W0
+001734  408F00     ADD W1, W0, [W14]
+67:                    return dataSize;
+001736  78001E     MOV [W14], W0
+68:                    }
+69:                }
+001738  FA8000     ULNK
+00173A  060000     RETURN
+70:                
+71:                int CB_TX1_GetRemainingSize(void) {
+00173C  FA0002     LNK #0x2
+72:                    int rSize;
+73:                    rSize = CBTX1_BUFFER_SIZE - CB_TX1_GetDataSize();
+00173E  07FFEC     RCALL CB_TX1_GetDataSize
+001740  200801     MOV #0x80, W1
+001742  508F00     SUB W1, W0, [W14]
+74:                    return rSize;
+001744  78001E     MOV [W14], W0
+75:                }
+001746  FA8000     ULNK
+001748  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/CB_RX1.c  ---------------------------------------------
+1:                 #include <xc.h>
+2:                 #include <stdio.h>
+3:                 #include <stdlib.h>
+4:                 #include "CB_RX1.h"
+5:                 #define CBRX1_BUFFER_SIZE 128
+6:                 
+7:                 int cbRx1Head;
+8:                 int cbRx1Tail;
+9:                 unsigned char cbRx1Buffer[CBRX1_BUFFER_SIZE];
+10:                
+11:                void CB_RX1_Add(unsigned char value) {
+0017DE  FA0002     LNK #0x2
+0017E0  784F00     MOV.B W0, [W14]
+12:                    if (CB_RX1_GetRemainingSize() > 0) {
+0017E2  07003C     RCALL CB_RX1_GetRemainingSize
+0017E4  E00000     CP0 W0
+0017E6  34000C     BRA LE, .L1
+13:                        cbRx1Buffer[cbRx1Head] = value;
+0017E8  808340     MOV cbRx1Head, W0
+0017EA  210F01     MOV #0x10F0, W1
+0017EC  408000     ADD W1, W0, W0
+0017EE  78481E     MOV.B [W14], [W0]
+14:                        cbRx1Head++;
+0017F0  808340     MOV cbRx1Head, W0
+0017F2  E80000     INC W0, W0
+0017F4  888340     MOV W0, cbRx1Head
+15:                        if (cbRx1Head >= CBRX1_BUFFER_SIZE) {
+0017F6  808341     MOV cbRx1Head, W1
+0017F8  2007F0     MOV #0x7F, W0
+0017FA  508F80     SUB W1, W0, [W15]
+0017FC  340001     BRA LE, .L1
+16:                        cbRx1Head = 0;
+0017FE  EF3068     CLR cbRx1Head
+17:                        }
+18:                    }
+19:                }
+001800  FA8000     ULNK
+001802  060000     RETURN
+20:                
+21:                unsigned char CB_RX1_Get(void) {
+001804  FA0002     LNK #0x2
+22:                    unsigned char value = cbRx1Buffer[cbRx1Tail];
+001806  808350     MOV cbRx1Tail, W0
+001808  210F01     MOV #0x10F0, W1
+00180A  408000     ADD W1, W0, W0
+00180C  784F10     MOV.B [W0], [W14]
+23:                    cbRx1Tail++;
+00180E  808350     MOV cbRx1Tail, W0
+001810  E80000     INC W0, W0
+001812  888350     MOV W0, cbRx1Tail
+24:                    if (cbRx1Tail >= CBRX1_BUFFER_SIZE) {
+001814  808351     MOV cbRx1Tail, W1
+001816  2007F0     MOV #0x7F, W0
+001818  508F80     SUB W1, W0, [W15]
+00181A  340001     BRA LE, .L4
+25:                        cbRx1Tail = 0;
+00181C  EF306A     CLR cbRx1Tail
+26:                    }
+27:                    return value;
+00181E  78401E     MOV.B [W14], W0
+28:                }
+001820  FA8000     ULNK
+001822  060000     RETURN
+29:                
+30:                unsigned char CB_RX1_IsDataAvailable(void) {
+001824  FA0000     LNK #0x0
+31:                    if (cbRx1Head != cbRx1Tail)
+001826  808341     MOV cbRx1Head, W1
+001828  808350     MOV cbRx1Tail, W0
+00182A  508F80     SUB W1, W0, [W15]
+00182C  320002     BRA Z, .L6
+32:                        return 1;
+00182E  B3C010     MOV.B #0x1, W0
+001830  370001     BRA .L7
+33:                    else
+34:                        return 0;
+001832  EB4000     CLR.B W0
+35:                }
+001834  FA8000     ULNK
+001836  060000     RETURN
+36:                
+37:                void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt1(void) {
+0003CC  F80036     PUSH RCOUNT
+0003CE  BE9F80     MOV.D W0, [W15++]
+0003D0  BE9F82     MOV.D W2, [W15++]
+0003D2  BE9F84     MOV.D W4, [W15++]
+0003D4  BE9F86     MOV.D W6, [W15++]
+0003D6  FA0000     LNK #0x0
+38:                    IFS0bits.U1RXIF = 0; // clear RX interrupt flag
+0003D8  A96801     BCLR 0x801, #3
+39:                    /* check for receive errors */
+40:                    if (U1STAbits.FERR == 1) {
+0003DA  801110     MOV U1STA, W0
+0003DC  600064     AND W0, #0x4, W0
+0003DE  E00000     CP0 W0
+0003E0  320001     BRA Z, .L9
+41:                        U1STAbits.FERR = 0;
+0003E2  A94222     BCLR U1STA, #2
+42:                    }
+43:                    /* must clear the overrun error to keep uart receiving */
+44:                    if (U1STAbits.OERR == 1) {
+0003E4  801110     MOV U1STA, W0
+0003E6  600062     AND W0, #0x2, W0
+0003E8  E00000     CP0 W0
+0003EA  320006     BRA Z, .L13
+45:                        U1STAbits.OERR = 0;
+0003EC  A92222     BCLR U1STA, #1
+46:                    }
+47:                    /* get the data */
+48:                    while (U1STAbits.URXDA == 1) {
+0003EE  370005     BRA .L11
+0003F8  000000     NOP
+0003FA  801110     MOV U1STA, W0
+0003FC  600061     AND W0, #0x1, W0
+0003FE  E00000     CP0 W0
+000400  3AFFF7     BRA NZ, .L12
+49:                        CB_RX1_Add(U1RXREG);
+0003F0  801130     MOV U1RXREG, W0
+0003F2  784000     MOV.B W0, W0
+0003F4  0709F4     RCALL CB_RX1_Add
+0003F6  370001     BRA .L11
+50:                    }
+51:                }
+000402  FA8000     ULNK
+000404  BE034F     MOV.D [--W15], W6
+000406  BE024F     MOV.D [--W15], W4
+000408  BE014F     MOV.D [--W15], W2
+00040A  BE004F     MOV.D [--W15], W0
+00040C  F90036     POP RCOUNT
+00040E  064000     RETFIE
+52:                
+53:                int CB_RX1_GetDataSize(void) {
+001838  FA0002     LNK #0x2
+54:                    int dataSize;
+55:                    if (cbRx1Head >= cbRx1Tail) {
+00183A  808341     MOV cbRx1Head, W1
+00183C  808350     MOV cbRx1Tail, W0
+00183E  508F80     SUB W1, W0, [W15]
+001840  350005     BRA LT, .L15
+56:                        dataSize = cbRx1Head - cbRx1Tail;
+001842  808341     MOV cbRx1Head, W1
+001844  808350     MOV cbRx1Tail, W0
+001846  508F00     SUB W1, W0, [W14]
+57:                        return dataSize;
+001848  78001E     MOV [W14], W0
+00184A  370006     BRA .L16
+58:                    }
+59:                    else {
+60:                        dataSize = CBRX1_BUFFER_SIZE - cbRx1Head + cbRx1Tail;
+00184C  808340     MOV cbRx1Head, W0
+00184E  200801     MOV #0x80, W1
+001850  508080     SUB W1, W0, W1
+001852  808350     MOV cbRx1Tail, W0
+001854  408F00     ADD W1, W0, [W14]
+61:                        return dataSize;
+001856  78001E     MOV [W14], W0
+62:                    }
+63:                }
+001858  FA8000     ULNK
+00185A  060000     RETURN
+64:                
+65:                int CB_RX1_GetRemainingSize(void) {
+00185C  FA0002     LNK #0x2
+66:                    int rSize;
+67:                    rSize = CBRX1_BUFFER_SIZE - CB_RX1_GetDataSize();
+00185E  07FFEC     RCALL CB_RX1_GetDataSize
+001860  200801     MOV #0x80, W1
+001862  508F00     SUB W1, W0, [W14]
+68:                    return rSize;
+001864  78001E     MOV [W14], W0
+69:                }
+001866  FA8000     ULNK
+001868  060000     RETURN
+---  C:/Github/robot-armand-locquin/RobotEmbedded/ADC.c  ------------------------------------------------
+1:                 #include <xc.h>
+2:                 #include "ADC.h"
+3:                 //#include "main.h"
+4:                 
+5:                 unsigned char ADCResultIndex = 0;
+6:                 static unsigned int ADCResult[5];
+7:                 unsigned char ADCConversionFinishedFlag;
+8:                 
+9:                 /****************************************************************************************************/
+10:                // Configuration ADC
+11:                /****************************************************************************************************/
+12:                void InitADC1(void)
+13:                {
+00174A  FA0000     LNK #0x0
+14:                //cf. ADC Reference Manual page 47
+15:                
+16:                //Configuration en mode 12 bits mono canal ADC avec conversions successives sur 4 entrées
+17:                /************************************************************/
+18:                //AD1CON1
+19:                /************************************************************/
+20:                AD1CON1bits.ADON = 0; // ADC module OFF ? pendant la config
+00174C  A9E321     BCLR 0x321, #7
+21:                AD1CON1bits.AD12B = 1; // 0 : 10bits ? 1 : 12bits
+00174E  A84321     BSET 0x321, #2
+22:                AD1CON1bits.FORM = 0b00; // 00 = Integer (DOUT = 0000 dddd dddd dddd)
+001750  801901     MOV AD1CON1, W1
+001752  2FCFF0     MOV #0xFCFF, W0
+001754  608000     AND W1, W0, W0
+001756  881900     MOV W0, AD1CON1
+23:                AD1CON1bits.ASAM = 0; // 0 = Sampling begins when SAMP bit is set
+001758  A94320     BCLR AD1CON1, #2
+24:                AD1CON1bits.SSRC = 0b111; // 111 = Internal counter ends sampling and starts conversion (auto-convert)
+00175A  801901     MOV AD1CON1, W1
+00175C  200E00     MOV #0xE0, W0
+00175E  700001     IOR W0, W1, W0
+001760  881900     MOV W0, AD1CON1
+25:                
+26:                /************************************************************/
+27:                //AD1CON2
+28:                /************************************************************/
+29:                AD1CON2bits.VCFG = 0b000; // 000 : Voltage Reference = AVDD AVss
+001762  801911     MOV AD1CON2, W1
+001764  21FFF0     MOV #0x1FFF, W0
+001766  608000     AND W1, W0, W0
+001768  881910     MOV W0, AD1CON2
+30:                AD1CON2bits.CSCNA = 1; // 1 : Enable Channel Scanning
+00176A  A84323     BSET 0x323, #2
+31:                AD1CON2bits.CHPS = 0b00; // Converts CH0 only
+00176C  801911     MOV AD1CON2, W1
+00176E  2FCFF0     MOV #0xFCFF, W0
+001770  608000     AND W1, W0, W0
+001772  881910     MOV W0, AD1CON2
+32:                AD1CON2bits.SMPI = 4; // 2+1 conversions successives avant interrupt
+001774  801911     MOV AD1CON2, W1
+001776  2FF830     MOV #0xFF83, W0
+001778  608000     AND W1, W0, W0
+00177A  A04000     BSET W0, #4
+00177C  881910     MOV W0, AD1CON2
+33:                AD1CON2bits.ALTS = 0;
+00177E  A90322     BCLR AD1CON2, #0
+34:                AD1CON2bits.BUFM = 0;
+001780  A92322     BCLR AD1CON2, #1
+35:                
+36:                 
+37:                
+38:                /************************************************************/
+39:                //AD1CON3
+40:                /************************************************************/
+41:                AD1CON3bits.ADRC = 0; // ADC Clock is derived from Systems Clock
+001782  A9E325     BCLR 0x325, #7
+42:                AD1CON3bits.ADCS = 15; // ADC Conversion Clock TAD = TCY * (ADCS + 1)
+001784  B3C0F0     MOV.B #0xF, W0
+001786  B7E324     MOV.B WREG, AD1CON3
+43:                AD1CON3bits.SAMC = 15; // Auto Sample Time
+001788  801921     MOV AD1CON3, W1
+00178A  2E0FF0     MOV #0xE0FF, W0
+00178C  608080     AND W1, W0, W1
+00178E  20F000     MOV #0xF00, W0
+001790  700001     IOR W0, W1, W0
+001792  881920     MOV W0, AD1CON3
+44:                
+45:                /************************************************************/
+46:                //AD1CON4
+47:                /************************************************************/
+48:                AD1CON4bits.ADDMAEN = 0; // DMA is not used
+001794  A90333     BCLR 0x333, #0
+49:                
+50:                /************************************************************/
+51:                //Configuration des ports
+52:                /************************************************************/
+53:                //ADC utilisés : 15(E15)(ext gauche) - 16(G9)(gauche) - 11(C11)(centre) - 6(C0)(droite) - 3(B1)(ext droite)
+54:                ANSELBbits.ANSB1 = 1;
+001796  A82E1E     BSET ANSELB, #1
+55:                ANSELCbits.ANSC0 = 1;
+001798  A80E2E     BSET ANSELC, #0
+56:                ANSELCbits.ANSC11 = 1;
+00179A  A86E2F     BSET 0xE2F, #3
+57:                ANSELEbits.ANSE15 = 1;
+00179C  A8EE4F     BSET 0xE4F, #7
+58:                ANSELGbits.ANSG9 = 1;
+00179E  A82E6F     BSET 0xE6F, #1
+59:                
+60:                AD1CSSLbits.CSS3=1;
+0017A0  A86330     BSET AD1CSSL, #3
+61:                AD1CSSLbits.CSS6=1; // Enable AN6 for scan
+0017A2  A8C330     BSET AD1CSSL, #6
+62:                AD1CSSLbits.CSS11=1; // Enable AN11 for scan
+0017A4  A86331     BSET 0x331, #3
+63:                AD1CSSLbits.CSS15=1;
+0017A6  A8E331     BSET 0x331, #7
+64:                AD1CSSHbits.CSS16=1; // Enable AN16 for scan
+0017A8  A8032E     BSET AD1CSSH, #0
+65:                
+66:                /* Assign MUXA inputs */
+67:                AD1CHS0bits.CH0SA = 0;// CH0SA bits ignored for CH0 +ve input selection
+0017AA  801941     MOV AD1CHS0, W1
+0017AC  2FFC00     MOV #0xFFC0, W0
+0017AE  608000     AND W1, W0, W0
+0017B0  881940     MOV W0, AD1CHS0
+68:                AD1CHS0bits.CH0NA = 0;// Select VREF- for CH0 -ve inpu
+0017B2  A9E328     BCLR AD1CHS0, #7
+69:                
+70:                IFS0bits.AD1IF = 0; // Clear the A/D interrupt flag bit
+0017B4  A9A801     BCLR 0x801, #5
+71:                IEC0bits.AD1IE = 1; // Enable A/D interrupt
+0017B6  A8A821     BSET 0x821, #5
+72:                AD1CON1bits.ADON = 1; // Turn on the A/D converter
+0017B8  A8E321     BSET 0x321, #7
+73:                }
+0017BA  FA8000     ULNK
+0017BC  060000     RETURN
+74:                
+75:                /* This is ADC interrupt routine */
+76:                void __attribute__((interrupt, no_auto_psv)) _AD1Interrupt(void)
+77:                {
+00034C  781F80     MOV W0, [W15++]
+00034E  FA0000     LNK #0x0
+78:                IFS0bits.AD1IF = 0;
+000350  A9A801     BCLR 0x801, #5
+79:                ADCResult[0] = ADC1BUF0;// Read the AN-scan input 1 conversion result
+000352  801800     MOV ADC1BUF0, W0
+000354  8890B0     MOV W0, ADCResult
+80:                ADCResult[1] = ADC1BUF1;// Read the AN3 conversion result
+000356  801810     MOV ADC1BUF1, W0
+000358  8890C0     MOV W0, 0x1218
+81:                ADCResult[2] = ADC1BUF2;// Read the AN5 conversion result
+00035A  801820     MOV ADC1BUF2, W0
+00035C  8890D0     MOV W0, 0x121A
+82:                ADCResult[3] = ADC1BUF3;
+00035E  801830     MOV ADC1BUF3, W0
+000360  8890E0     MOV W0, 0x121C
+83:                ADCResult[4] = ADC1BUF4;
+000362  801840     MOV ADC1BUF4, W0
+000364  8890F0     MOV W0, 0x121E
+84:                ADCConversionFinishedFlag = 1;
+000366  B3C010     MOV.B #0x1, W0
+000368  B7F06F     MOV.B WREG, ADCConversionFinishedFlag
+85:                }
+00036A  FA8000     ULNK
+00036C  78004F     MOV [--W15], W0
+00036E  064000     RETFIE
+86:                
+87:                void ADC1StartConversionSequence()
+88:                {
+0017BE  FA0000     LNK #0x0
+89:                AD1CON1bits.SAMP = 1 ; //Lance une acquisition ADC
+0017C0  A82320     BSET AD1CON1, #1
+90:                }
+0017C2  FA8000     ULNK
+0017C4  060000     RETURN
+91:                
+92:                unsigned int * ADCGetResult(void)
+93:                {
+0017C6  FA0000     LNK #0x0
+94:                return ADCResult;
+0017C8  212160     MOV #0x1216, W0
+95:                }
+0017CA  FA8000     ULNK
+0017CC  060000     RETURN
+96:                
+97:                unsigned char ADCIsConversionFinished(void)
+98:                {
+0017CE  FA0000     LNK #0x0
+99:                return ADCConversionFinishedFlag;
+0017D0  BFD06F     MOV.B ADCConversionFinishedFlag, WREG
+100:               }
+0017D2  FA8000     ULNK
+0017D4  060000     RETURN
+101:               
+102:               void ADCClearConversionFinishedFlag(void)
+103:               {
+0017D6  FA0000     LNK #0x0
+104:               ADCConversionFinishedFlag = 0;
+0017D8  EF706F     CLR.B ADCConversionFinishedFlag
+105:               }
+0017DA  FA8000     ULNK
+0017DC  060000     RETURN

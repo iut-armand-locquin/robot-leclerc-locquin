@@ -75,7 +75,10 @@ namespace RobotInterface
 
         void SendMessage()
         {
-            serialPort1.WriteLine(textBoxEmission.Text);
+            string message = textBoxEmission.Text.TrimEnd('\n');
+            serialPort1.WriteLine(message);
+            byte[] chaine = Encoding.UTF8.GetString(message);
+            UartEncodeAndSendMessage(0x0080, chaine.Length, chaine)
             textBoxEmission.Text = "";
         }
 
@@ -85,7 +88,6 @@ namespace RobotInterface
                 buttonEnvoyer.Background = Brushes.Beige;
             else
                 buttonEnvoyer.Background = Brushes.RoyalBlue;*/
-
             SendMessage();
             textBoxReception.Text = textBoxReception.Text + "\n";
         }
@@ -191,7 +193,6 @@ namespace RobotInterface
                     {
                         rcvState = StateReception.FunctionMSB;
                         msgDecodedFunction = 0;
-
                     }
                     break;
 
