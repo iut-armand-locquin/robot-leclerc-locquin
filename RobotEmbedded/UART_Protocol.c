@@ -19,7 +19,7 @@ unsigned char UartCalculateChecksum(int msgFunction, int msgPayloadLength, unsig
 }
 
 void UartEncodeAndSendMessage(int msgFunction, int msgPayloadLength, unsigned char* msgPayload) {
-    //Fonction d?encodage et d?envoi d?un message
+    //Fonction d'encodage et d'envoi d'un message
     unsigned char checksum = UartCalculateChecksum(msgFunction, msgPayloadLength, msgPayload);
     unsigned char msg[6 + msgPayloadLength];
     int pos = 0;
@@ -118,8 +118,19 @@ void UartDecodeMessage(unsigned char c) {
 }
 
 void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLength, unsigned char* payload) {
-    //Fonction appelée après le décodage pour exécuter l?action
-    //correspondant au message reçu
+    //Fonction appelée après le décodage pour exécuter l'action
+    //Correspondant au message reçu
+    switch (msgFunction) {
+        case SET_ROBOT_STATE:
+            SetRobotState(msgPayload[0]);
+            break;
+        case SET_ROBOT_MANUAL_CONTROL:
+            SetRobotAutoControlState(msgPayload[0]);
+            break;
+        default:
+            break;
+    }
+
 }
 
 //*************************************************************************/

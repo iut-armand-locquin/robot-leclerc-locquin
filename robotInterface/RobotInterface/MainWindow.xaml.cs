@@ -77,8 +77,8 @@ namespace RobotInterface
         {
             string message = textBoxEmission.Text.TrimEnd('\n');
             serialPort1.WriteLine(message);
-            byte[] chaine = Encoding.UTF8.GetString(message);
-            UartEncodeAndSendMessage(0x0080, chaine.Length, chaine)
+            byte[] chaine = Encoding.UTF8.GetBytes(message);
+            UartEncodeAndSendMessage(0x0080, chaine.Length, chaine);
             textBoxEmission.Text = "";
         }
 
@@ -88,8 +88,8 @@ namespace RobotInterface
                 buttonEnvoyer.Background = Brushes.Beige;
             else
                 buttonEnvoyer.Background = Brushes.RoyalBlue;*/
+            //textBoxReception.Text = textBoxReception.Text + "\n";
             SendMessage();
-            textBoxReception.Text = textBoxReception.Text + "\n";
         }
 
         public void textBoxEmission_KeyUp(object sender, KeyEventArgs e)
