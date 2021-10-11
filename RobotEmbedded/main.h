@@ -55,4 +55,7 @@
 void OperatingSystemLoop(void);
 void SetNextRobotStateInAutomaticMode(void);
 
+void SetRobotState(unsigned char c);
+void SetRobotAutoControlState(unsigned char c);
+
 #endif	/* MAIN_H */

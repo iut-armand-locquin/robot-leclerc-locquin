@@ -26,6 +26,7 @@
         </GroupBox>
         <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="0" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEnvoyer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
         <Button x:Name="buttonEffacer" Content="Effacer" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
+        <Button x:Name="buttonAuto" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
         <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FFDDDDDD" BorderBrush="Black"/>
         <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="15,0,0,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
             <StackPanel>

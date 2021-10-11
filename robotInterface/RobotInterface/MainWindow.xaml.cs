@@ -260,8 +260,10 @@ namespace RobotInterface
             LED = 0x0020,
             IR = 0x0030,
             Moteurs = 0x0040,
-            StateRobot = 0x0050
-            
+            StateRobot = 0x0050,
+            Set_Robot_State = 0x0051,
+            Set_Robot_Manual_Control = 0x0052
+
         }
 
         public enum StateRobot
@@ -360,6 +362,9 @@ namespace RobotInterface
                 case (int)Function.StateRobot:
                     int instant = (((int)msgPayload[1]) << 24) + (((int)msgPayload[2]) << 16) + (((int)msgPayload[3]) << 8) + ((int)msgPayload[4]);
                     textBoxEtape.Text = ((StateRobot)(msgPayload[0])).ToString() + "\n" + instant.ToString() + " ms";
+                    break;
+
+                case (int)Function.Set_Robot_State:
                     break;
             }
         }

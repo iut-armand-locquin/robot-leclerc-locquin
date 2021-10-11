@@ -3,6 +3,8 @@
 #include "UART_Protocol.h"
 #include "CB_TX1.h"
 #include "CB_RX1.h"
+#include "main.h"
+#include "IO.h"
 
 unsigned char UartCalculateChecksum(int msgFunction, int msgPayloadLength, unsigned char* msgPayload) {
     //Fonction prenant entrée la trame et sa longueur pour calculer le checksum
@@ -83,11 +85,12 @@ void UartDecodeMessage(unsigned char c) {
 
         case PayloadLengthLSB:
             msgDecodedPayloadLength += c << 0;
-            if (msgDecodedPayloadLength == 0 || msgDecodedPayloadLength > 1024) {
+            if (msgDecodedPayloadLength == 0) {
+                rcvState = CheckSum;
+            } else if (msgDecodedPayloadLength > 1024) {
                 rcvState = Waiting;
             } else {
                 rcvState = Payload;
-                msgDecodedPayload[msgDecodedPayloadLength];
                 msgDecodedPayloadIndex = 0;
             }
             break;
@@ -120,17 +123,38 @@ void UartDecodeMessage(unsigned char c) {
 void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLength, unsigned char* payload) {
     //Fonction appelée après le décodage pour exécuter l'action
     //Correspondant au message reçu
-    switch (msgFunction) {
+    int numLed, etatLed;
+
+    switch (function) {
+        case LED:
+            numLed = payload[0];
+            etatLed = payload[1];
+            if (numLed == 1) {
+                LED_ORANGE = 1;
+            }
+            if (numLed == 2) {
+                LED_BLEUE = 1;
+            }
+            if (numLed == 3) {
+                LED_BLANCHE = 1;
+            }
+            break;
+
+        case TEXTE:
+            UartEncodeAndSendMessage(TEXTE, payloadLength, payload);
+            break;
+
         case SET_ROBOT_STATE:
-            SetRobotState(msgPayload[0]);
+            SetRobotState(payload[0]);
             break;
+
         case SET_ROBOT_MANUAL_CONTROL:
-            SetRobotAutoControlState(msgPayload[0]);
+            SetRobotAutoControlState(payload[0]);
             break;
+
         default:
             break;
     }
-
 }
 
 //*************************************************************************/
