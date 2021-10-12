@@ -106,10 +106,9 @@ void UartDecodeMessage(unsigned char c) {
             calculatedChecksum = UartCalculateChecksum(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
             unsigned char receivedChecksum = c;
             if (calculatedChecksum == receivedChecksum) {
-                //textBoxReception.Text += "Message valide" + "\n";
-                //Dispatcher.Invoke(delegate{ProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);});
+                UartProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
             } else {
-                //Dispatcher.Invoke(delegate{textBoxReception.Text += "Message invalide + \n";});
+                UartEncodeAndSendMessage(TEXTE, 6, "Erreur");
             }
             rcvState = Waiting;
             break;
