@@ -52,10 +52,9 @@
 #define OBSTACLE_A_GAUCHE2_PROCHE 14
 #define OBSTACLE_A_DROITE2_PROCHE 15
 
-void OperatingSystemLoop(void);
-void SetNextRobotStateInAutomaticMode(void);
-
 void SetRobotState(unsigned char c);
 void SetRobotAutoControlState(unsigned char c);
+void OperatingSystemLoop(void);
+void SetNextRobotStateInAutomaticMode(void);
 
 #endif	/* MAIN_H */

@@ -26,7 +26,7 @@
         </GroupBox>
         <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="0" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEnvoyer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
         <Button x:Name="buttonEffacer" Content="Effacer" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
-        <Button x:Name="buttonAuto" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
+        <Button x:Name="buttonAutoManuel" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonAutoManuel_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
         <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FFDDDDDD" BorderBrush="Black"/>
         <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="15,0,0,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
             <StackPanel>
@@ -45,7 +45,7 @@
                 <TextBox x:Name="textBoxIRD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="61,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Moteurs" HorizontalAlignment="Right" Margin="0,0,-50,30" Grid.Row="2" VerticalAlignment="Center" Height="120" Background="#FFDDDDDD" BorderBrush="Black">
+        <GroupBox Header="Moteurs" HorizontalAlignment="Right" Margin="0,20,346,19" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black" Grid.ColumnSpan="2" Width="162">
             <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="100" Width="155">
                 <TextBlock TextWrapping="Wrap" Text="Vitesse Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
                 <TextBox x:Name="textBoxVG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="94,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
@@ -53,13 +53,13 @@
                 <TextBox x:Name="textBoxVD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="87,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Étape" HorizontalAlignment="Right" Margin="0,0,-385,50" Grid.Row="2" VerticalAlignment="Center" Height="100" Background="#FFDDDDDD" BorderBrush="Black" Width="330">
+        <GroupBox Header="Étape" HorizontalAlignment="Right" Margin="0,20,11,19" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black" Width="330" Grid.Column="1">
             <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="60" Width="315">
                 <TextBlock TextWrapping="Wrap" Text="Robot State : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
                 <TextBox x:Name="textBoxEtape" Height="40" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="76,-20,0,0" Width="240" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
             </StackPanel>
         </GroupBox>
-        
+
 
 
     </Grid>

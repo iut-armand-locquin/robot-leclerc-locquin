@@ -116,20 +116,19 @@ int main(void) {
 
 int alea = 0;
 unsigned char stateRobot;
+int autoControlActivated = 1;
 
-int modeAuto;
+void SetRobotState(unsigned char c) {
+    stateRobot = c;
+}
 
 void SetRobotAutoControlState(unsigned char c) {
-    modeAuto = c;
-    if (modeAuto == 1) {
+    autoControlActivated = c;
+    if (autoControlActivated == 1) {
         stateRobot = STATE_AVANCE;
     } else {
         stateRobot = STATE_ARRET;
     }
-}
-
-void SetRobotState(unsigned char c) {
-    stateRobot = c;
 }
 
 void OperatingSystemLoop(void) {
@@ -263,7 +262,7 @@ void OperatingSystemLoop(void) {
 unsigned char nextStateRobot = 0;
 
 void SetNextRobotStateInAutomaticMode(void) {
-    if (modeAuto == 1) {
+    if (autoControlActivated == 1) {
         unsigned char positionObstacle = PAS_D_OBSTACLE;
 
         //Détermination de la position des obstacles en fonction des télémètres
@@ -372,6 +371,15 @@ void SetNextRobotStateInAutomaticMode(void) {
         //Si l'on n'est pas dans la transition de l'étape en cours
         if (nextStateRobot != stateRobot - 1) {
             stateRobot = nextStateRobot;
+            unsigned char fonction = 0x0050;
+            int payloadLength = 5;
+            unsigned char payload[5];
+            payload[0] = nextStateRobot;
+            payload[1] = timestamp >> 24;
+            payload[2] = timestamp >> 16;
+            payload[3] = timestamp >> 8;
+            payload[4] = timestamp >> 0;
+            UartEncodeAndSendMessage(fonction, payloadLength, payload);
 
             //    if (nextStateRobot == STATE_TURBO) {
             //        LED_BLEUE = 1;
@@ -390,17 +398,6 @@ void SetNextRobotStateInAutomaticMode(void) {
             //    } else {
             //        LED_ORANGE = 0;
             //    }
-
-
-            unsigned char fonction = 0x0050;
-            int payloadLength = 5;
-            unsigned char payload[5];
-            payload[0] = nextStateRobot;
-            payload[1] = timestamp >> 24;
-            payload[2] = timestamp >> 16;
-            payload[3] = timestamp >> 8;
-            payload[4] = timestamp >> 0;
-            UartEncodeAndSendMessage(fonction, payloadLength, payload);
         }
     }
 }

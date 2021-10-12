@@ -243,7 +243,7 @@ namespace RobotInterface
                     }
                     else
                     {
-                        Dispatcher.Invoke(delegate { textBoxReception.Text += "Message invalide + \n"; });
+                        Dispatcher.Invoke(delegate { textBoxReception.Text += "Message invalide \n"; });
                     }
                     rcvState = StateReception.Waiting;
                     break;
@@ -366,6 +366,28 @@ namespace RobotInterface
 
                 case (int)Function.Set_Robot_State:
                     break;
+            }
+        }
+
+        bool autoControlActivated = true;
+
+        public void buttonAutoManuel_Click(object sender, RoutedEventArgs e)
+        {
+            int Set_Robot_Manual_Control = 0x0052;
+            byte[] autoControl = new byte[1];
+
+            autoControlActivated = !autoControlActivated;
+            if (autoControlActivated == true)
+            {
+                buttonAutoManuel.Content = "Automatique";
+                autoControl[0] = 1;
+                UartEncodeAndSendMessage(Set_Robot_Manual_Control, 1, new byte[] { 1 });
+            }
+            else
+            {
+                buttonAutoManuel.Content = "Manuel";
+                autoControl[0] = 0;
+                UartEncodeAndSendMessage(Set_Robot_Manual_Control, 1, new byte[] { 0 });
             }
         }
     }

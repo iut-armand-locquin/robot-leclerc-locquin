@@ -34,7 +34,7 @@ unsigned char CB_RX1_IsDataAvailable(void) {
         return 0;
 }
 
-void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt1(void) {
+void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
     IFS0bits.U1RXIF = 0; // clear RX interrupt flag
     /* check for receive errors */
     if (U1STAbits.FERR == 1) {
