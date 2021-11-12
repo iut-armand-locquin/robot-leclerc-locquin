@@ -15,7 +15,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ExtendedSerialPort;
 using System.Windows.Threading;
-
+using MouseKeyboardActivityMonitor.WinApi;
+using MouseKeyboardActivityMonitor;
+using System.Windows.Forms;
 
 namespace RobotInterface
 {
@@ -30,6 +32,8 @@ namespace RobotInterface
 
         Robot robot = new Robot();
 
+        private readonly KeyboardHookListener m_KeyboardHookManager;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,6 +47,10 @@ namespace RobotInterface
             timerAffichage.Start();
 
             robot.receivedText = "";
+
+            m_KeyboardHookManager = new KeyboardHookListener(new GlobalHooker());
+            m_KeyboardHookManager.Enabled = true;
+            m_KeyboardHookManager.KeyDown += HookManager_KeyDown;
         }
 
         public void SerialPort1_DataReceived(object sender, DataReceivedArgs e)
@@ -92,7 +100,7 @@ namespace RobotInterface
             SendMessage();
         }
 
-        public void textBoxEmission_KeyUp(object sender, KeyEventArgs e)
+        public void textBoxEmission_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -263,7 +271,6 @@ namespace RobotInterface
             StateRobot = 0x0050,
             Set_Robot_State = 0x0051,
             Set_Robot_Manual_Control = 0x0052
-
         }
 
         public enum StateRobot
@@ -390,5 +397,31 @@ namespace RobotInterface
                 UartEncodeAndSendMessage(Set_Robot_Manual_Control, 1, new byte[] { 0 });
             }
         }
+
+        private void HookManager_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (autoControlActivated == false)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.Left:
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_TOURNE_SUR_PLACE_GAUCHE });
+                        break;
+                    case Keys.Right:
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_TOURNE_SUR_PLACE_DROITE });
+                        break;
+                    case Keys.Up:
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_AVANCE });
+                        break;
+                    case Keys.Down:
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_ARRET });
+                        break;
+                    case Keys.PageDown:
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_RECULE });
+                        break;
+                }
+            }
+        }
+
     }
 }

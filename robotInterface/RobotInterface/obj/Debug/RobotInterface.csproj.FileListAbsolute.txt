@@ -78,3 +78,6 @@ C:\GitHub\robot-armand-locquin\RobotInterface\RobotInterface\obj\Debug\RobotInte
 C:\GitHub\robot-armand-locquin\RobotInterface\RobotInterface\obj\Debug\RobotInterface.csproj.CopyComplete
 C:\GitHub\robot-armand-locquin\RobotInterface\RobotInterface\obj\Debug\RobotInterface.exe
 C:\GitHub\robot-armand-locquin\RobotInterface\RobotInterface\obj\Debug\RobotInterface.pdb
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.pdb
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.xml

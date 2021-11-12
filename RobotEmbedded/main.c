@@ -133,7 +133,7 @@ void SetRobotAutoControlState(unsigned char c) {
 }
 
 void OperatingSystemLoop(void) {
-    if (autoControlActivated == 1) {
+
     switch (stateRobot) {
         case STATE_ATTENTE:
             timestamp = 0;
@@ -259,13 +259,12 @@ void OperatingSystemLoop(void) {
             stateRobot = STATE_ATTENTE;
             break;
     }
-    }
 }
 
 unsigned char nextStateRobot = 0;
 
 void SetNextRobotStateInAutomaticMode(void) {
-    //if (autoControlActivated == 1) {
+    if (autoControlActivated == 1) {
         unsigned char positionObstacle = PAS_D_OBSTACLE;
 
         //Détermination de la position des obstacles en fonction des télémètres
@@ -402,5 +401,6 @@ void SetNextRobotStateInAutomaticMode(void) {
             //        LED_ORANGE = 0;
             //    }
         //}
+    }
     }
 }
