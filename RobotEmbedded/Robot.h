@@ -2,7 +2,9 @@
 #define ROBOT_H
 
 typedef struct robotStateBITS {
+
     union {
+
         struct {
             unsigned char taskEnCours;
             float vitesseGaucheConsigne;
@@ -14,6 +16,16 @@ typedef struct robotStateBITS {
             float distanceTelemetreCentre;
             float distanceTelemetreGauche;
             float distanceTelemetreGauche2;
+            double vitesseDroitFromOdometry;
+            double vitesseGaucheFromOdometry;
+            double vitesseLineaireFromOdometry;
+            double vitesseAngulaireFromOdometry;
+            double xPosFromOdometry;
+            double yPosFromOdometry;
+            double angleRadianFromOdometry;
+            double xPosFromOdometry_1;
+            double yPosFromOdometry_1;
+            double angleRadianFromOdometry_1;
         }
         ;
     }

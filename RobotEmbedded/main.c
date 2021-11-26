@@ -13,6 +13,7 @@
 #include "CB_TX1.h"
 #include "CB_RX1.h"
 #include "UART_Protocol.h"
+#include "QEI.h"
 
 int autoControlActivated = 1;
 
@@ -32,6 +33,8 @@ int main(void) {
     InitPWM();
     InitADC1();
     InitUART();
+    InitQEI1();
+    InitQEI2();
 
     /****************************************************************************************************/
     // Boucle Principale
