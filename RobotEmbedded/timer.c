@@ -64,7 +64,7 @@ void InitTimer1(void)
 }
 
 //Interruption du timer 1
-
+int counter = 0;
 void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;
@@ -74,7 +74,7 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
 
     ADC1StartConversionSequence();
 
-    if (timestamp % 25 == 0)
+    if (counter++ % 25 == 0)
     {
         SendPositionData();
     }

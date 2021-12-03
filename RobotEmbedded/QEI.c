@@ -7,6 +7,10 @@
 #include "UART_Protocol.h"
 #include "Utilities.h"
 
+
+double QeiDroitPosition;
+double QeiGauchePosition;
+
 void InitQEI1()
 {
     QEI1IOCbits.SWPAB = 1; //QEAx and QEBx are swapped
@@ -28,8 +32,8 @@ void InitQEI2()
 void QEIUpdateData()
 {
     //On sauvegarde les anciennes valeurs
-    QeiDroitPosition_T_1 = QeiDroitPosition;
-    QeiGauchePosition_T_1 = QeiGauchePosition;
+    double QeiDroitPosition_T_1 = QeiDroitPosition;
+    double QeiGauchePosition_T_1 = QeiGauchePosition;
 
     //On réactualise les valeurs de positions
     long QEI1RawValue = POS1CNTL;
@@ -43,11 +47,11 @@ void QEIUpdateData()
     QeiGauchePosition = -0.01620 * QEI1RawValue;
 
     //Calcul des deltas de position
-    delta_d = QeiDroitPosition - QeiDroitPosition_T_1;
-    delta_g = QeiGauchePosition - QeiGauchePosition_T_1;
+    double delta_d = QeiDroitPosition - QeiDroitPosition_T_1;
+    double delta_g = QeiGauchePosition - QeiGauchePosition_T_1;
     //delta_theta = atan((delta_d - delta_g) / DISTROUES);
-    delta_theta = (delta_d - delta_g) / DISTROUES;
-    dx = (delta_d + delta_g) / 2;
+    double delta_theta = (delta_d - delta_g) / DISTROUES;
+    //double dx = (delta_d + delta_g) / 2;
 
     //Calcul des vitesses
     //attention à remultiplier par la fréquence d'échantillonnage

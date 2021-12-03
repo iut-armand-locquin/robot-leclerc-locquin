@@ -17,7 +17,8 @@
 
 int autoControlActivated = 1;
 
-int main(void) {
+int main(void)
+{
     /***************************************************************************************************/
     //Initialisation de l'oscillateur
     /****************************************************************************************************/
@@ -33,14 +34,16 @@ int main(void) {
     InitPWM();
     InitADC1();
     InitUART();
-    InitQEI1();
-    InitQEI2();
+    //    InitQEI1();
+    //    InitQEI2();
 
     /****************************************************************************************************/
     // Boucle Principale
     /****************************************************************************************************/
-    while (1) {
-        if (ADCIsConversionFinished() == 1) {
+    while (1)
+    {
+        if (ADCIsConversionFinished() == 1)
+        {
             ADCClearConversionFinishedFlag();
             unsigned int * result = ADCGetResult();
             float volts = ((float) result [0]) * 3.3 / 4096 * 3.2;
@@ -53,51 +56,51 @@ int main(void) {
             robotState.distanceTelemetreGauche = 34 / volts - 5;
             volts = ((float) result [3]) * 3.3 / 4096 * 3.2;
             robotState.distanceTelemetreGauche2 = 34 / volts - 5;
+
+            unsigned char fonction = 0x0030;
+            int payloadLength = 3;
+            unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
+            UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+            fonction = 0x0020;
+            payloadLength = 2;
+
+            if (robotState.distanceTelemetreDroit > 20)
+            {
+                LED_ORANGE = 1;
+            }
+            else
+            {
+                LED_ORANGE = 0;
+            }
+            payload[0] = 1;
+            payload[1] = LED_ORANGE;
+            UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+            if (robotState.distanceTelemetreCentre > 15)
+            {
+                LED_BLEUE = 1;
+            }
+            else
+            {
+                LED_BLEUE = 0;
+            }
+            payload[0] = 2;
+            payload[1] = LED_BLEUE;
+            UartEncodeAndSendMessage(fonction, payloadLength, payload);
+
+            if (robotState.distanceTelemetreGauche > 20)
+            {
+                LED_BLANCHE = 1;
+            }
+            else
+            {
+                LED_BLANCHE = 0;
+            }
+            payload[0] = 3;
+            payload[1] = LED_BLANCHE;
+            UartEncodeAndSendMessage(fonction, payloadLength, payload);
         }
-
-        unsigned char fonction = 0x0030;
-        int payloadLength = 3;
-        unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
-        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-        fonction = 0x0020;
-        payloadLength = 2;
-
-        if (robotState.distanceTelemetreDroit > 20) {
-            LED_ORANGE = 1;
-        } else {
-            LED_ORANGE = 0;
-        }
-
-        payload[0] = 1;
-        payload[1] = LED_ORANGE;
-        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-        if (robotState.distanceTelemetreCentre > 15) {
-            LED_BLEUE = 1;
-        } else {
-            LED_BLEUE = 0;
-        }
-
-        payload[0] = 2;
-        payload[1] = LED_BLEUE;
-        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-        if (robotState.distanceTelemetreGauche > 20) {
-            LED_BLANCHE = 1;
-        } else {
-            LED_BLANCHE = 0;
-        }
-
-        payload[0] = 3;
-        payload[1] = LED_BLANCHE;
-        UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-        fonction = 0x0040;
-        payloadLength = 2;
-        payload[0] = abs(robotState.vitesseGaucheConsigne);
-        payload[1] = abs(robotState.vitesseDroiteConsigne);
-        UartEncodeAndSendMessage(fonction, payloadLength, payload);
 
         //        unsigned char fonction = 0x0080;
         //        int payloadLength = 7;
@@ -110,7 +113,8 @@ int main(void) {
         //        __delay32(4000000);
 
         int i;
-        for (i = 0; i < CB_RX1_GetDataSize(); i++) {
+        for (i = 0; i < CB_RX1_GetDataSize(); i++)
+        {
             unsigned char c = CB_RX1_Get();
             //SendMessage(&c, 1);
             UartDecodeMessage(c);
@@ -122,20 +126,26 @@ int main(void) {
 int alea = 0;
 unsigned char stateRobot;
 
-void SetRobotState(unsigned char c) {
+void SetRobotState(unsigned char c)
+{
     stateRobot = c;
 }
 
-void SetRobotAutoControlState(unsigned char c) {
-    autoControlActivated = (int)c;
-    if (autoControlActivated == 1) {
+void SetRobotAutoControlState(unsigned char c)
+{
+    autoControlActivated = (int) c;
+    if (autoControlActivated == 1)
+    {
         stateRobot = STATE_AVANCE;
-    } else {
+    }
+    else
+    {
         stateRobot = STATE_ARRET;
     }
 }
 
-void OperatingSystemLoop(void) {
+void OperatingSystemLoop(void)
+{
 
     switch (stateRobot) {
         case STATE_ATTENTE:
@@ -266,8 +276,10 @@ void OperatingSystemLoop(void) {
 
 unsigned char nextStateRobot = 0;
 
-void SetNextRobotStateInAutomaticMode(void) {
-    if (autoControlActivated == 1) {
+void SetNextRobotStateInAutomaticMode(void)
+{
+    if (autoControlActivated == 1)
+    {
         unsigned char positionObstacle = PAS_D_OBSTACLE;
 
         //Détermination de la position des obstacles en fonction des télémètres
@@ -374,7 +386,8 @@ void SetNextRobotStateInAutomaticMode(void) {
             nextStateRobot = STATE_TOURNE_PEU_DROITE;
 
         //Si l'on n'est pas dans la transition de l'étape en cours
-        if (nextStateRobot != stateRobot - 1) {
+        if (nextStateRobot != stateRobot - 1)
+        {
             stateRobot = nextStateRobot;
             unsigned char fonction = 0x0050;
             int payloadLength = 5;
@@ -403,7 +416,7 @@ void SetNextRobotStateInAutomaticMode(void) {
             //    } else {
             //        LED_ORANGE = 0;
             //    }
-        //}
-    }
+            //}
+        }
     }
 }

@@ -8,7 +8,6 @@
       <itemPath>IO.h</itemPath>
       <itemPath>timer.h</itemPath>
       <itemPath>Robot.h</itemPath>
-      <itemPath>ToolBox.h</itemPath>
       <itemPath>PWM.h</itemPath>
       <itemPath>ADC.h</itemPath>
       <itemPath>main.h</itemPath>
@@ -17,7 +16,7 @@
       <itemPath>CB_RX1.h</itemPath>
       <itemPath>UART_Protocol.h</itemPath>
       <itemPath>QEI.h</itemPath>
-      <itemPath>Utilities.h</itemPath>
+      <itemPath>ToolBox.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -31,7 +30,6 @@
       <itemPath>IO.c</itemPath>
       <itemPath>timer.c</itemPath>
       <itemPath>Robot.c</itemPath>
-      <itemPath>ToolBox.c</itemPath>
       <itemPath>PWM.c</itemPath>
       <itemPath>ADC.c</itemPath>
       <itemPath>UART.c</itemPath>
@@ -39,7 +37,7 @@
       <itemPath>CB_RX1.c</itemPath>
       <itemPath>UART_Protocol.c</itemPath>
       <itemPath>QEI.c</itemPath>
-      <itemPath>Utilities.c</itemPath>
+      <itemPath>ToolBox.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -47,6 +45,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
@@ -821,6 +822,7 @@
         <property key="UART 3" value="true"/>
         <property key="UART 4" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>
