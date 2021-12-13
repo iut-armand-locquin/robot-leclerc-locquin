@@ -7,7 +7,6 @@
 #include "UART_Protocol.h"
 #include "Utilities.h"
 
-
 double QeiDroitPosition;
 double QeiGauchePosition;
 
@@ -27,8 +26,6 @@ void InitQEI2()
     QEI2CONbits.QEIEN = 1; //Enable QEI Module
 }
 
-#define DISTROUES 281.2
-
 void QEIUpdateData()
 {
     //On sauvegarde les anciennes valeurs
@@ -43,8 +40,8 @@ void QEIUpdateData()
     QEI2RawValue += ((long) POS2HLD << 16);
 
     //Conversion en mm (réglé pour la taille des roues codeuses)
-    QeiDroitPosition = 0.01620 * QEI1RawValue;
-    QeiGauchePosition = -0.01620 * QEI1RawValue;
+    QeiDroitPosition = POINT_TO_METER * QEI1RawValue;
+    QeiGauchePosition = -POINT_TO_METER * QEI2RawValue;
 
     //Calcul des deltas de position
     double delta_d = QeiDroitPosition - QeiDroitPosition_T_1;
@@ -66,16 +63,14 @@ void QEIUpdateData()
     robotState.angleRadianFromOdometry_1 = robotState.angleRadianFromOdometry;
 
     //Calcul des positions dans le référentiel du terrain
-    robotState.xPosFromOdometry = robotState.xPosFromOdometry_1 + (robotState.vitesseLineaireFromOdometry / FREQ_ECH_QEI) * cos(delta_theta);
-    robotState.yPosFromOdometry = robotState.yPosFromOdometry_1 + (robotState.vitesseLineaireFromOdometry / FREQ_ECH_QEI) * sin(delta_theta);
-    robotState.angleRadianFromOdometry = robotState.angleRadianFromOdometry_1 + tan(robotState.yPosFromOdometry / robotState.xPosFromOdometry);
+    robotState.xPosFromOdometry = robotState.xPosFromOdometry_1 + (robotState.vitesseLineaireFromOdometry / FREQ_ECH_QEI) * cos(robotState.angleRadianFromOdometry);
+    robotState.yPosFromOdometry = robotState.yPosFromOdometry_1 + (robotState.vitesseLineaireFromOdometry / FREQ_ECH_QEI) * sin(robotState.angleRadianFromOdometry);
+    robotState.angleRadianFromOdometry = robotState.angleRadianFromOdometry_1 + delta_theta;
     if (robotState.angleRadianFromOdometry > PI)
-        robotState.angleRadianFromOdometry += 2 * PI;
+        robotState.angleRadianFromOdometry -= 2 * PI;
     if (robotState.angleRadianFromOdometry < -PI)
         robotState.angleRadianFromOdometry += 2 * PI;
 }
-
-#define POSITION_DATA 0x0061
 
 void SendPositionData()
 {

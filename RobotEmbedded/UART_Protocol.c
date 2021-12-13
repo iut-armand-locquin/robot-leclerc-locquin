@@ -108,7 +108,7 @@ void UartDecodeMessage(unsigned char c) {
             if (calculatedChecksum == receivedChecksum) {
                 UartProcessDecodedMessage(msgDecodedFunction, msgDecodedPayloadLength, msgDecodedPayload);
             } else {
-                UartEncodeAndSendMessage(TEXTE, 6, "Erreur");
+                //UartEncodeAndSendMessage(TEXTE, 6, erreur);
             }
             rcvState = Waiting;
             break;

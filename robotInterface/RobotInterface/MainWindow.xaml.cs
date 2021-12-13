@@ -17,6 +17,7 @@ using ExtendedSerialPort;
 using System.Windows.Threading;
 using MouseKeyboardActivityMonitor.WinApi;
 using MouseKeyboardActivityMonitor;
+using Utilities;
 using System.Windows.Forms;
 
 namespace RobotInterface
@@ -270,7 +271,8 @@ namespace RobotInterface
             Moteurs = 0x0040,
             StateRobot = 0x0050,
             Set_Robot_State = 0x0051,
-            Set_Robot_Manual_Control = 0x0052
+            Set_Robot_Manual_Control = 0x0052,
+            Position_Data = 0x0061
         }
 
         public enum StateRobot
@@ -372,6 +374,33 @@ namespace RobotInterface
                     break;
 
                 case (int)Function.Set_Robot_State:
+                    break;
+
+                case (int)Function.Position_Data:
+                    int offset = 0;
+                    //instant = (((int)msgPayload[1]) << 24) + (((int)msgPayload[2]) << 16) + (((int)msgPayload[3]) << 8) + ((int)msgPayload[4]);
+
+                    byte[] tab = msgPayload.GetRange(4, 4);
+                    robot.positionXOdo = tab.GetFloat();
+                    
+                    tab = msgPayload.GetRange(8, 4);
+                    robot.positionYOdo = tab.GetFloat();
+
+                    tab = msgPayload.GetRange(12, 4);
+                    robot.positionAngleRadOdo = tab.GetFloat();
+
+                    tab = msgPayload.GetRange(16, 4);
+                    robot.positionVitesseLinOdo = tab.GetFloat();
+
+                    tab = msgPayload.GetRange(20, 4);
+                    robot.positionVitesseAngOdo = tab.GetFloat();
+
+                    textBoxPosX.Text = robot.positionXOdo.ToString();
+                    textBoxPosY.Text = robot.positionYOdo.ToString();
+                    textBoxAngle.Text = robot.positionAngleRadOdo.ToString();
+                    textBoxVitesseLin.Text = robot.positionVitesseLinOdo.ToString();
+                    textBoxVitesseAng.Text = robot.positionVitesseAngOdo.ToString();
+
                     break;
             }
         }

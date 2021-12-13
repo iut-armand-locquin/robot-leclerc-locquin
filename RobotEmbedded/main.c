@@ -34,8 +34,8 @@ int main(void)
     InitPWM();
     InitADC1();
     InitUART();
-    //    InitQEI1();
-    //    InitQEI2();
+    InitQEI1();
+    InitQEI2();
 
     /****************************************************************************************************/
     // Boucle Principale
@@ -61,45 +61,46 @@ int main(void)
             int payloadLength = 3;
             unsigned char payload[] = {robotState.distanceTelemetreGauche, robotState.distanceTelemetreCentre, robotState.distanceTelemetreDroit};
             UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-            fonction = 0x0020;
+            
+            fonction = 0x0040;
             payloadLength = 2;
+            unsigned char payloadVitesse[2];
+            payloadVitesse[0] = robotState.vitesseGaucheConsigne;
+            payloadVitesse[1] = robotState.vitesseDroiteConsigne;
+            UartEncodeAndSendMessage(fonction, payloadLength, payloadVitesse);
 
-            if (robotState.distanceTelemetreDroit > 20)
-            {
+//            fonction = 0x0020;
+//            payloadLength = 2;
+//            
+            if (robotState.distanceTelemetreDroit > 20){
                 LED_ORANGE = 1;
             }
-            else
-            {
+            else{
                 LED_ORANGE = 0;
             }
             payload[0] = 1;
             payload[1] = LED_ORANGE;
-            UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-            if (robotState.distanceTelemetreCentre > 15)
-            {
+//            UartEncodeAndSendMessage(fonction, payloadLength, payload);
+//
+            if (robotState.distanceTelemetreCentre > 15){
                 LED_BLEUE = 1;
             }
-            else
-            {
+            else{
                 LED_BLEUE = 0;
             }
             payload[0] = 2;
             payload[1] = LED_BLEUE;
-            UartEncodeAndSendMessage(fonction, payloadLength, payload);
-
-            if (robotState.distanceTelemetreGauche > 20)
-            {
+//            UartEncodeAndSendMessage(fonction, payloadLength, payload);
+//
+            if (robotState.distanceTelemetreGauche > 20){
                 LED_BLANCHE = 1;
             }
-            else
-            {
+            else{
                 LED_BLANCHE = 0;
             }
             payload[0] = 3;
             payload[1] = LED_BLANCHE;
-            UartEncodeAndSendMessage(fonction, payloadLength, payload);
+//            UartEncodeAndSendMessage(fonction, payloadLength, payload);
         }
 
         //        unsigned char fonction = 0x0080;
@@ -146,7 +147,6 @@ void SetRobotAutoControlState(unsigned char c)
 
 void OperatingSystemLoop(void)
 {
-
     switch (stateRobot) {
         case STATE_ATTENTE:
             timestamp = 0;

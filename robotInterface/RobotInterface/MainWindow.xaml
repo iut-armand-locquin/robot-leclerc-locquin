@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RobotInterface"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="450" Width="800" Background="#FF1D1D1D">
+    <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="40"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="240"/>
 
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -18,46 +18,61 @@
             <ColumnDefinition Width="1*"/>
 
         </Grid.ColumnDefinitions>
-        <GroupBox x:Name="groupBoxEmission" Header="Émission" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,5,5,5" Grid.Column="0" Grid.Row="0" Background="#FFDDDDDD" BorderBrush="Black">
-            <TextBox x:Name="textBoxEmission" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD" KeyUp="textBoxEmission_KeyUp"/>
+        <GroupBox x:Name="groupBoxEmission" Header="Émission" HorizontalAlignment="Stretch" Margin="10,5,5,5" Grid.Column="0" Grid.Row="0" Background="#FF878787" BorderBrush="White" Height="130" Foreground="White">
+            <TextBox x:Name="textBoxEmission" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxEmission_KeyUp"/>
         </GroupBox>
-        <GroupBox x:Name="groupBoxReception" Header="Réception" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,10,5"  Grid.Column="1" Grid.Row="0" Background="#FFDDDDDD" BorderBrush="Black">
-            <TextBox x:Name="textBoxReception" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
+        <GroupBox x:Name="groupBoxReception" Header="Réception" HorizontalAlignment="Stretch" Margin="5,5,10,5"  Grid.Column="1" Grid.Row="0" Background="#FF878787" BorderBrush="White" Height="130" Foreground="White">
+            <TextBox x:Name="textBoxReception" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" BorderBrush="#FF878787" Background="#FF878787"/>
         </GroupBox>
-        <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="0" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEnvoyer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
-        <Button x:Name="buttonEffacer" Content="Effacer" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
-        <Button x:Name="buttonAutoManuel" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonAutoManuel_Click" Background="#FFDDDDDD" BorderBrush="Black" Margin="15,0,0,0"/>
-        <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FFDDDDDD" BorderBrush="Black"/>
-        <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="15,0,0,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
+        <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="0" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEnvoyer_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
+        <Button x:Name="buttonEffacer" Content="Effacer" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
+        <Button x:Name="buttonAutoManuel" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonAutoManuel_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
+        <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FF878787" BorderBrush="White" Foreground="White"/>
+        <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="2" VerticalAlignment="Top" Height="150" Background="#FF878787" BorderBrush="White" Foreground="White">
             <StackPanel>
-                <CheckBox x:Name="checkBoxLEDOrange" Content="LED Orange" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="checkBoxLEDOrange" Content="LED Orange" HorizontalAlignment="Left" Margin="5,15,5,0" VerticalAlignment="Top"/>
                 <CheckBox x:Name="checkBoxLEDBleue" Content="LED Bleue" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
                 <CheckBox x:Name="checkBoxLEDBlanche" Content="LED Blanche" HorizontalAlignment="Left" Margin="5,20,5,0" VerticalAlignment="Top"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Télémètres IR" HorizontalAlignment="Center" Margin="0,0,-5,0" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black">
+        <GroupBox Header="Télémètres IR" HorizontalAlignment="Center" Margin="0,0,5,0" Grid.Row="2" VerticalAlignment="Top" Height="150" Background="#FF878787" BorderBrush="White" Foreground="White">
             <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="130" Width="130">
-                <TextBlock TextWrapping="Wrap" Text="IR Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxIRG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="68,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
-                <TextBlock TextWrapping="Wrap" Text="IR Centre : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxIRC" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="63,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
-                <TextBlock TextWrapping="Wrap" Text="IR Droite : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxIRD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="61,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
+                <TextBlock TextWrapping="Wrap" Text="IR Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,15,0,0" Foreground="Black"/>
+                <TextBox x:Name="textBoxIRG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="68,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FF878787" Background="#FF878787"/>
+                <TextBlock TextWrapping="Wrap" Text="IR Centre : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" Foreground="Black"/>
+                <TextBox x:Name="textBoxIRC" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="63,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FF878787" Background="#FF878787"/>
+                <TextBlock TextWrapping="Wrap" Text="IR Droite : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" Foreground="Black"/>
+                <TextBox x:Name="textBoxIRD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="61,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FF878787" Background="#FF878787"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Moteurs" HorizontalAlignment="Right" Margin="0,20,346,19" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black" Grid.ColumnSpan="2" Width="162">
-            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="100" Width="155">
-                <TextBlock TextWrapping="Wrap" Text="Vitesse Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxVG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="94,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
-                <TextBlock TextWrapping="Wrap" Text="Vitesse Droite : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxVD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="87,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
+        <GroupBox Header="Moteurs" HorizontalAlignment="Center" Margin="0,0,83,0" Grid.Row="2" VerticalAlignment="Top" Height="150" Background="#FF878787" BorderBrush="White" Grid.ColumnSpan="2" Width="162" HorizontalContentAlignment="Center" Foreground="White">
+            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="100">
+                <TextBlock TextWrapping="Wrap" Text="Vitesse Gauche : " HorizontalAlignment="Left" Height="20" Margin="5,15,0,0" Foreground="Black"/>
+                <TextBox x:Name="textBoxVG" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="94,-20,0,0" Width="60" HorizontalAlignment="Left" BorderBrush="#FF878787" Background="#FF878787"/>
+                <TextBlock TextWrapping="Wrap" Text="Vitesse Droite : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" Foreground="Black"/>
+                <TextBox x:Name="textBoxVD" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="87,-20,0,0" HorizontalAlignment="Left" Width="60" BorderBrush="#FF878787" Background="#FF878787"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Étape" HorizontalAlignment="Right" Margin="0,20,11,19" Grid.Row="2" VerticalAlignment="Center" Height="150" Background="#FFDDDDDD" BorderBrush="Black" Width="330" Grid.Column="1">
-            <StackPanel HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="60" Width="315">
-                <TextBlock TextWrapping="Wrap" Text="Robot State : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0"/>
-                <TextBox x:Name="textBoxEtape" Height="40" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="76,-20,0,0" Width="240" HorizontalAlignment="Left" BorderBrush="#FFDDDDDD" Background="#FFDDDDDD"/>
+        <GroupBox Header="Étape" Margin="10,0,0,10" Grid.Row="2" VerticalAlignment="Bottom" Background="#FF878787" BorderBrush="White" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="421" Foreground="White">
+            <StackPanel Margin="0" VerticalAlignment="Top" Height="60">
+                <TextBlock TextWrapping="Wrap" Text="Robot State : " HorizontalAlignment="Left" Height="20" Margin="5,15,0,0" Foreground="Black"/>
+                <TextBox x:Name="textBoxEtape" Height="40" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="333" BorderBrush="#FF878787" Background="#FF878787" HorizontalAlignment="Right"/>
             </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Odométrie" HorizontalAlignment="Right" Margin="0,0,10,0" Grid.Row="2" Background="#FF878787" BorderBrush="White" Width="338" Grid.Column="1" Height="230" VerticalAlignment="Top" Foreground="White">
+            <StackPanel Margin="0">
+                <TextBlock TextWrapping="Wrap" Text="Position X : " HorizontalAlignment="Left" Height="20" Margin="5,15,0,0" VerticalAlignment="Top" Foreground="Black"/>
+                <TextBox x:Name="textBoxPosX" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="254" BorderBrush="#FF878787" Background="#FF878787" HorizontalAlignment="Right"/>
+                <TextBlock TextWrapping="Wrap" Text="Position Y : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" VerticalAlignment="Top" Foreground="Black"/>
+                <TextBox x:Name="textBoxPosY" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="255" HorizontalAlignment="Right" BorderBrush="#FF878787" Background="#FF878787"/>
+                <TextBlock TextWrapping="Wrap" Text="Angle (en rad) : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" VerticalAlignment="Top" Foreground="Black"/>
+                <TextBox x:Name="textBoxAngle" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="232" HorizontalAlignment="Right" BorderBrush="#FF878787" Background="#FF878787"/>
+                <TextBlock TextWrapping="Wrap" Text="Vitesse linéaire : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" VerticalAlignment="Top" Foreground="Black"/>
+                <TextBox x:Name="textBoxVitesseLin" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="228" HorizontalAlignment="Right" BorderBrush="#FF878787" Background="#FF878787"/>
+                <TextBlock TextWrapping="Wrap" Text="Vitesse angulaire : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" VerticalAlignment="Top" Foreground="Black"/>
+                <TextBox x:Name="textBoxVitesseAng" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="217" HorizontalAlignment="Right" BorderBrush="#FF878787" Background="#FF878787"/>
+            </StackPanel>
+
         </GroupBox>
 
 

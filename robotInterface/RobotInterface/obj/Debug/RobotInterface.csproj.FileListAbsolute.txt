@@ -81,3 +81,5 @@ C:\GitHub\robot-armand-locquin\RobotInterface\RobotInterface\obj\Debug\RobotInte
 C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.dll
 C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.pdb
 C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.xml
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\Utilities.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\Utilities.pdb
