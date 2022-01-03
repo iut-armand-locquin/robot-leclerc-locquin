@@ -1,0 +1,15 @@
+C:\GitHub\robot_theophile_wemaere\c#\Constants\bin\Debug\Constants.dll
+C:\GitHub\robot_theophile_wemaere\c#\Constants\bin\Debug\Constants.pdb
+C:\GitHub\robot_theophile_wemaere\c#\Constants\obj\Debug\Constants.csprojAssemblyReference.cache
+C:\GitHub\robot_theophile_wemaere\c#\Constants\obj\Debug\Constants.dll
+C:\GitHub\robot_theophile_wemaere\c#\Constants\obj\Debug\Constants.pdb
+C:\GitHub\Robot-Maxence-Jamme\Csharp\Constants\bin\Debug\Constants.dll
+C:\GitHub\Robot-Maxence-Jamme\Csharp\Constants\bin\Debug\Constants.pdb
+C:\GitHub\Robot-Maxence-Jamme\Csharp\Constants\obj\Debug\Constants.dll
+C:\GitHub\Robot-Maxence-Jamme\Csharp\Constants\obj\Debug\Constants.pdb
+C:\GitHub\Robot-Maxence-Jamme\Csharp\Constants\obj\Debug\Constants.csprojAssemblyReference.cache
+C:\Github\robot-armand-locquin\RobotInterface\Constants\bin\Debug\Constants.dll
+C:\Github\robot-armand-locquin\RobotInterface\Constants\bin\Debug\Constants.pdb
+C:\Github\robot-armand-locquin\RobotInterface\Constants\obj\Debug\Constants.csprojAssemblyReference.cache
+C:\Github\robot-armand-locquin\RobotInterface\Constants\obj\Debug\Constants.dll
+C:\Github\robot-armand-locquin\RobotInterface\Constants\obj\Debug\Constants.pdb

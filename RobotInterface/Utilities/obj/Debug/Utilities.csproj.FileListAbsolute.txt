@@ -41,3 +41,19 @@ D:\qei\E&R_AxelAdrien_300120\lib lidar\Utilities\bin\Debug\Utilities.pdb
 D:\qei\E&R_AxelAdrien_300120\lib lidar\Utilities\obj\Debug\Utilities.csprojAssemblyReference.cache
 D:\qei\E&R_AxelAdrien_300120\lib lidar\Utilities\obj\Debug\Utilities.dll
 D:\qei\E&R_AxelAdrien_300120\lib lidar\Utilities\obj\Debug\Utilities.pdb
+C:\Github\Robot-Maxence-Jamme\Csharp\Utilities\bin\Debug\Utilities.dll
+C:\Github\Robot-Maxence-Jamme\Csharp\Utilities\bin\Debug\Utilities.pdb
+C:\Github\Robot-Maxence-Jamme\Csharp\Utilities\obj\Debug\Utilities.dll
+C:\Github\Robot-Maxence-Jamme\Csharp\Utilities\obj\Debug\Utilities.pdb
+C:\GitHub\Robot-Maxence-Jamme\Csharp\Utilities\obj\Debug\Utilities.csprojAssemblyReference.cache
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\Utilities\bin\Debug\Utilities.dll
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\Utilities\bin\Debug\Utilities.pdb
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\Utilities\obj\Debug\Utilities.csprojAssemblyReference.cache
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\Utilities\obj\Debug\Utilities.csproj.CoreCompileInputs.cache
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\Utilities\obj\Debug\Utilities.dll
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\Utilities\obj\Debug\Utilities.pdb
+C:\Github\robot-armand-locquin\RobotInterface\Utilities\bin\Debug\Utilities.dll
+C:\Github\robot-armand-locquin\RobotInterface\Utilities\bin\Debug\Utilities.pdb
+C:\Github\robot-armand-locquin\RobotInterface\Utilities\obj\Debug\Utilities.csprojAssemblyReference.cache
+C:\Github\robot-armand-locquin\RobotInterface\Utilities\obj\Debug\Utilities.dll
+C:\Github\robot-armand-locquin\RobotInterface\Utilities\obj\Debug\Utilities.pdb

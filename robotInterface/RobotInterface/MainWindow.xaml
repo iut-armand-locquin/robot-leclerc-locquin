@@ -4,19 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RobotInterface"
+        xmlns:AsservDisplay="clr-namespace:WpfAsservissementDisplay;assembly=WpfAsservissementDisplay"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Background="#FF1D1D1D">
+        Title="MainWindow" Height="800" Width="800" Background="#FF1D1D1D">
     <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="240"/>
-
+            <RowDefinition Height="340"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
-
         </Grid.ColumnDefinitions>
         <GroupBox x:Name="groupBoxEmission" Header="Émission" HorizontalAlignment="Stretch" Margin="10,5,5,5" Grid.Column="0" Grid.Row="0" Background="#FF878787" BorderBrush="White" Height="130" Foreground="White">
             <TextBox x:Name="textBoxEmission" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxEmission_KeyUp"/>
@@ -72,10 +72,7 @@
                 <TextBlock TextWrapping="Wrap" Text="Vitesse angulaire : " HorizontalAlignment="Left" Height="20" Margin="5,20,0,0" VerticalAlignment="Top" Foreground="Black"/>
                 <TextBox x:Name="textBoxVitesseAng" Height="20" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Margin="0,-20,5,0" Width="217" HorizontalAlignment="Right" BorderBrush="#FF878787" Background="#FF878787"/>
             </StackPanel>
-
         </GroupBox>
-
-
-
+        <AsservDisplay:AsservissementRobot2RouesDisplayControl x:Name="asservSpeedDisplay" Grid.Row="3" Height="340" Grid.ColumnSpan="2" Width="400" FontSize="14" HorizontalAlignment="Center"/>
     </Grid>
 </Window>

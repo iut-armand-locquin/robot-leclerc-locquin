@@ -1,0 +1,17 @@
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\bin\Debug\ExtendedSerialPort.dll
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\bin\Debug\ExtendedSerialPort.pdb
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.csprojAssemblyReference.cache
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.csproj.CoreCompileInputs.cache
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.dll
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.pdb
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\bin\Debug\Utilities.dll
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\bin\Debug\Utilities.pdb
+C:\GitHub\Robot-Georges-Claude-NELSON\Csharp\RobotInterface\ExtendedSerialPort (1)\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.csproj.CopyComplete
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\bin\Debug\ExtendedSerialPort.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\bin\Debug\ExtendedSerialPort.pdb
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\bin\Debug\Utilities.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\bin\Debug\Utilities.pdb
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.csprojAssemblyReference.cache
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.csproj.CopyComplete
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\ExtendedSerialPort\ExtendedSerialPort\obj\Debug\ExtendedSerialPort.pdb

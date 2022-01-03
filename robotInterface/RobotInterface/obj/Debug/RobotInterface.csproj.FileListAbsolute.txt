@@ -83,3 +83,7 @@ C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyb
 C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\MouseKeyboardActivityMonitor.xml
 C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\Utilities.dll
 C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\Utilities.pdb
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\Constants.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\WpfAsservissementDisplay.dll
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\Constants.pdb
+C:\Github\robot-armand-locquin\RobotInterface\RobotInterface\bin\Debug\WpfAsservissementDisplay.pdb

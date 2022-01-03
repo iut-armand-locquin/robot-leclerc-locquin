@@ -19,6 +19,8 @@ using MouseKeyboardActivityMonitor.WinApi;
 using MouseKeyboardActivityMonitor;
 using Utilities;
 using System.Windows.Forms;
+using Constants;
+using WpfAsservissementDisplay;
 
 namespace RobotInterface
 {
@@ -400,6 +402,8 @@ namespace RobotInterface
                     textBoxAngle.Text = robot.positionAngleRadOdo.ToString();
                     textBoxVitesseLin.Text = robot.positionVitesseLinOdo.ToString();
                     textBoxVitesseAng.Text = robot.positionVitesseAngOdo.ToString();
+
+                    asservSpeedDisplay.UpdatePolarOdometrySpeed(robot.positionVitesseLinOdo, robot.positionVitesseAngOdo);
 
                     break;
             }
