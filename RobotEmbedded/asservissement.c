@@ -32,7 +32,7 @@ double Correcteur(volatile PidCorrector* PidCorr, double erreur){
     return PidCorr->corrP + PidCorr->corrI + PidCorr->corrD;
 }
 
-unsigned char asservissementPayload[96];
+unsigned char asservissementPayload[104];
 //    double consigneX = 0.01;
 //    double consigneTheta = 0.02;                    
 //    double valueX = 0.03;
@@ -72,8 +72,8 @@ void AsservissementValeur(){
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidTheta.value)); 
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidX.erreur));
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidTheta.erreur)); 
-    //getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.xCorrectionVitesseCommande));
-    //getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.thetaCorrectionVitesseCommande)); 
+    getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.xCorrectionVitesseCommande));
+    getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.thetaCorrectionVitesseCommande)); 
     //-------------------   
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidX.corrP));
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidTheta.corrP));
@@ -96,6 +96,5 @@ void AsservissementValeur(){
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidX.erreurDeriveeMax)); 
     getBytesFromFloat(asservissementPayload, nb_octet += 4, (float)(robotState.PidTheta.erreurDeriveeMax));
 
-    UartEncodeAndSendMessage(FONCTION_ASSERVISSEMENT, 96, asservissementPayload);
+    UartEncodeAndSendMessage(FONCTION_ASSERVISSEMENT, 104, asservissementPayload);
 }
-
