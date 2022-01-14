@@ -17,6 +17,7 @@
       <itemPath>UART_Protocol.h</itemPath>
       <itemPath>QEI.h</itemPath>
       <itemPath>ToolBox.h</itemPath>
+      <itemPath>asservissement.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -38,6 +39,7 @@
       <itemPath>UART_Protocol.c</itemPath>
       <itemPath>QEI.c</itemPath>
       <itemPath>ToolBox.c</itemPath>
+      <itemPath>asservissement.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

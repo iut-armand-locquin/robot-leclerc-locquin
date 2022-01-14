@@ -4,6 +4,8 @@
 #include "PWM.h"
 #include "ADC.h"
 #include "main.h"
+#include "QEI.h"
+#include "asservissement.h"
 
 unsigned char toggle = 0;
 unsigned long timestamp;
@@ -69,16 +71,17 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;
     //LED_BLEUE = !LED_BLEUE;
-    PWMUpdateSpeed();
     if (counter++ % 5 == 0)
     {
         ADC1StartConversionSequence();
     }
-    
+    PWMUpdateSpeed();
     QEIUpdateData();
+    
     if (counter++ % 25 == 0)
     {
         SendPositionData();
+        AsservissementValeur();
     }
 }
 

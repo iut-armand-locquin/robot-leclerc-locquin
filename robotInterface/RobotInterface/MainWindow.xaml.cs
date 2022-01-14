@@ -1,26 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ExtendedSerialPort;
-using System.Windows.Threading;
-using MouseKeyboardActivityMonitor.WinApi;
+﻿using ExtendedSerialPort;
 using MouseKeyboardActivityMonitor;
-using Utilities;
+using MouseKeyboardActivityMonitor.WinApi;
+using System;
+using System.IO.Ports;
+using System.Text;
+using System.Windows;
 using System.Windows.Forms;
-using Constants;
-using WpfAsservissementDisplay;
+using System.Windows.Input;
+using System.Windows.Threading;
+using Utilities;
 
 namespace RobotInterface
 {
@@ -129,10 +117,10 @@ namespace RobotInterface
             //byte[] chaine = Encoding.ASCII.GetBytes("Bonjour");
             //UartEncodeAndSendMessage(0x0080, chaine.Length, chaine);
 
-            byte[] chaine = new byte[2];
-            chaine[0] = Convert.ToByte(2);
-            chaine[1] = Convert.ToByte(1);
-            UartEncodeAndSendMessage(0x0020, chaine.Length, chaine);
+            //byte[] chaine = new byte[2];
+            //chaine[0] = Convert.ToByte(2);
+            //chaine[1] = Convert.ToByte(1);
+            //UartEncodeAndSendMessage(0x0020, chaine.Length, chaine);
 
             //byte[] chaine = new byte[3];
             //chaine[0] = Convert.ToByte(40);
@@ -144,6 +132,8 @@ namespace RobotInterface
             //chaine[0] = Convert.ToByte(70);
             //chaine[1] = Convert.ToByte(15);
             //UartEncodeAndSendMessage(0x0040, chaine.Length, chaine);
+
+            EnvoiAsservissement(sender, e);
         }
 
         byte CalculateChecksum(int msgFunction, int msgPayloadLength, byte[] msgPayload)
@@ -274,7 +264,8 @@ namespace RobotInterface
             StateRobot = 0x0050,
             Set_Robot_State = 0x0051,
             Set_Robot_Manual_Control = 0x0052,
-            Position_Data = 0x0061
+            Position_Data = 0x0061,
+            Asservissement = 0x0070
         }
 
         public enum StateRobot
@@ -379,12 +370,12 @@ namespace RobotInterface
                     break;
 
                 case (int)Function.Position_Data:
-                    int offset = 0;
+                    //int offset = 0;
                     //instant = (((int)msgPayload[1]) << 24) + (((int)msgPayload[2]) << 16) + (((int)msgPayload[3]) << 8) + ((int)msgPayload[4]);
 
                     byte[] tab = msgPayload.GetRange(4, 4);
                     robot.positionXOdo = tab.GetFloat();
-                    
+
                     tab = msgPayload.GetRange(8, 4);
                     robot.positionYOdo = tab.GetFloat();
 
@@ -404,10 +395,145 @@ namespace RobotInterface
                     textBoxVitesseAng.Text = robot.positionVitesseAngOdo.ToString();
 
                     asservSpeedDisplay.UpdatePolarOdometrySpeed(robot.positionVitesseLinOdo, robot.positionVitesseAngOdo);
+                    break;
 
+                case (int)Function.Asservissement:
+
+                    int nb_octet = 0;
+
+                    double consigneX;
+                    double consigneTheta;
+                    double valueX;
+                    double valueTheta;
+                    double errorX;
+                    double errorTheta;
+                    //double commandX;
+                    //double commandTheta;
+
+                    double corrPX;
+                    double corrPTheta;
+                    double corrIX;
+                    double corrITheta;
+                    double corrDX;
+                    double corrDTheta;
+
+                    double KpX;
+                    double KpTheta;
+                    double KiX;
+                    double KiTheta;
+                    double KdX;
+                    double KdTheta;
+
+                    double corrLimitPX;
+                    double corrLimitPTheta;
+                    double corrLimitIX;
+                    double corrLimitITheta;
+                    double corrLimitDX;
+                    double corrLimitDTheta;
+
+                    consigneX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    consigneTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += +4;
+                    valueX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    valueTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    errorX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    errorTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    //tabl = msgPayload.GetRange(nb_octet, 4);
+                    //nb_octet += 4;
+                    //commandX = tabl.GetFloat();
+                    //tabl = msgPayload.GetRange(nb_octet, 4);
+                    //nb_octet += 4;
+                    //commandTheta = tabl.GetFloat();
+
+                    //------------------- corrPX, corrPTheta, corrIX, corrITheta, corrDX, corrDTheta
+                    nb_octet += 4;
+                    corrPX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrPTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrIX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrITheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrDX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrDTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+
+                    //------------------- KpX, KpTheta, KiX, KiTheta, KdX, KdTheta
+                    nb_octet += 4;
+                    KpX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    KpTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    KiX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    KiTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    KdX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    KdTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+
+                    //------------------- corrLimitPX, corrLimitPTheta, corrLimitIX, corrLimitITheta, corrLimitDX, corrLimitDTheta
+                    nb_octet += 4;
+                    corrLimitPX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrLimitPTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrLimitIX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrLimitITheta = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrLimitDX = BitConverter.ToSingle(msgPayload, nb_octet);
+                    nb_octet += 4;
+                    corrLimitDTheta = BitConverter.ToSingle(msgPayload, nb_octet);
+
+                    asservSpeedDisplay.UpdatePolarSpeedConsigneValues(consigneX, consigneTheta);
+                    //asservSpeedDisplay.UpdatePolarSpeedCommandValues(commandX, commandTheta);
+                    //asservSpeedDisplay.UpdatePolarOdometrySpeed(valueX, valueTheta);
+                    asservSpeedDisplay.UpdatePolarSpeedErrorValues(errorX, errorTheta);
+                    asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(corrPX, corrPTheta, corrIX, corrITheta, corrDX, corrDTheta);
+                    asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(KpX, KpTheta, KiX, KiTheta, KdX, KdTheta);
+                    asservSpeedDisplay.UpdatePolarSpeedCorrectionLimits(corrLimitPX, corrLimitPTheta, corrLimitIX, corrLimitITheta, corrLimitDX, corrLimitDTheta);
+                    //asservSpeedDisplay.UpdatePolarSpeedConsigneValues(consigneX, consigneTheta);
                     break;
             }
         }
+
+        private void EnvoiAsservissement(object sender, RoutedEventArgs e)
+        {
+            int pos = 0;
+            double LinAng = 1;
+            double Kp = 1;
+            double Ki = 2;
+            double Kd = 3;
+            double KpMax = 4;
+            double KiMax = 5;
+            double KdMax = 6;
+
+            int msgFunction = (int)Function.Asservissement;
+            byte[] msgPayload = new byte[28];
+            var vLinAng = BitConverter.GetBytes((float)LinAng);
+            vLinAng.CopyTo(msgPayload, pos);
+            var vKp = BitConverter.GetBytes((float)Kp);
+            vKp.CopyTo(msgPayload, pos += 4);
+            var vKi = BitConverter.GetBytes((float)Ki);
+            vKi.CopyTo(msgPayload, pos += 4);
+            var vKd = BitConverter.GetBytes((float)Kd);
+            vKd.CopyTo(msgPayload, pos += 4);
+            var vKpMax = BitConverter.GetBytes((float)KpMax);
+            vKpMax.CopyTo(msgPayload, pos += 4);
+            var vKiMax = BitConverter.GetBytes((float)KiMax);
+            vKiMax.CopyTo(msgPayload, pos += 4);
+            var vKdMax = BitConverter.GetBytes((float)KdMax);
+            vKdMax.CopyTo(msgPayload, pos += 4);
+            int msgPayloadLength = msgPayload.Length;
+            UartEncodeAndSendMessage(msgFunction, msgPayloadLength, msgPayload);
+        }
+
 
         bool autoControlActivated = true;
 
@@ -438,19 +564,19 @@ namespace RobotInterface
                 switch (e.KeyCode)
                 {
                     case Keys.Left:
-                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_TOURNE_SUR_PLACE_GAUCHE });
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte)StateRobot.STATE_TOURNE_SUR_PLACE_GAUCHE });
                         break;
                     case Keys.Right:
-                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_TOURNE_SUR_PLACE_DROITE });
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte)StateRobot.STATE_TOURNE_SUR_PLACE_DROITE });
                         break;
                     case Keys.Up:
-                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_AVANCE });
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte)StateRobot.STATE_AVANCE });
                         break;
                     case Keys.Down:
-                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_ARRET });
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte)StateRobot.STATE_ARRET });
                         break;
                     case Keys.PageDown:
-                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte) StateRobot.STATE_RECULE });
+                        UartEncodeAndSendMessage(0x0051, 1, new byte[] { (byte)StateRobot.STATE_RECULE });
                         break;
                 }
             }

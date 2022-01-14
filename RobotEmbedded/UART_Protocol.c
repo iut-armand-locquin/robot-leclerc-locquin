@@ -5,6 +5,9 @@
 #include "CB_RX1.h"
 #include "main.h"
 #include "IO.h"
+#include "Utilities.h"
+#include "Robot.h"
+#include "asservissement.h"
 
 unsigned char UartCalculateChecksum(int msgFunction, int msgPayloadLength, unsigned char* msgPayload) {
     //Fonction prenant entrée la trame et sa longueur pour calculer le checksum
@@ -119,11 +122,14 @@ void UartDecodeMessage(unsigned char c) {
     }
 }
 
+double mode, Kp, Ki, Kd, KpMax, KiMax, KdMax, VL, VA;
+
 void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLength, unsigned char* payload) {
     //Fonction appelée après le décodage pour exécuter l'action
     //Correspondant au message reçu
     int numLed, etatLed;
-
+    int pos = 0;
+    
     switch (function) {
         case LED:
             numLed = payload[0];
@@ -151,6 +157,22 @@ void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLeng
             SetRobotAutoControlState(payload[0]);
             break;
 
+        case FONCTION_ASSERVISSEMENT:
+            mode = getDouble(payload, pos);
+            Kp = getDouble(payload, pos+=4);
+            Ki = getDouble(payload, pos+=4);
+            Kd = getDouble(payload, pos+=4);
+            KpMax = getDouble(payload, pos+=4);
+            KiMax = getDouble(payload, pos+=4);
+            KdMax = getDouble(payload, pos+=4);
+            
+            if (mode == 1) {
+                SetupPidAsservissement(&robotState.PidX, Kp, Ki, Kd, KpMax, KiMax, KdMax);
+            } else if (mode == 0) {
+                SetupPidAsservissement(&robotState.PidTheta, Kp, Ki, Kd, KpMax, KiMax, KdMax);
+            }
+            break;
+            
         default:
             break;
     }
