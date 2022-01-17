@@ -4,6 +4,8 @@
 #include "PWM.h"
 #include "Robot.h"
 #include "ToolBox.h"
+#include "QEI.h"
+#include "asservissement.h"
 
 #define PWMPER 40.0
 unsigned char acceleration = 5;
@@ -109,11 +111,24 @@ void PWMSetSpeedConsigne(float vitesseEnPourcents, char moteur) {
     }
 }
 
+void PWMSetSpeedConsignePolaire(double xCorrectionVitessePourcent, double thetaCorrectionVitessePourcent){
+    robotState.vitesseDroiteConsigne = xCorrectionVitessePourcent + thetaCorrectionVitessePourcent * DISTROUES / 2;
+    robotState.vitesseDroiteConsigne = LimitToInterval(robotState.vitesseDroiteConsigne, -100, 100);
+    
+    robotState.vitesseGaucheConsigne = xCorrectionVitessePourcent + thetaCorrectionVitessePourcent * DISTROUES / 2;
+    robotState.vitesseGaucheConsigne = LimitToInterval(robotState.vitesseGaucheConsigne, -100, 100);
+}
+
 void UpdateAsservissement(){
     robotState.PidX.erreur = robotState.PidX.consigne - robotState.vitesseLineaireFromOdometry;
-    //robotState.PidX.erreur = 0; //seulement pour le réglage de l'asservissesement en angulaire
+    //robotState.PidX.erreur = 0; // Réglage asservissement vitesse angulaire
     robotState.PidTheta.erreur = robotState.PidTheta.consigne - robotState.vitesseAngulaireFromOdometry;
     
     robotState.xCorrectionVitesseCommande = Correcteur(&robotState.PidX, robotState.PidX.erreur);
-    robotState.thetaCorrectionVitesseCommande = Correcteur(&robotState.PidTheta, robotState.PidTheta.erreur);  
+    robotState.thetaCorrectionVitesseCommande = Correcteur(&robotState.PidTheta, robotState.PidTheta.erreur);
+    
+    robotState.xCorrectionVitessePourcent = robotState.xCorrectionVitesseCommande * COEFF_VITESSE_LINEAIRE_PERCENT;
+    robotState.thetaCorrectionVitessePourcent = robotState.thetaCorrectionVitesseCommande * COEFF_VITESSE_ANGULAIRE_PERCENT;
+    
+    PWMSetSpeedConsignePolaire(robotState.xCorrectionVitessePourcent, robotState.thetaCorrectionVitessePourcent);
 }

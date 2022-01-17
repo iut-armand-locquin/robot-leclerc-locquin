@@ -57,3 +57,11 @@ C:\Github\robot-armand-locquin\RobotInterface\Utilities\bin\Debug\Utilities.pdb
 C:\Github\robot-armand-locquin\RobotInterface\Utilities\obj\Debug\Utilities.csprojAssemblyReference.cache
 C:\Github\robot-armand-locquin\RobotInterface\Utilities\obj\Debug\Utilities.dll
 C:\Github\robot-armand-locquin\RobotInterface\Utilities\obj\Debug\Utilities.pdb
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\bin\Debug\Utilities.dll
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\bin\Debug\Utilities.pdb
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\obj\Debug\Utilities.csprojAssemblyReference.cache
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\obj\Debug\Utilities.dll
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\obj\Debug\Utilities.pdb
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\bin\Debug\Constants.dll
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\bin\Debug\Constants.pdb
+C:\Github\robot-leclerc-locquin\RobotInterface\Utilities\obj\Debug\Utilities.csproj.CopyComplete

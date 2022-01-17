@@ -77,6 +77,7 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
     }
     PWMUpdateSpeed();
     QEIUpdateData();
+    UpdateAsservissement();
     
     if (counter++ % 25 == 0)
     {

@@ -33,9 +33,9 @@ typedef struct robotStateBITS {
             PidCorrector PidX;
             PidCorrector PidTheta;
             
+            double vitesseLineairePourcent;
             double vitesseAngulairePourcent;
             double thetaCorrectionVitesseCommande;
-            double vitesseLineairePourcent;
             double xCorrectionVitesseCommande;
             double vitesseLineaireConsigne;
             double vitesseAngulaireConsigne;

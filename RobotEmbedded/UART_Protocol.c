@@ -166,11 +166,16 @@ void UartProcessDecodedMessage(unsigned char function, unsigned char payloadLeng
             KiMax = getDouble(payload, pos+=4);
             KdMax = getDouble(payload, pos+=4);
             
-            if (mode == 1) {
+            if (mode == 1) { // Linéaire
                 SetupPidAsservissement(&robotState.PidX, Kp, Ki, Kd, KpMax, KiMax, KdMax);
-            } else if (mode == 0) {
+            } else if (mode == 0) { // Angulaire
                 SetupPidAsservissement(&robotState.PidTheta, Kp, Ki, Kd, KpMax, KiMax, KdMax);
             }
+            break;
+            
+        case FONCTION_CONSIGNE:
+            robotState.PidX.consigne = getDouble(payload, 0);
+            robotState.PidTheta.consigne = getDouble(payload, 4);
             break;
             
         default:

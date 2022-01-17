@@ -132,8 +132,6 @@ namespace RobotInterface
             //chaine[0] = Convert.ToByte(70);
             //chaine[1] = Convert.ToByte(15);
             //UartEncodeAndSendMessage(0x0040, chaine.Length, chaine);
-
-            EnvoiAsservissement(sender, e);
         }
 
         byte CalculateChecksum(int msgFunction, int msgPayloadLength, byte[] msgPayload)
@@ -265,7 +263,8 @@ namespace RobotInterface
             Set_Robot_State = 0x0051,
             Set_Robot_Manual_Control = 0x0052,
             Position_Data = 0x0061,
-            Asservissement = 0x0070
+            Asservissement = 0x0070,
+            Consigne = 0x0071
         }
 
         public enum StateRobot
@@ -394,7 +393,7 @@ namespace RobotInterface
                     textBoxVitesseLin.Text = robot.positionVitesseLinOdo.ToString();
                     textBoxVitesseAng.Text = robot.positionVitesseAngOdo.ToString();
 
-                    //asservSpeedDisplay.UpdatePolarOdometrySpeed(robot.positionVitesseLinOdo, robot.positionVitesseAngOdo);
+                    asservSpeedDisplay.UpdatePolarOdometrySpeed(robot.positionVitesseLinOdo, robot.positionVitesseAngOdo);
                     break;
 
                 case (int)Function.Asservissement:
@@ -491,7 +490,7 @@ namespace RobotInterface
 
                     asservSpeedDisplay.UpdatePolarSpeedConsigneValues(consigneX, consigneTheta);
                     asservSpeedDisplay.UpdatePolarSpeedCommandValues(commandX, commandTheta);
-                    asservSpeedDisplay.UpdatePolarOdometrySpeed(valueX, valueTheta);
+                    //asservSpeedDisplay.UpdatePolarOdometrySpeed(valueX, valueTheta);
                     asservSpeedDisplay.UpdatePolarSpeedErrorValues(errorX, errorTheta);
                     asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(corrPX, corrPTheta, corrIX, corrITheta, corrDX, corrDTheta);
                     asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(KpX, KpTheta, KiX, KiTheta, KdX, KdTheta);
@@ -504,17 +503,17 @@ namespace RobotInterface
         private void EnvoiAsservissement(object sender, RoutedEventArgs e)
         {
             int pos = 0;
-            double LinAng = 1;
-            double Kp = 1;
-            double Ki = 2;
-            double Kd = 3;
-            double KpMax = 4;
-            double KiMax = 5;
-            double KdMax = 6;
+            float fLinAng = Convert.ToSingle(LinAng);
+            double Kp = 10;
+            double Ki = 0;
+            double Kd = 0;
+            double KpMax = 100;
+            double KiMax = 100;
+            double KdMax = 100;
 
             int msgFunction = (int)Function.Asservissement;
             byte[] msgPayload = new byte[28];
-            var vLinAng = BitConverter.GetBytes((float)LinAng);
+            var vLinAng = BitConverter.GetBytes((float)fLinAng);
             vLinAng.CopyTo(msgPayload, pos);
             var vKp = BitConverter.GetBytes((float)Kp);
             vKp.CopyTo(msgPayload, pos += 4);
@@ -530,35 +529,56 @@ namespace RobotInterface
             vKdMax.CopyTo(msgPayload, pos += 4);
             int msgPayloadLength = msgPayload.Length;
             UartEncodeAndSendMessage(msgFunction, msgPayloadLength, msgPayload);
-
-            //pos = 1;
-            //LinAng = 1;
-            //Kp = 1;
-            //double Ki = 2;
-            //double Kd = 3;
-            //double KpMax = 4;
-            //double KiMax = 5;
-            //double KdMax = 6;
-            //int msgFunction = (int)Function.Asservissement;
-            //byte[] msgPayload = new byte[28];
-            //var vLinAng = BitConverter.GetBytes((float)LinAng);
-            //vLinAng.CopyTo(msgPayload, pos);
-            //var vKp = BitConverter.GetBytes((float)Kp);
-            //vKp.CopyTo(msgPayload, pos += 4);
-            //var vKi = BitConverter.GetBytes((float)Ki);
-            //vKi.CopyTo(msgPayload, pos += 4);
-            //var vKd = BitConverter.GetBytes((float)Kd);
-            //vKd.CopyTo(msgPayload, pos += 4);
-            //var vKpMax = BitConverter.GetBytes((float)KpMax);
-            //vKpMax.CopyTo(msgPayload, pos += 4);
-            //var vKiMax = BitConverter.GetBytes((float)KiMax);
-            //vKiMax.CopyTo(msgPayload, pos += 4);
-            //var vKdMax = BitConverter.GetBytes((float)KdMax);
-            //vKdMax.CopyTo(msgPayload, pos += 4);
-            //int msgPayloadLength = msgPayload.Length;
-            //UartEncodeAndSendMessage(msgFunction, msgPayloadLength, msgPayload);
         }
 
+        //public void textBoxKP_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        //{
+        //    if (e.Key == Key.Enter)
+        //    {
+        //        string message = textBoxKP.Text.TrimEnd('\n');
+        //        serialPort1.WriteLine(message);
+        //        var vKp = BitConverter.GetBytes((float)Kp);
+        //        textBoxKP.Text = "";
+        //    }
+        //}
+
+        public void buttonEnvoyerPID_Click(object sender, RoutedEventArgs e)
+        {
+            EnvoiAsservissement(sender, e);
+        }
+
+        private void buttonConsigne_Click(object sender, RoutedEventArgs e)
+        {
+            double consigneX = 0;
+            double consigneTheta = 0;
+
+            int msgFunction = (int)Function.Consigne;
+            byte[] msgPayload = new byte[8];
+            var vconsigneX = BitConverter.GetBytes((float)consigneX);
+            vconsigneX.CopyTo(msgPayload, 0);
+            var vconsigneTheta = BitConverter.GetBytes((float)consigneTheta);
+            vconsigneTheta.CopyTo(msgPayload, 4);
+            int msgPayloadLength = msgPayload.Length;
+            UartEncodeAndSendMessage(msgFunction, msgPayloadLength, msgPayload);
+        }
+
+        bool LinAng = true;
+
+        public void buttonLinAng_Click(object sender, RoutedEventArgs e)
+        {
+            LinAng = !LinAng;
+            if (LinAng == true)
+            {
+                buttonLinAng.Content = "Linéaire";
+                textBoxKP.Text = "";
+
+            }
+            else
+            {
+                buttonLinAng.Content = "Angulaire";
+                textBoxKP.Text = "";
+            }
+        }
 
         bool autoControlActivated = true;
 

@@ -13,3 +13,8 @@ C:\Github\robot-armand-locquin\RobotInterface\Constants\bin\Debug\Constants.pdb
 C:\Github\robot-armand-locquin\RobotInterface\Constants\obj\Debug\Constants.csprojAssemblyReference.cache
 C:\Github\robot-armand-locquin\RobotInterface\Constants\obj\Debug\Constants.dll
 C:\Github\robot-armand-locquin\RobotInterface\Constants\obj\Debug\Constants.pdb
+C:\Github\robot-leclerc-locquin\RobotInterface\Constants\bin\Debug\Constants.dll
+C:\Github\robot-leclerc-locquin\RobotInterface\Constants\bin\Debug\Constants.pdb
+C:\Github\robot-leclerc-locquin\RobotInterface\Constants\obj\Debug\Constants.csprojAssemblyReference.cache
+C:\Github\robot-leclerc-locquin\RobotInterface\Constants\obj\Debug\Constants.dll
+C:\Github\robot-leclerc-locquin\RobotInterface\Constants\obj\Debug\Constants.pdb

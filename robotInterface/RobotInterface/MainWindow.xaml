@@ -24,9 +24,15 @@
         <GroupBox x:Name="groupBoxReception" Header="Réception" HorizontalAlignment="Stretch" Margin="5,5,10,5"  Grid.Column="1" Grid.Row="0" Background="#FF878787" BorderBrush="White" Height="130" Foreground="White">
             <TextBox x:Name="textBoxReception" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" BorderBrush="#FF878787" Background="#FF878787"/>
         </GroupBox>
+        <GroupBox x:Name="groupBoxKP" Header="KP" HorizontalAlignment="Left" Margin="50,120,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxKP" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxEmission_KeyUp" HorizontalAlignment="Center"/>
+        </GroupBox>
         <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="0" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEnvoyer_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
         <Button x:Name="buttonEffacer" Content="Effacer" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
         <Button x:Name="buttonAutoManuel" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonAutoManuel_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
+        <Button x:Name="buttonLinAng" Content="Linéaire" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonLinAng_Click" Background="#FF878787" BorderBrush="White" Margin="50,20,0,0" Foreground="White"/>
+        <Button x:Name="buttonEnvoyerPID" Content="Envoyer" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonEnvoyerPID_Click" Background="#FF878787" BorderBrush="White" Margin="50,50,0,0" Foreground="White"/>
+        <Button x:Name="buttonConsigne" Content="Consigne" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonConsigne_Click" Background="#FF878787" BorderBrush="White" Margin="50,80,0,0" Foreground="White"/>
         <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FF878787" BorderBrush="White" Foreground="White"/>
         <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="2" VerticalAlignment="Top" Height="150" Background="#FF878787" BorderBrush="White" Foreground="White">
             <StackPanel>
