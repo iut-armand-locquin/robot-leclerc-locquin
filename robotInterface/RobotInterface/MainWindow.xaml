@@ -24,15 +24,35 @@
         <GroupBox x:Name="groupBoxReception" Header="Réception" HorizontalAlignment="Stretch" Margin="5,5,10,5"  Grid.Column="1" Grid.Row="0" Background="#FF878787" BorderBrush="White" Height="130" Foreground="White">
             <TextBox x:Name="textBoxReception" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" BorderBrush="#FF878787" Background="#FF878787"/>
         </GroupBox>
+        <GroupBox x:Name="groupBoxConsigneX" Header="Consigne X" HorizontalAlignment="Left" Margin="50,25,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxConsigneX" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxConsigneX_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBoxConsigneTheta" Header="Consigne Theta" HorizontalAlignment="Left" Margin="50,65,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxConsigneTheta" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxConsigneTheta_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
         <GroupBox x:Name="groupBoxKP" Header="KP" HorizontalAlignment="Left" Margin="50,120,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
-            <TextBox x:Name="textBoxKP" Height="Auto" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxEmission_KeyUp" HorizontalAlignment="Center"/>
+            <TextBox x:Name="textBoxKP" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxKP_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBoxKPMax" Header="KP Max" HorizontalAlignment="Left" Margin="50,155,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxKPMax" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxKPMax_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBoxKI" Header="KI" HorizontalAlignment="Left" Margin="50,190,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxKI" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxKI_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBoxKIMax" Header="KI Max" HorizontalAlignment="Left" Margin="50,225,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxKIMax" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxKIMax_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBoxKD" Header="KD" HorizontalAlignment="Left" Margin="50,260,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxKD" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxKD_KeyUp" HorizontalAlignment="Center" Width="90"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBoxKDMax" Header="KD Max" HorizontalAlignment="Left" Margin="50,295,0,0" Grid.Column="0" Grid.Row="3" Background="#FF878787" BorderBrush="White" Height="40" Foreground="White" Width="100" VerticalAlignment="Top">
+            <TextBox x:Name="textBoxKDMax" Height="20" Margin="0,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" BorderBrush="#FF878787" Background="#FF878787" KeyUp="textBoxKDMax_KeyUp" HorizontalAlignment="Center" Width="90"/>
         </GroupBox>
         <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="0" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEnvoyer_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
         <Button x:Name="buttonEffacer" Content="Effacer" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonEffacer_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
         <Button x:Name="buttonAutoManuel" Content="Automatique" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonAutoManuel_Click" Background="#FF878787" BorderBrush="White" Margin="15,0,0,0" Foreground="White"/>
-        <Button x:Name="buttonLinAng" Content="Linéaire" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonLinAng_Click" Background="#FF878787" BorderBrush="White" Margin="50,20,0,0" Foreground="White"/>
-        <Button x:Name="buttonEnvoyerPID" Content="Envoyer" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonEnvoyerPID_Click" Background="#FF878787" BorderBrush="White" Margin="50,50,0,0" Foreground="White"/>
-        <Button x:Name="buttonConsigne" Content="Consigne" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonConsigne_Click" Background="#FF878787" BorderBrush="White" Margin="50,80,0,0" Foreground="White"/>
+        <Button x:Name="buttonLinAng" Content="Linéaire" HorizontalAlignment="Right" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonLinAng_Click" Background="#FF878787" BorderBrush="White" Margin="0,20,50,0" Foreground="White" Grid.Column="1"/>
+        <Button x:Name="buttonEffacerAsserv" Content="Effacer" HorizontalAlignment="Right" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="buttonEffacerAsserv_Click" Background="#FF878787" BorderBrush="White" Margin="0,60,50,0" Foreground="White" Grid.Column="1"/>
         <Button x:Name="buttonTest" Content="Test" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="100" Click="buttonTest_Click" Background="#FF878787" BorderBrush="White" Foreground="White"/>
         <GroupBox Header="LEDs" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="2" VerticalAlignment="Top" Height="150" Background="#FF878787" BorderBrush="White" Foreground="White">
             <StackPanel>

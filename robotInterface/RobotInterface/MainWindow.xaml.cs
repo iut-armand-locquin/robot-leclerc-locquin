@@ -500,16 +500,17 @@ namespace RobotInterface
             }
         }
 
+        double Kp;
+        double Ki;
+        double Kd;
+        double KpMax = 100;
+        double KiMax = 100;
+        double KdMax = 100;
+
         private void EnvoiAsservissement(object sender, RoutedEventArgs e)
         {
             int pos = 0;
             float fLinAng = Convert.ToSingle(LinAng);
-            double Kp = 10;
-            double Ki = 0;
-            double Kd = 0;
-            double KpMax = 100;
-            double KiMax = 100;
-            double KdMax = 100;
 
             int msgFunction = (int)Function.Asservissement;
             byte[] msgPayload = new byte[28];
@@ -531,27 +532,11 @@ namespace RobotInterface
             UartEncodeAndSendMessage(msgFunction, msgPayloadLength, msgPayload);
         }
 
-        //public void textBoxKP_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        //{
-        //    if (e.Key == Key.Enter)
-        //    {
-        //        string message = textBoxKP.Text.TrimEnd('\n');
-        //        serialPort1.WriteLine(message);
-        //        var vKp = BitConverter.GetBytes((float)Kp);
-        //        textBoxKP.Text = "";
-        //    }
-        //}
+        double consigneX;
+        double consigneTheta;
 
-        public void buttonEnvoyerPID_Click(object sender, RoutedEventArgs e)
+        private void EnvoiConsigne(object sender, RoutedEventArgs e)
         {
-            EnvoiAsservissement(sender, e);
-        }
-
-        private void buttonConsigne_Click(object sender, RoutedEventArgs e)
-        {
-            double consigneX = 0;
-            double consigneTheta = 0;
-
             int msgFunction = (int)Function.Consigne;
             byte[] msgPayload = new byte[8];
             var vconsigneX = BitConverter.GetBytes((float)consigneX);
@@ -570,14 +555,110 @@ namespace RobotInterface
             if (LinAng == true)
             {
                 buttonLinAng.Content = "Linéaire";
-                textBoxKP.Text = "";
-
             }
             else
             {
                 buttonLinAng.Content = "Angulaire";
+            }
+        }
+
+        public void textBoxConsigneX_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxConsigneX.Text.TrimEnd('\n');
+                consigneX = Convert.ToDouble(message);
+                EnvoiConsigne(sender, e);
+                textBoxConsigneX.Text = "";
+            }
+        }
+
+        public void textBoxConsigneTheta_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxConsigneTheta.Text.TrimEnd('\n');
+                consigneTheta = Convert.ToDouble(message);
+                EnvoiConsigne(sender, e);
+                textBoxConsigneTheta.Text = "";
+            }
+        }
+
+        public void textBoxKP_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxKP.Text.TrimEnd('\n');
+                Kp = Convert.ToDouble(message);
+                EnvoiAsservissement(sender, e);
                 textBoxKP.Text = "";
             }
+        }
+
+        public void textBoxKPMax_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxKPMax.Text.TrimEnd('\n');
+                KpMax = Convert.ToDouble(message);
+                EnvoiAsservissement(sender, e);
+                textBoxKPMax.Text = "";
+            }
+        }
+
+        public void textBoxKI_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxKI.Text.TrimEnd('\n');
+                Ki = Convert.ToDouble(message);
+                EnvoiAsservissement(sender, e);
+                textBoxKI.Text = "";
+            }
+        }
+
+        public void textBoxKIMax_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxKIMax.Text.TrimEnd('\n');
+                KiMax = Convert.ToDouble(message);
+                EnvoiAsservissement(sender, e);
+                textBoxKIMax.Text = "";
+            }
+        }
+
+        public void textBoxKD_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxKD.Text.TrimEnd('\n');
+                Kd = Convert.ToDouble(message);
+                EnvoiAsservissement(sender, e);
+                textBoxKD.Text = "";
+            }
+        }
+
+        public void textBoxKDMax_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string message = textBoxKDMax.Text.TrimEnd('\n');
+                KdMax = Convert.ToDouble(message);
+                EnvoiAsservissement(sender, e);
+                textBoxKDMax.Text = "";
+            }
+        }
+
+        public void buttonEffacerAsserv_Click(object sender, RoutedEventArgs e)
+        {
+            consigneX = 0;
+            consigneTheta = 0;
+            Kp = 0;
+            Ki = 0;
+            Kd = 0;
+            EnvoiAsservissement(sender, e);
+            EnvoiConsigne(sender, e);
         }
 
         bool autoControlActivated = true;
@@ -626,6 +707,5 @@ namespace RobotInterface
                 }
             }
         }
-
     }
 }

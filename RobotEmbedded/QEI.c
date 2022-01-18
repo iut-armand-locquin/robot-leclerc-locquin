@@ -9,6 +9,8 @@
 
 double QeiDroitPosition;
 double QeiGauchePosition;
+double QeiDroitPosition_T_1;
+double QeiGauchePosition_T_1;
 
 void InitQEI1()
 {
@@ -29,13 +31,12 @@ void InitQEI2()
 void QEIUpdateData()
 {
     //On sauvegarde les anciennes valeurs
-    double QeiDroitPosition_T_1 = QeiDroitPosition;
-    double QeiGauchePosition_T_1 = QeiGauchePosition;
+    QeiDroitPosition_T_1 = QeiDroitPosition;
+    QeiGauchePosition_T_1 = QeiGauchePosition;
 
     //On réactualise les valeurs de positions
     long QEI1RawValue = POS1CNTL;
     QEI1RawValue += ((long) POS1HLD << 16);
-
     long QEI2RawValue = POS2CNTL;
     QEI2RawValue += ((long) POS2HLD << 16);
 

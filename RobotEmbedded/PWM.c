@@ -111,11 +111,11 @@ void PWMSetSpeedConsigne(float vitesseEnPourcents, char moteur) {
     }
 }
 
-void PWMSetSpeedConsignePolaire(double xCorrectionVitessePourcent, double thetaCorrectionVitessePourcent){
-    robotState.vitesseDroiteConsigne = xCorrectionVitessePourcent + thetaCorrectionVitessePourcent * DISTROUES / 2;
+void PWMSetSpeedConsignePolaire(){ // (double xCorrectionVitessePourcent, double thetaCorrectionVitessePourcent)
+    robotState.vitesseDroiteConsigne = (robotState.xCorrectionVitessePourcent + robotState.thetaCorrectionVitessePourcent * DISTROUES / 2);
     robotState.vitesseDroiteConsigne = LimitToInterval(robotState.vitesseDroiteConsigne, -100, 100);
     
-    robotState.vitesseGaucheConsigne = xCorrectionVitessePourcent + thetaCorrectionVitessePourcent * DISTROUES / 2;
+    robotState.vitesseGaucheConsigne = robotState.xCorrectionVitessePourcent -1*(robotState.thetaCorrectionVitessePourcent * DISTROUES / 2); // "-1*" pour changer de sens
     robotState.vitesseGaucheConsigne = LimitToInterval(robotState.vitesseGaucheConsigne, -100, 100);
 }
 
@@ -130,5 +130,5 @@ void UpdateAsservissement(){
     robotState.xCorrectionVitessePourcent = robotState.xCorrectionVitesseCommande * COEFF_VITESSE_LINEAIRE_PERCENT;
     robotState.thetaCorrectionVitessePourcent = robotState.thetaCorrectionVitesseCommande * COEFF_VITESSE_ANGULAIRE_PERCENT;
     
-    PWMSetSpeedConsignePolaire(robotState.xCorrectionVitessePourcent, robotState.thetaCorrectionVitessePourcent);
+    //PWMSetSpeedConsignePolaire(robotState.xCorrectionVitessePourcent, robotState.thetaCorrectionVitessePourcent);
 }

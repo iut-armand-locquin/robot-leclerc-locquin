@@ -71,14 +71,14 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;
     //LED_BLEUE = !LED_BLEUE;
-    if (counter++ % 5 == 0)
+    if (counter++ % 10 == 0)
     {
         ADC1StartConversionSequence();
     }
     PWMUpdateSpeed();
     QEIUpdateData();
     UpdateAsservissement();
-    
+    PWMSetSpeedConsignePolaire();
     if (counter++ % 25 == 0)
     {
         SendPositionData();
